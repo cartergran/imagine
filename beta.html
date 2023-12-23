@@ -1,0 +1,143 @@
+<!-- v1.0 -->
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Imagine</title>
+</head>
+<body>
+  <div id="container" class="flex-center">
+    <!-- TODO: <div></div> || <header></header> ? -->
+    <main>
+      <div id="score" class="flex-center">
+        <div id="count" class="flex-center"></div>
+      </div>
+      <div id="board"></div>
+      <div id="word"></div>
+    </main>
+  </div>
+  
+</body>
+
+<script>
+  var numGuesses = 5;
+  var numRows = 4;
+  var numCols = 4;
+</script>
+
+<script>
+  var initBoard = (numRows, numCols) => {
+    let board = document.getElementById("board");
+    for (let i = 0; i < numRows; i++) {
+      for (let j = 0; j < numCols; j++) {
+        let tile = document.createElement("div");
+        tile.className = "tile";
+        tile.setAttribute("loc", `${i}${j}`);
+        tile.addEventListener("click", handleTileClick);
+        board.append(tile);
+      }
+    };
+  };
+
+  var initCount = (numGuesses) => {
+    document.getElementById("count");
+    for (let i = 0; i < numGuesses; i++) {
+      let countItem = document.createElement("span");
+      count.append(countItem);
+    };
+  };
+
+  var subCount = () => {
+    numGuesses--;
+    // TODO
+  };
+
+  var handleTileClick = (e) => {
+    let tile = e.target;
+    let [x, y] = tile.getAttribute("loc");
+    // getImg(x, y).then((imgData) => updateTile(x, y, imgData));
+
+    subCount();
+    updateCache(x, y);
+  };
+
+  var updateCache = (x, y) => {
+    let tilesClicked = localStorage.getItem("tilesClicked");
+    let n = tilesClicked.length;
+
+    tilesClicked ? 
+      localStorage.setItem("tilesClicked", JSON.stringify({...tilesClicked.toJson(), n: [x, y]})) : 
+      localStorage.setItem("tilesClicked", JSON.str);
+  };
+  var updateTile = (x, y, imgData) => {};
+  var getImg = async (row, col) => {};
+
+
+  // TODO: only call fns once, document ready
+  initCount(numGuesses);
+  initBoard(numRows, numCols);
+
+  let tilesClicked = localStorage.getItem("tilesClicked");
+  console.log(tilesClicked);
+  console.log(typeof tilesClicked)
+</script>
+
+
+<style>
+  #container {
+    width: 100%;
+    height: 100%;
+
+    background-color: black;
+  }
+
+  #count {
+    width: 100px;
+    height: 100px;
+
+    gap: 8px;
+  }
+
+  #count > span {
+    display: inline-block;
+
+    width: 12px;
+    height: 4px;
+
+    /* border-radius: 25%; */
+    background-color: white;
+  }
+
+  #board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .tile {
+    width: 100px;
+    height: 100px;
+
+    border: 1px solid white;
+  }
+</style>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+  }
+
+  .flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+
+</html>
