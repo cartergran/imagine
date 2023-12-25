@@ -1,23 +1,30 @@
-const express = require("express");
-const jimp = require("jimp");
+import express from "express";
+import jimp from "jimp";
+import fs from "fs";
+import 'dotenv/config';
+// import { fileTypeFromBuffer } from "file-type";
 
 const PORT = process.env.PORT || 3001;
 const app = express();
+
+const init2DArray = (r, c) => {
+  return Array.from({ length: r }, _ => Array(c).fill(0));
+};
 
 var board = {
   numRows: 4,
   numCols: 4
 };
 var img = {
-  width: 600,
-  height: 600,
+  width: 4000,
+  height: 4000,
   url: "",
   data: {}
 };
 var tiles = {
   width: img.width / board.numRows,
   height: img.height / board.numCols,
-  data: []
+  data: init2DArray(board.numRows, board.numCols)
 };
 
 // TODO: store urls in db
@@ -26,46 +33,61 @@ var tiles = {
 const resizeImg = async (img) => {
   let imgRaw = await jimp.read(img.url);
   let imgSet = imgRaw.contain(img.width, img.height);
-  img.data = imgSet.bitmap;
-  console.log(img.data);
+  await imgSet.writeAsync(process.env.MAIN_IMG_PATH);
+  img.data = imgSet;
 };
 
 const cropTile = async (loc, tileWidth, tileHeight, imgData) => {
   let [r, c] = loc;
   let x = c * tileWidth;
   let y = r * tileHeight;
+  let path = `${process.env.TILE_IMG_PATH}${r}${c}.jpg`;
 
   let img = await jimp.read(imgData);
   let tileImg = img.crop(x, y, tileWidth, tileHeight);
-  return tileImg.bitmap;
+  await tileImg.writeAsync(path);
+
+  fs.readFile(path, { encoding: "base64" }, (err, data) => handleTile(err, data, loc));
+};
+
+const handleTile = (err, data, loc) => {
+  if (err) throw err;
+  let [r, c] = loc;
+  tiles.data[r][c] = data;
 };
 
 const getTiles = async (board, tiles, imgData) => {
-  let res = [];
   for (let r = 0; r < board.numRows; r++) {
-    let row = [];
     for (let c = 0; c < board.numCols; c++) {
-      let tileData = await cropTile([r, c], tiles.width, tiles.height, imgData);
-      row.push(tileData);
+      try {
+        await cropTile([r, c], tiles.width, tiles.height, imgData);
+      } catch(err) {
+        console.log("cropTile() error!", err.message)
+      }
     }
-    res.push(row);
   }
-  tiles.data = res;
 };
 
 // call every 24 hours
 const init = async (img) => {
   // img.url = getUrl();
-  img.url = "https://banner2.cleanpng.com/20180425/ffq/kisspng-razer-inc-laptop-computer-mouse-computer-keyboard-the-snake-free-download-5ae0dbb66e7296.0182699015246857504524.jpg";
-  // sets img.obj
+  // img.url = process.env.IMG_URL;
+  img.url = process.env.MAIN_IMG_PATH;
+  // sets img.data
   await resizeImg(img);
   img.data && await getTiles(board, tiles, img.data);
 };
 
 init(img);
 
-app.get("/image", (req, res) => {
-  res.json({ message: "TODO" });
+app.use(function (req, res, next) {
+  res.setHeader("Access-Control-Allow-Origin", process.env.ACCESS_URL);
+  next();
+});
+
+app.get("/tile", (req, res) => {
+  let { r, c } = req.query;
+  res.send(tiles.data[r][c]);
 });
 
 app.listen(PORT, () => {
