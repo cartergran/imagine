@@ -3,9 +3,7 @@ import styled from "styled-components";
 import Tile from "./tile";
 
 const StyledBoard = styled.div`  
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  ${({ theme }) => theme.recycle.flexCenter};
 
   #board {
     display: grid;
