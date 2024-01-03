@@ -30,7 +30,7 @@ const StyledImage = styled.div`
   opacity: ${props => props.$opacity || 0};
 `;
 
-export default function Tile({ loc }) {
+export default function Tile({ loc, onClick }) {
   const [img, setImg] = useState("");
   const nodeRef = useRef(null);
 
@@ -44,6 +44,7 @@ export default function Tile({ loc }) {
   };
 
   let handleClick = (e) => {
+    onClick((prevState) => {return { ...prevState, clicks: ++prevState.clicks }})
     let [r, c] = loc;
     getImg(r, c);
   };

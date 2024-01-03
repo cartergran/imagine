@@ -13,7 +13,7 @@ const StyledBoard = styled.div`
   }
 `;
 
-export default function Board({ numRows, numCols }) {
+export default function Board({ numRows, numCols, onTileClick }) {
   const [board, setBoard] = useState([]);
 
   useEffect(() => {
@@ -21,14 +21,14 @@ export default function Board({ numRows, numCols }) {
       let res = [];
       for (let i = 0; i < numRows; i++) {
         for (let j = 0; j < numCols; j++) {
-          res.push(<Tile key={`${i}${j}`} loc={`${i}${j}`} />);
+          res.push(<Tile key={`${i}${j}`} loc={`${i}${j}`} onClick={onTileClick} />);
         }
       }
       setBoard(res);
     };
 
     initBoard();
-  }, [numRows, numCols]);
+  }, [numRows, numCols, onTileClick]);
 
   return (
     <StyledBoard>

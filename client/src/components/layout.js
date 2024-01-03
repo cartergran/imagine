@@ -13,7 +13,7 @@ const StyledLayout = styled.div`
 export default function Layout({ children }) {
   return (
     <StyledLayout>
-      {/* <Title /> */}
+      {/* <Header /> > settings?? */}
       <main>
         { children }
       </main>

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 const StyledScore = styled.div`
@@ -23,23 +22,11 @@ const StyledScore = styled.div`
 `;
 
 export default function Score({ numGuesses }) {
-  const [score, setScore] = useState([]);
-
-  useEffect(() => {
-    let initScore = () => {
-      let res = [];
-      for (let i = 0; i < numGuesses; i++) {
-        res.push(<span key={i}></span>);
-      }
-      setScore(res);
-    };
-    initScore();
-  });
 
   return (
     <StyledScore>
       <div id="score">
-        { score }
+        { Array(numGuesses).fill(0).map((_, i) => <span key={i} />) }
       </div>
     </StyledScore>
   );

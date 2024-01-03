@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ThemeProvider } from "styled-components";
 
 import Layout from "./components/layout";
@@ -6,14 +7,26 @@ import Board from "./components/board";
 import GlobalStyle from "./styles/globalStyle";
 import theme from "./styles/theme";
 
+const config = {
+  numRows: 4,
+  numCols: 4
+};
+
 function App() {
+  const [state, setState] = useState({
+    clicks: 0,
+    guesses: 5
+  });
+
+  console.log("state:", state);
+
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
       <Layout>
-        <Score numGuesses={5} />
-        <Board numRows={4} numCols={4} />
-        {/* <Input /> */}
+        <Score numGuesses={state.guesses} />
+        <Board numRows={config.numRows} numCols={config.numCols} onTileClick={setState} />
+        {/* <Input numClicks={state.clicks} onSubmit={setState} /> */}
       </Layout>
     </ThemeProvider>
   );
