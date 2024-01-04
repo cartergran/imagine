@@ -30,7 +30,8 @@ const StyledImage = styled.div`
   opacity: ${props => props.$opacity || 0};
 `;
 
-export default function Tile({ loc, onClick }) {
+export default function Tile({ loc, clickable, onClick }) {
+  const [clicked, setClicked] = useState(false);
   const [img, setImg] = useState("");
   const nodeRef = useRef(null);
 
@@ -44,7 +45,9 @@ export default function Tile({ loc, onClick }) {
   };
 
   let handleClick = (e) => {
-    onClick((prevState) => {return { ...prevState, clicks: ++prevState.clicks }})
+    if (!clickable || clicked) { return; }
+    setClicked(true);
+    onClick((prevState) => { return { ...prevState, clickable: false }});
     let [r, c] = loc;
     getImg(r, c);
   };

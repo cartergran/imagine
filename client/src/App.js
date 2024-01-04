@@ -14,7 +14,7 @@ const config = {
 
 function App() {
   const [state, setState] = useState({
-    clicks: 0,
+    clickable: true,
     guesses: 5
   });
 
@@ -25,8 +25,13 @@ function App() {
       <GlobalStyle />
       <Layout>
         <Score numGuesses={state.guesses} />
-        <Board numRows={config.numRows} numCols={config.numCols} onTileClick={setState} />
-        {/* <Input numClicks={state.clicks} onSubmit={setState} /> */}
+        <Board
+          numRows={config.numRows}
+          numCols={config.numCols}
+          clickable={state.clickable}
+          onTileClick={setState}
+        />
+        {/* <Input guesses={state.guesses} onSubmit={setState} /> */}
       </Layout>
     </ThemeProvider>
   );
