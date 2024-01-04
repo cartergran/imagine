@@ -12,8 +12,8 @@ const init2DArray = (r, c) => {
 };
 
 var board = {
-  numRows: 4,
-  numCols: 4
+  rows: 4,
+  cols: 4
 };
 var img = {
   width: 4000,
@@ -22,9 +22,9 @@ var img = {
   data: {}
 };
 var tiles = {
-  width: img.width / board.numRows,
-  height: img.height / board.numCols,
-  data: init2DArray(board.numRows, board.numCols)
+  width: img.width / board.rows,
+  height: img.height / board.cols,
+  data: init2DArray(board.rows, board.cols)
 };
 
 // TODO: store urls in db
@@ -57,8 +57,8 @@ const handleTile = (err, data, loc) => {
 };
 
 const getTiles = async (board, tiles, imgData) => {
-  for (let r = 0; r < board.numRows; r++) {
-    for (let c = 0; c < board.numCols; c++) {
+  for (let r = 0; r < board.rows; r++) {
+    for (let c = 0; c < board.cols; c++) {
       try {
         await cropTile([r, c], tiles.width, tiles.height, imgData);
       } catch(err) {

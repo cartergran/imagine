@@ -8,8 +8,8 @@ import GlobalStyle from "./styles/globalStyle";
 import theme from "./styles/theme";
 
 const config = {
-  numRows: 4,
-  numCols: 4
+  rows: 4,
+  cols: 4
 };
 
 function App() {
@@ -26,8 +26,8 @@ function App() {
       <Layout>
         <Score numGuesses={state.guesses} />
         <Board
-          numRows={config.numRows}
-          numCols={config.numCols}
+          rows={config.rows}
+          cols={config.cols}
           clickable={state.clickable}
           onTileClick={setState}
         />
