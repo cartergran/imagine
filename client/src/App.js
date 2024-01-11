@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { ThemeProvider } from "styled-components";
 
+// TODO: index.js in ./components
 import Layout from "./components/layout";
 import Score from "./components/score";
 import Board from "./components/board";
+import Input from "./components/input";
 import GlobalStyle from "./styles/globalStyle";
 import theme from "./styles/theme";
 
@@ -31,7 +33,7 @@ function App() {
           clickable={state.clickable}
           onTileClick={setState}
         />
-        {/* <Input guesses={state.guesses} onSubmit={setState} /> */}
+        <Input disabled={state.clickable} onSubmit={setState} />
       </Layout>
     </ThemeProvider>
   );

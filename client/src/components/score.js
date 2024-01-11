@@ -9,7 +9,7 @@ const StyledScore = styled.div`
     ${({ theme }) => theme.recycle.flexCenter};
     gap: 8px;
 
-    & > span {
+    & span {
       display: inline-block;
 
       width: 12px;
