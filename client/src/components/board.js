@@ -5,6 +5,8 @@ import Tile from "./tile";
 const StyledBoard = styled.div`
   ${({ theme }) => theme.recycle.flexCenter};
 
+  margin-top: 24px;
+
   #board {
     display: grid;
     grid-template-columns: repeat(4, 1fr);

@@ -26,13 +26,13 @@ function App() {
     <ThemeProvider theme={theme}>
       <GlobalStyle />
       <Layout>
-        <Score numGuesses={state.guesses} />
         <Board
           rows={config.rows}
           cols={config.cols}
           clickable={state.clickable}
           onTileClick={setState}
         />
+        <Score numGuesses={state.guesses} />
         <Solve inactive={state.clickable} onSubmit={setState} />
       </Layout>
     </ThemeProvider>

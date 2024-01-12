@@ -4,14 +4,14 @@ import styled from "styled-components";
 const StyledSolve = styled.div`
   ${({ theme }) => theme.recycle.flexCenter};
 
-  #solve {
-    height: 100px;
+  margin: 24px 0;
 
+  #solve {
     ${({ theme }) => theme.recycle.flexCenter};
     flex-direction: column;
     gap: 8px;
 
-    & #input-guess {
+    #input-guess {
       height: 24px;
       width: 144px;
 
@@ -21,14 +21,14 @@ const StyledSolve = styled.div`
       &:focus { outline: 0; }
     }
 
-    & #submit-guess {
+    #submit-guess {
       height: 32px;
       width: 72px;
 
       &:active { background-color: grey; }
     }
 
-    & > * {
+    > * {
       background-color: black;
       border-radius: 8px;
     }

@@ -3,9 +3,9 @@ import styled from "styled-components";
 const StyledScore = styled.div`
   ${({ theme }) => theme.recycle.flexCenter};
 
-  #score {
-    height: 100px;
+  margin-top: 24px;
 
+  #score {
     ${({ theme }) => theme.recycle.flexCenter};
     gap: 8px;
 
