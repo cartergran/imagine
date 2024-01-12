@@ -5,7 +5,7 @@ import { ThemeProvider } from "styled-components";
 import Layout from "./components/layout";
 import Score from "./components/score";
 import Board from "./components/board";
-import Input from "./components/input";
+import Solve from "./components/solve";
 import GlobalStyle from "./styles/globalStyle";
 import theme from "./styles/theme";
 
@@ -33,7 +33,7 @@ function App() {
           clickable={state.clickable}
           onTileClick={setState}
         />
-        <Input disabled={state.clickable} onSubmit={setState} />
+        <Solve inactive={state.clickable} onSubmit={setState} />
       </Layout>
     </ThemeProvider>
   );

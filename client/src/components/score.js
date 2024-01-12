@@ -9,7 +9,7 @@ const StyledScore = styled.div`
     ${({ theme }) => theme.recycle.flexCenter};
     gap: 8px;
 
-    & span {
+    & .dash {
       display: inline-block;
 
       width: 12px;
@@ -26,7 +26,7 @@ export default function Score({ numGuesses }) {
   return (
     <StyledScore>
       <div id="score">
-        { Array(numGuesses).fill(0).map((_, i) => <span key={i} />) }
+        { Array(numGuesses).fill(0).map((_, i) => <span className="dash" key={i} />) }
       </div>
     </StyledScore>
   );
