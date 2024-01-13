@@ -17,7 +17,8 @@ const config = {
 function App() {
   const [state, setState] = useState({
     clickable: true,
-    guesses: 5
+    guesses: 5,
+    correct: false
   });
 
   console.log("state:", state);
@@ -29,10 +30,10 @@ function App() {
         <Board
           rows={config.rows}
           cols={config.cols}
-          clickable={state.clickable}
+          state={state}
           onTileClick={setState}
         />
-        <Score numGuesses={state.guesses} />
+        <Score guesses={state.guesses} />
         <Solve inactive={state.clickable} onSubmit={setState} />
       </Layout>
     </ThemeProvider>

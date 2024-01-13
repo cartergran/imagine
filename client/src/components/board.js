@@ -15,7 +15,7 @@ const StyledBoard = styled.div`
   }
 `;
 
-export default function Board({ rows, cols, clickable, onTileClick }) {
+export default function Board({ rows, cols, state, onTileClick }) {
   const [board, setBoard] = useState([]);
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export default function Board({ rows, cols, clickable, onTileClick }) {
       for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
           res.push(
-            <Tile key={`${i}${j}`} loc={`${i}${j}`} clickable={clickable} onClick={onTileClick} />
+            <Tile key={`${i}${j}`} loc={`${i}${j}`} state={state} onClick={onTileClick} />
           );
         }
       }
@@ -32,7 +32,7 @@ export default function Board({ rows, cols, clickable, onTileClick }) {
     };
 
     initBoard();
-  }, [rows, cols, clickable, onTileClick]);
+  }, [rows, cols, state, onTileClick]);
 
   return (
     <StyledBoard>
