@@ -13,11 +13,11 @@ const StyledTile = styled.div`
 
   &.mistake {
     border: 1px solid red;
-    scale: 1.23;
+    scale: ${props=> props.$clicked ? "1.23" : "1.1"};
   }
 `;
 
-const duration = 800;
+const duration = 1000;
 
 const transitionStyles = {
   entering: 1,
