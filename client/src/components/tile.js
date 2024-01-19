@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
 import { Transition } from "react-transition-group";
+import { duration } from "../config"
 
 const StyledTile = styled.div`
   width: 100px;
@@ -13,11 +14,9 @@ const StyledTile = styled.div`
 
   &.mistake {
     border: 1px solid red;
-    scale: ${props=> props.$clicked ? "1.23" : "1.1"};
+    scale: ${props=> props.$clicked ? "1.1" : "1.023"};
   }
 `;
-
-const duration = 1000;
 
 const transitionStyles = {
   entering: 1,

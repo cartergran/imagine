@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
+import { duration } from "../config";
 
 const StyledSolve = styled.div`
   ${({ theme }) => theme.recycle.flexCenter};
@@ -46,19 +47,26 @@ const StyledSolve = styled.div`
   }
 `;
 
-export default function Solve({ inactive, onSubmit }) {
+export default function Solve({ active, onSubmit }) {
+  const inputRef = useRef(null);
   const [guess, setGuess] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // TODO: checkGuess()
+    // TODO: if (checkCorrect(guess)) else
     onSubmit((prevState) => { return { clickable: true, guesses: --prevState.guesses }});
+    setGuess("");
   };
+
+  useEffect(() => {
+    active && setTimeout(() => inputRef.current.focus(), duration / 2);
+  }, [active])
 
   return (
     <StyledSolve>
-      <div id="solve" className={inactive ? "inactive" : "active"}>
+      <div id="solve" className={active ? "active" : "inactive"}>
         <input
+          ref={inputRef}
           id="input-guess"
           type="text"
           value={guess}

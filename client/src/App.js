@@ -18,7 +18,8 @@ function App() {
   const [state, setState] = useState({
     clickable: true,
     guesses: 5,
-    correct: false
+    correct: false,
+    modal: false // TODO: logic for truthy (end game, icon, etc.)
   });
 
   console.log("state:", state);
@@ -26,6 +27,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
+      { /* state.modal && <Modal /> */ }
       <Layout>
         <Board
           rows={config.rows}
@@ -34,7 +36,7 @@ function App() {
           onTileClick={setState}
         />
         <Score guesses={state.guesses} />
-        <Solve inactive={state.clickable} onSubmit={setState} />
+        <Solve active={!state.clickable} onSubmit={setState} />
       </Layout>
     </ThemeProvider>
   );

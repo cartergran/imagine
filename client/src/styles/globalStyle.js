@@ -11,6 +11,7 @@ const GlobalStyle = createGlobalStyle`
 
   body {
     background-color: black;
+    user-select: none;
   }
 `;
 
