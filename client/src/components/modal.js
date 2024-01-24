@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { title, day, msgs } from "../config";
 
 const StyledModal = styled.dialog`
   width: 100%;
@@ -24,30 +23,19 @@ const StyledModal = styled.dialog`
 
     #content {
       width: 320px;
-
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-
-    .stats {
-      &-title {
-        font-size: 20px;
-      }
     }
   }
 `;
 
-export default function Modal({ success }) {
+export default function Modal({ children }) {
   return (
     <StyledModal>
       <div id="modal">
-        <div id="close"></div>
+        <div id="close">
+          { /* TODO */ }
+        </div>
         <div id="content">
-          <h2>{ success ? msgs.success : msgs.failure }</h2>
-          <div id="stats">
-            <div id="stats-title">{`${title} #${day}`}</div>
-          </div>
+          { children }
         </div>
       </div>
     </StyledModal>

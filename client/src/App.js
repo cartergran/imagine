@@ -2,7 +2,8 @@ import { useState } from "react";
 import { ThemeProvider } from "styled-components";
 
 // TODO: index.js in ./components
-import Modal from "./components/modal"
+import Modal from "./components/modal";
+import Stats from "./components/stats";
 import Layout from "./components/layout";
 import Score from "./components/score";
 import Board from "./components/board";
@@ -28,7 +29,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      { state.modal && <Modal /> }
+      { state.modal && <Modal><Stats /></Modal> }
       <Layout>
         <Board
           rows={config.rows}
