@@ -13,6 +13,11 @@ const GlobalStyle = createGlobalStyle`
     background-color: black;
     user-select: none;
   }
+
+  h2 {
+    font-size: 32px;
+    margin: 0;
+  }
 `;
 
 export default GlobalStyle;
