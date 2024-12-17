@@ -58,9 +58,9 @@ export default function Tile({ loc, state, onClick }) {
   };
 
   let handleClick = (e) => {
-    if (!state.clickable || clicked) { return; }
+    if (state.solvable || clicked) { return; }
     setClicked(true);
-    onClick((prevState) => { return { ...prevState, clickable: false }});
+    onClick((prevState) => { return { ...prevState, solvable: true }});
     let [r, c] = loc;
     getImg(r, c);
   };

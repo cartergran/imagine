@@ -10,15 +10,11 @@ import Board from "./components/board";
 import Solve from "./components/solve";
 import GlobalStyle from "./styles/globalStyle";
 import theme from "./styles/theme";
-
-const config = {
-  rows: 4,
-  cols: 4
-};
+import { boardLayout } from "./config";
 
 function App() {
   const [state, setState] = useState({
-    clickable: true,
+    solvable: false,
     guesses: 5,
     correct: false,
     modal: false // TODO: logic for truthy (end game, icon, etc.)
@@ -32,13 +28,13 @@ function App() {
       { state.modal && <Modal><Stats /></Modal> }
       <Layout>
         <Board
-          rows={config.rows}
-          cols={config.cols}
+          rows={boardLayout.rows}
+          cols={boardLayout.cols}
           state={state}
           onTileClick={setState}
         />
         <Score guesses={state.guesses} />
-        <Solve active={!state.clickable} onSubmit={setState} />
+        <Solve active={state.solvable} onSubmit={setState} />
       </Layout>
     </ThemeProvider>
   );
