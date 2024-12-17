@@ -13,7 +13,7 @@ const StyledSolve = styled.div`
   #solve {
     ${({ theme }) => theme.recycle.flexCenter};
     flex-direction: column;
-    gap: 8px;
+    gap: var(--space-s);
   }
 
   .ant-btn-primary:disabled {

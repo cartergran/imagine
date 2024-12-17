@@ -3,11 +3,11 @@ import styled from 'styled-components';
 const StyledScore = styled.div`
   ${({ theme }) => theme.recycle.flexCenter};
 
-  margin-top: 24px;
+  margin-top: var(--space-l);
 
   #score {
     ${({ theme }) => theme.recycle.flexCenter};
-    gap: 8px;
+    gap: var(--space-s);
 
     & .dash {
       display: inline-block;

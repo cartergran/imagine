@@ -4,7 +4,7 @@ import { title, day, msgs } from '../config';
 const StyledStats = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--space-l);
 
   .stats {
     &-title {

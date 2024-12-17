@@ -5,13 +5,13 @@ import Tile from './tile';
 const StyledBoard = styled.div`
   ${({ theme }) => theme.recycle.flexCenter};
 
-  margin-top: 24px;
+  margin-top: var(--space-l);
 
   #board {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(4, 1fr);
-    gap: 8px;
+    gap: var(--space-s);
   }
 `;
 

@@ -18,7 +18,7 @@ const StyledModal = styled.dialog`
   #modal {
     color: white;
     max-width: 480px;
-    padding: 16px;
+    padding: var(--space-l);
     text-align: center;
 
     #content {
