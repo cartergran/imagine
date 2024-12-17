@@ -10,7 +10,7 @@ const StyledModal = styled.dialog`
   top: 0;
   left: 0;
 
-  background: black;
+  background-color: black;
   border: none;
   padding: 0;
   z-index: ${process.env.REACT_APP_MAGIC_NUM};

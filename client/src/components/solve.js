@@ -13,11 +13,11 @@ const StyledSolve = styled.div`
   #solve {
     ${({ theme }) => theme.recycle.flexCenter};
     flex-direction: column;
-    gap: var(--space-s);
+    gap: var(--space-m);
   }
 
-  .ant-btn-primary:disabled {
-    color: var(--disabled);
+  .ant-btn-primary {
+    border-radius: var(--space-s);
   }
 `;
 
@@ -39,7 +39,7 @@ export default function Solve({ active, onSubmit }) {
     <StyledSolve>
       <div id="solve">
         <Solutions disabled={!active} />
-        <Button disabled={!active} type="primary" onClick={handleSubmit}>Submit</Button>
+        { active && <Button type="primary" onClick={handleSubmit}>Submit</Button> }
       </div>
     </StyledSolve>
   );
