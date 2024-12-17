@@ -1,10 +1,10 @@
-const title = "imagine";
+const title = 'imagine';
 const day = '0';
 const duration = 1000;
 
 const msgs = {
-  "success": "Nice!",
-  "failure": "Sorry!"
+  'success': 'Nice!',
+  'failure': 'Sorry!'
 };
 
 const solutions = [

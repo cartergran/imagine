@@ -1,8 +1,8 @@
-import express from "express";
-import jimp from "jimp";
-import fs from "fs";
+import express from 'express';
+import jimp from 'jimp';
+import fs from 'fs';
 import 'dotenv/config';
-// import { fileTypeFromBuffer } from "file-type";
+// import { fileTypeFromBuffer } from 'file-type';
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -18,7 +18,7 @@ var board = {
 var img = {
   width: 4000,
   height: 4000,
-  url: "",
+  url: '',
   data: {}
 };
 var tiles = {
@@ -47,7 +47,7 @@ const cropTile = async (loc, tileWidth, tileHeight, imgData) => {
   let tileImg = img.crop(x, y, tileWidth, tileHeight);
   await tileImg.writeAsync(path);
 
-  fs.readFile(path, { encoding: "base64" }, (err, data) => handleTile(err, data, loc));
+  fs.readFile(path, { encoding: 'base64' }, (err, data) => handleTile(err, data, loc));
 };
 
 const handleTile = (err, data, loc) => {
@@ -62,7 +62,7 @@ const getTiles = async (board, tiles, imgData) => {
       try {
         await cropTile([r, c], tiles.width, tiles.height, imgData);
       } catch(err) {
-        console.log("cropTile() error!", err.message)
+        console.log('cropTile() error!', err.message)
       }
     }
   }
@@ -81,11 +81,11 @@ const init = async (img) => {
 init(img);
 
 app.use(function (req, res, next) {
-  res.setHeader("Access-Control-Allow-Origin", process.env.ACCESS_URL);
+  res.setHeader('Access-Control-Allow-Origin', process.env.ACCESS_URL);
   next();
 });
 
-app.get("/tile", (req, res) => {
+app.get('/tile', (req, res) => {
   let { r, c } = req.query;
   res.send(tiles.data[r][c]);
 });

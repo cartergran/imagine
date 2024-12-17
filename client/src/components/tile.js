@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import styled from "styled-components";
-import axios from "axios";
-import { Transition } from "react-transition-group";
-import { duration } from "../config"
+import { useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
+import axios from 'axios';
+import { Transition } from 'react-transition-group';
+import { duration } from '../config'
 
 const StyledTile = styled.div`
   width: 100px;
@@ -10,11 +10,11 @@ const StyledTile = styled.div`
 
   border: 1px solid white;
   transition: scale 0.4s;
-  z-index: ${props => props.$clicked ? "1" : "0"};
+  z-index: ${props => props.$clicked ? '1' : '0'};
 
   &.mistake {
     border: 1px solid red;
-    scale: ${props=> props.$clicked ? "1.1" : "1.023"};
+    scale: ${props=> props.$clicked ? '1.1' : '1.023'};
   }
 `;
 
@@ -29,7 +29,7 @@ const StyledImage = styled.div`
   width: 100%;
   height: 100%;
 
-  background: url("data:image/png;base64,${props => props.$img || ""}");
+  background: url("data:image/png;base64,${props => props.$img || ''}");
   background-size: contain;
 
   transition: opacity ${props => props.$duration || 300}ms ease-in-out 0s;
@@ -39,7 +39,7 @@ const StyledImage = styled.div`
 export default function Tile({ loc, state, onClick }) {
   const [clicked, setClicked] = useState(false);
   const [mistake, setMistake] = useState(false);
-  const [img, setImg] = useState("");
+  const [img, setImg] = useState('');
   const nodeRef = useRef(null);
 
   useEffect(() => {
@@ -53,7 +53,7 @@ export default function Tile({ loc, state, onClick }) {
       let res = await axios.get(process.env.REACT_APP_GET_TILE_URL, { params: { r, c }});
       setImg(res.data);
     } catch (err) {
-      console.log("getImg() Error!", err.message);
+      console.log('getImg() Error!', err.message);
     }
   };
 
@@ -66,8 +66,8 @@ export default function Tile({ loc, state, onClick }) {
   };
 
   return (
-    <StyledTile className={mistake ? "mistake" : ""} $clicked={clicked} onClick={handleClick}>
-      <Transition nodeRef={nodeRef} in={img !== ""} timeout={duration}>
+    <StyledTile className={mistake ? 'mistake' : ''} $clicked={clicked} onClick={handleClick}>
+      <Transition nodeRef={nodeRef} in={img !== ''} timeout={duration}>
         {state => (
           <StyledImage
             ref={nodeRef}

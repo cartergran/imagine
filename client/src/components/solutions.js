@@ -1,6 +1,6 @@
-import { Radio } from "antd";
-import styled from "styled-components";
-import { solutions } from "../config";
+import { Radio } from 'antd';
+import styled from 'styled-components';
+import { solutions } from '../config';
 
 const StyledSolutions = styled.div`
   .ant-radio-group {
@@ -26,13 +26,7 @@ export default function Solutions({ disabled }) {
         {
           solutions.map((category, idx) => {
             return (
-              <Radio.Button
-                key={idx}
-                value={category}
-                disabled={disabled}
-              >
-                {category}
-              </Radio.Button>
+              <Radio.Button key={idx} value={category} disabled={disabled}>{category}</Radio.Button>
             );
           })
         }

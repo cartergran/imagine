@@ -1,5 +1,5 @@
-import styled from "styled-components";
-import { title, day, msgs } from "../config";
+import styled from 'styled-components';
+import { title, day, msgs } from '../config';
 
 const StyledStats = styled.div`
   display: flex;

@@ -1,9 +1,9 @@
-import { Button } from "antd";
-import { useEffect, useState } from "react";
-import styled from "styled-components";
-import { duration } from "../config";
+import { Button } from 'antd';
+import { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import { duration } from '../config';
 
-import Solutions from "./solutions";
+import Solutions from './solutions';
 
 const StyledSolve = styled.div`
   ${({ theme }) => theme.recycle.flexCenter};
@@ -22,13 +22,13 @@ const StyledSolve = styled.div`
 `;
 
 export default function Solve({ active, onSubmit }) {
-  const [guess, setGuess] = useState("");
+  const [guess, setGuess] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
     // TODO: if (checkCorrect(guess)) else
     onSubmit((prevState) => { return { solvable: false, guesses: --prevState.guesses }});
-    setGuess("");
+    setGuess('');
   };
 
   useEffect(() => {
