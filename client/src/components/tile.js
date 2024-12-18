@@ -10,11 +10,10 @@ const StyledTile = styled.div`
 
   border: 1px solid white;
   transition: scale 0.4s;
-  z-index: ${props => props.$clicked ? '1' : '0'};
 
   &.mistake {
     border: 1px solid red;
-    scale: ${props=> props.$clicked ? '1.1' : '1.023'};
+    scale: ${props=> props.$clicked ? '1.05' : '1'};
   }
 `;
 

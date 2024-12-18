@@ -18,6 +18,7 @@ const StyledSolve = styled.div`
 
   .ant-btn-primary {
     border-radius: var(--space-s);
+    animation: fade-in 1s;
   }
 `;
 

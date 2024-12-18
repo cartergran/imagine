@@ -18,6 +18,7 @@ const StyledSolutions = styled.div`
     border: 1px solid white;
     border-radius: var(--space-s);
     color: white;
+    transition: border 1s, color 1s;
 
     &::before {
       content: none; // pseudo-element not rendered
