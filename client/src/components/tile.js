@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { Transition } from 'react-transition-group';
-import { duration } from '../config'
+import config from '../config'
 
 const StyledTile = styled.div`
   width: 100px;
@@ -42,12 +42,12 @@ export default function Tile({ loc, state, onClick }) {
   const nodeRef = useRef(null);
 
   useEffect(() => {
-    if (state.guesses === 5 || state.correct) { return; }
+    if (state.attempts === config.attempts || state.correct) { return; }
     setMistake(true);
-    setTimeout(() => setMistake(false), duration);
-  }, [state.correct, state.guesses])
+    setTimeout(() => setMistake(false), config.duration);
+  }, [state.correct, state.attempts])
 
-  let getImg = async (r, c) => {
+  const getImg = async (r, c) => {
     try {
       let res = await axios.get(process.env.REACT_APP_GET_TILE_URL, { params: { r, c }});
       setImg(res.data);
@@ -56,7 +56,7 @@ export default function Tile({ loc, state, onClick }) {
     }
   };
 
-  let handleClick = (e) => {
+  const handleClick = (e) => {
     if (state.solvable || clicked) { return; }
     setClicked(true);
     onClick((prevState) => { return { ...prevState, solvable: true }});
@@ -66,12 +66,12 @@ export default function Tile({ loc, state, onClick }) {
 
   return (
     <StyledTile className={mistake ? 'mistake' : ''} $clicked={clicked} onClick={handleClick}>
-      <Transition nodeRef={nodeRef} in={img !== ''} timeout={duration}>
+      <Transition nodeRef={nodeRef} in={img !== ''} timeout={config.duration}>
         {state => (
           <StyledImage
             ref={nodeRef}
             $img={img}
-            $duration={duration}
+            $duration={config.duration}
             $opacity={transitionStyles[state]}
           />
         )}

@@ -1,6 +1,12 @@
 const title = 'imagine';
 const day = '0';
+const attempts = 5;
 const duration = 1000;
+
+const boardLayout = {
+  rows: 4,
+  cols: 4
+};
 
 const msgs = {
   'success': 'Nice!',
@@ -19,16 +25,14 @@ const solutions = [
   'Sports'
 ];
 
-const boardLayout = {
-  rows: 4,
-  cols: 4
-};
-
-export {
+const config = {
   title,
   day,
+  attempts,
   duration,
+  boardLayout,
   msgs,
-  solutions,
-  boardLayout
+  solutions
 };
+
+export default config;

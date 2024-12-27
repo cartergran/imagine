@@ -21,12 +21,12 @@ const StyledScore = styled.div`
   }
 `;
 
-export default function Score({ guesses }) {
+export default function Score({ attempts }) {
 
   return (
     <StyledScore>
       <div id="score">
-        { Array(guesses).fill(0).map((_, i) => <span className="dash" key={i} />) }
+        { Array(attempts).fill(0).map((_, i) => <span className="dash" key={i} />) }
       </div>
     </StyledScore>
   );

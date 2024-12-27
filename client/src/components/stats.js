@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { title, day, msgs } from '../config';
+import config from '../config';
 
 const StyledStats = styled.div`
   display: flex;
@@ -16,9 +16,9 @@ const StyledStats = styled.div`
 export default function Stats({ success }) {
   return (
     <StyledStats>
-      <h2>{ success ? msgs.success : msgs.failure }</h2>
+      <h2>{ success ? config.msgs.success : config.msgs.failure }</h2>
       <div id="stats">
-        <div id="stats-title">{`${title} #${day}`}</div>
+        <div id="stats-title">{`${config.title} #${config.day}`}</div>
         <div id="stats-recap"></div>
       </div>
     </StyledStats>

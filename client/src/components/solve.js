@@ -1,7 +1,6 @@
 import { Button } from 'antd';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { duration } from '../config';
 
 import Solutions from './solutions';
 
@@ -22,25 +21,30 @@ const StyledSolve = styled.div`
   }
 `;
 
-export default function Solve({ active, onSubmit }) {
-  const [guess, setGuess] = useState('');
+export default function Solve({ solvable, onSubmit }) {
+  const [currentGuess, setCurrentGuess] = useState('');
+  const [prevGuesses, setPrevGuesses] = useState([]);
 
   const handleSubmit = (e) => {
-    e.preventDefault();
     // TODO: if (checkCorrect(guess)) else
-    onSubmit((prevState) => { return { solvable: false, guesses: --prevState.guesses }});
-    setGuess('');
+    onSubmit((prevState) => { return { solvable: false, attempts: --prevState.attempts }});
+    setPrevGuesses((prevGuesses) => [...prevGuesses, currentGuess]);
+    setCurrentGuess('');
   };
 
   useEffect(() => {
-    // active && setTimeout(() => focus ? );
-  }, [active]);
+    // solvable && setTimeout(() => focus ? );
+  }, [solvable]);
 
   return (
     <StyledSolve>
       <div id="solve">
-        <Solutions disabled={!active} />
-        { active && <Button type="primary" onClick={handleSubmit}>Submit</Button> }
+        <Solutions
+          disabled={!solvable}
+          prevGuesses={prevGuesses}
+          setCurrentGuess={setCurrentGuess}
+        />
+        { solvable && <Button type="primary" onClick={handleSubmit}>Submit</Button> }
       </div>
     </StyledSolve>
   );

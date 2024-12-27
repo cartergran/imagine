@@ -1,6 +1,6 @@
 import { Radio } from 'antd';
 import styled from 'styled-components';
-import { solutions } from '../config';
+import config from '../config';
 
 const StyledSolutions = styled.div`
   .ant-radio-group {
@@ -31,14 +31,21 @@ const StyledSolutions = styled.div`
   }
 `;
 
-export default function Solutions({ disabled }) {
+export default function Solutions({ disabled, prevGuesses, setCurrentGuess }) {
+
   return (
     <StyledSolutions>
-      <Radio.Group buttonStyle="solid">
+      <Radio.Group buttonStyle="solid" onChange={(e) =>  setCurrentGuess(e.target.value)}>
         {
-          solutions.map((category, idx) => {
+          config.solutions.map((category, idx) => {
             return (
-              <Radio.Button key={idx} value={category} disabled={disabled}>{category}</Radio.Button>
+              <Radio.Button
+                key={idx}
+                value={category}
+                disabled={disabled || prevGuesses.includes(category)}
+              >
+                {category}
+              </Radio.Button>
             );
           })
         }
