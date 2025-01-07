@@ -13,10 +13,10 @@ const StyledStats = styled.div`
   }
 `;
 
-export default function Stats({ success }) {
+export default function Stats({ correct }) {
   return (
     <StyledStats>
-      <h2>{ success ? config.msgs.success : config.msgs.failure }</h2>
+      <h2>{ correct ? config.msgs.correct : config.msgs.wrong }</h2>
       <div id="stats">
         <div id="stats-title">{`${config.title} #${config.day}`}</div>
         <div id="stats-recap"></div>

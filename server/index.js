@@ -6,6 +6,7 @@ import 'dotenv/config';
 
 const PORT = process.env.PORT || 3001;
 const app = express();
+const solution = 'Gaming'; // TODO
 
 const init2DArray = (r, c) => {
   return Array.from({ length: r }, _ => Array(c).fill(0));
@@ -88,6 +89,11 @@ app.use(function (req, res, next) {
 app.get('/tile', (req, res) => {
   let { r, c } = req.query;
   res.send(tiles.data[r][c]);
+});
+
+app.get('/check', (req, res) => {
+  let { guess } = req.query;
+  res.send(guess === solution)
 });
 
 app.listen(PORT, () => {

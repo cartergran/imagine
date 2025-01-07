@@ -24,7 +24,13 @@ const StyledCategories = styled.div`
       content: none; // pseudo-element not rendered
     }
 
-    &-disabled {
+    // increase specificity to override antd
+    &.ant-radio-button-wrapper-checked {
+      border: 1px solid white;
+    }
+
+    // TODO: is double & not valid syntax?
+    &.ant-radio-button-wrapper-disabled {
       border: 1px solid var(--disabled);
       color: var(--disabled);
     }

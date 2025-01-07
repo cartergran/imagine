@@ -1,7 +1,7 @@
 const title = 'imagine';
 const day = '0';
 const attempts = 5;
-const duration = 1000;
+const duration = 2300;
 
 const boardLayout = {
   rows: 4,
@@ -9,8 +9,8 @@ const boardLayout = {
 };
 
 const msgs = {
-  'success': 'Nice!',
-  'failure': 'Sorry!'
+  correct: 'Nice!',
+  wrong: 'Sorry!'
 };
 
 const categories = [

@@ -1,6 +1,8 @@
 import { Button } from 'antd';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
+import config from '../config';
 
 import Categories from './categories';
 
@@ -17,7 +19,7 @@ const StyledSolve = styled.div`
 
   .ant-btn-primary {
     border-radius: var(--space-s);
-    animation: fade-in 1s;
+    animation: fade-in ${props => props.$duration || 2300}ms;
   }
 `;
 
@@ -25,9 +27,26 @@ export default function Solve({ solvable, onSubmit }) {
   const [currentGuess, setCurrentGuess] = useState('');
   const [prevGuesses, setPrevGuesses] = useState([]);
 
-  const handleSubmit = (e) => {
-    // TODO: if (checkCorrect(guess)) else
-    onSubmit((prevState) => { return { solvable: false, attempts: --prevState.attempts }});
+  const checkCorrect = async (guess) => {
+    let correct = false;
+    try {
+      let res = await axios.get(process.env.REACT_APP_BASE_URL + '/check', { params: { guess }});
+      correct = res.data;
+    } catch (err) {
+      console.log('checkCorrect() Error!', err.message);
+    }
+    return correct;
+  };
+
+  // TODO: is an async handler 'bad practice'?
+  const handleSubmit = async (e) => {
+    let correct = await checkCorrect(currentGuess);
+    onSubmit((prevState) => {
+      return {
+        correct,
+        solvable: false,
+        attempts: --prevState.attempts
+    }});
     setPrevGuesses((prevGuesses) => [...prevGuesses, currentGuess]);
     setCurrentGuess('');
   };
@@ -37,7 +56,7 @@ export default function Solve({ solvable, onSubmit }) {
   }, [solvable]);
 
   return (
-    <StyledSolve>
+    <StyledSolve duration={config.duration}>
       <div id="solve">
         <Categories
           disabled={!solvable}

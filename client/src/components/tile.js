@@ -48,7 +48,7 @@ export default function Tile({ loc, state, onClick }) {
 
   const getImg = async (r, c) => {
     try {
-      let res = await axios.get(process.env.REACT_APP_GET_TILE_URL, { params: { r, c }});
+      let res = await axios.get(process.env.REACT_APP_BASE_URL + '/tile', { params: { r, c }});
       setImg(res.data);
     } catch (err) {
       console.log('getImg() Error!', err.message);

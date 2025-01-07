@@ -16,8 +16,7 @@ function App() {
   const [state, setState] = useState({
     solvable: false,
     attempts: config.attempts,
-    correct: false,
-    modal: false // TODO: logic for truthy (end game, icon, etc.)
+    correct: false
   });
 
   console.log('state:', state);
@@ -25,7 +24,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      { state.modal && <Modal><Stats /></Modal> }
+      { state.correct && <Modal><Stats correct={state.correct}/></Modal> }
       <Layout>
         <Board
           rows={config.boardLayout.rows}
