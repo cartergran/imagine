@@ -13,7 +13,7 @@ const msgs = {
   'failure': 'Sorry!'
 };
 
-const solutions = [
+const categories = [
   'Apparel',
   'Architecture',
   'Art',
@@ -32,7 +32,7 @@ const config = {
   duration,
   boardLayout,
   msgs,
-  solutions
+  categories
 };
 
 export default config;

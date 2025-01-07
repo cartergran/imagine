@@ -2,7 +2,7 @@ import { Button } from 'antd';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import Solutions from './solutions';
+import Categories from './categories';
 
 const StyledSolve = styled.div`
   ${({ theme }) => theme.recycle.flexCenter};
@@ -39,7 +39,7 @@ export default function Solve({ solvable, onSubmit }) {
   return (
     <StyledSolve>
       <div id="solve">
-        <Solutions
+        <Categories
           disabled={!solvable}
           prevGuesses={prevGuesses}
           setCurrentGuess={setCurrentGuess}

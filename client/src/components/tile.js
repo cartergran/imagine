@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { Transition } from 'react-transition-group';
-import config from '../config'
+import config from '../config';
 
 const StyledTile = styled.div`
   width: 100px;
@@ -13,7 +13,6 @@ const StyledTile = styled.div`
 
   &.mistake {
     border: 1px solid red;
-    scale: ${props=> props.$clicked ? '1.05' : '1'};
   }
 `;
 
