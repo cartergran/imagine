@@ -1,8 +1,7 @@
 import { Radio } from 'antd';
 import styled from 'styled-components';
-import config from '../config';
 
-const StyledCategories = styled.div`
+const StyledOptions = styled.div`
   .ant-radio-group {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -37,25 +36,25 @@ const StyledCategories = styled.div`
   }
 `;
 
-export default function Categories({ disabled, prevGuesses, setCurrentGuess }) {
+export default function Options({ options, disabled, prevGuesses, setCurrentGuess }) {
 
   return (
-    <StyledCategories>
+    <StyledOptions>
       <Radio.Group buttonStyle="solid" onChange={(e) =>  setCurrentGuess(e.target.value)}>
         {
-          config.categories.map((category, idx) => {
+          options.map((option, idx) => {
             return (
               <Radio.Button
                 key={idx}
-                value={category}
-                disabled={disabled || prevGuesses.includes(category)}
+                value={option}
+                disabled={disabled || prevGuesses.includes(option)}
               >
-                {category}
+                {option}
               </Radio.Button>
             );
           })
         }
       </Radio.Group>
-    </StyledCategories>
+    </StyledOptions>
   );
 }

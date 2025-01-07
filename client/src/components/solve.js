@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import axios from 'axios';
 import config from '../config';
 
-import Categories from './categories';
+import Options from './options';
 
 const StyledSolve = styled.div`
   ${({ theme }) => theme.recycle.flexCenter};
@@ -58,7 +58,8 @@ export default function Solve({ solvable, onSubmit }) {
   return (
     <StyledSolve duration={config.duration}>
       <div id="solve">
-        <Categories
+        <Options
+          options={config.categories}
           disabled={!solvable}
           prevGuesses={prevGuesses}
           setCurrentGuess={setCurrentGuess}

@@ -6,7 +6,10 @@ import 'dotenv/config';
 
 const PORT = process.env.PORT || 3001;
 const app = express();
-const solution = 'Gaming'; // TODO
+
+// TODO
+const category = 'Gaming';
+const solution = 'Razer';
 
 const init2DArray = (r, c) => {
   return Array.from({ length: r }, _ => Array(c).fill(0));
@@ -91,9 +94,15 @@ app.get('/tile', (req, res) => {
   res.send(tiles.data[r][c]);
 });
 
-app.get('/check', (req, res) => {
+// TODO: is camelCase the naming format for API endpoints?
+app.get('/checkCategory', (req, res) => {
   let { guess } = req.query;
-  res.send(guess === solution)
+  res.send(guess === category)
+});
+
+app.get('/checkSolution', (req, res) => {
+  let { guess } = req.query;
+  res.send(guess === solution);
 });
 
 app.listen(PORT, () => {
