@@ -29,45 +29,37 @@ export default function Solve({ solvable, onSubmit }) {
   const [correctCategory, setCorrectCategory] = useState(false);
   const [choices, setChoices] = useState([]);
 
-  const checkCorrectCategory = async (guess) => {
-    try {
-      let res =
-        await axios.get(process.env.REACT_APP_BASE_URL + '/checkCategory', { params: { guess }});
-      setCorrectCategory(res.data);
-    } catch (err) {
-      console.log('checkCorrectCategory() Error!', err.message);
-    }
-  };
-
-  const checkCorrectSolution = async (guess) => {
+  const checkCorrect = async (guess, type) => {
     let correct = false;
     try {
       let res =
-        await axios.get(process.env.REACT_APP_BASE_URL + '/checkSolution', { params: { guess }});
+        await axios.get(process.env.REACT_APP_BASE_URL + `/check${type}`, { params: { guess }});
       correct = res.data;
-      } catch (err) {
-        console.log('checkCorrectSolution() Error!', err.message);
-      }
+      (type === 'Category' && correct) && setCorrectCategory(correct);
+    } catch (err) {
+      console.log('checkCorrect() Error!', err.message);
+    }
     return correct;
   };
 
   const handleSubmit = async (e) => {
-    if (correctCategory) {
-      let correct =  await checkCorrectSolution(currentGuess);
+    let correctGuess  = await checkCorrect(currentGuess, correctCategory ? 'Solution' : 'Category');
+    if (correctGuess) {
       onSubmit((prevState) => {
         return {
-          correct,
-          solvable: false,
-          attempts: --prevState.attempts
+          ...prevState,
+          correct: correctCategory && correctGuess,
+          solvable: correctGuess
       }});
-    } else {
-      await checkCorrectCategory(currentGuess);
-      onSubmit((prevState) => {
-        return {
-          solvable: false,
-          attempts: --prevState.attempts
-      }});
+      return;
     }
+
+    onSubmit((prevState) => {
+      return {
+        ...prevState,
+        solvable: false,
+        attempts: --prevState.attempts,
+    }});
 
     setPrevGuesses((prevGuesses) => [...prevGuesses, currentGuess]);
     setCurrentGuess('');
