@@ -9,6 +9,7 @@ const app = express();
 
 // TODO
 const category = 'Gaming';
+const choices = ['Alienware', 'Dell', 'Logitech', 'Razer', 'Xbox'];
 const solution = 'Razer';
 
 const init2DArray = (r, c) => {
@@ -92,6 +93,10 @@ app.use(function (req, res, next) {
 app.get('/tile', (req, res) => {
   let { r, c } = req.query;
   res.send(tiles.data[r][c]);
+});
+
+app.get('/choices', (_req, res) => {
+  res.send(choices);
 });
 
 // TODO: is camelCase the naming format for API endpoints?

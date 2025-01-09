@@ -24,7 +24,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      { state.correct && <Modal><Stats correct={state.correct}/></Modal> }
+      { (state.correct || !state.attempts) && <Modal><Stats correct={state.correct}/></Modal> }
       <Layout>
         <Board
           rows={config.boardLayout.rows}

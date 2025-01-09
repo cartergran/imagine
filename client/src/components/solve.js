@@ -26,41 +26,72 @@ const StyledSolve = styled.div`
 export default function Solve({ solvable, onSubmit }) {
   const [currentGuess, setCurrentGuess] = useState('');
   const [prevGuesses, setPrevGuesses] = useState([]);
+  const [correctCategory, setCorrectCategory] = useState(false);
+  const [choices, setChoices] = useState([]);
 
-  const checkCorrect = async (guess) => {
+  const checkCorrectCategory = async (guess) => {
+    try {
+      let res =
+        await axios.get(process.env.REACT_APP_BASE_URL + '/checkCategory', { params: { guess }});
+      setCorrectCategory(res.data);
+    } catch (err) {
+      console.log('checkCorrectCategory() Error!', err.message);
+    }
+  };
+
+  const checkCorrectSolution = async (guess) => {
     let correct = false;
     try {
-      let res = await axios.get(process.env.REACT_APP_BASE_URL + '/check', { params: { guess }});
+      let res =
+        await axios.get(process.env.REACT_APP_BASE_URL + '/checkSolution', { params: { guess }});
       correct = res.data;
-    } catch (err) {
-      console.log('checkCorrect() Error!', err.message);
-    }
+      } catch (err) {
+        console.log('checkCorrectSolution() Error!', err.message);
+      }
     return correct;
   };
 
-  // TODO: is an async handler 'bad practice'?
   const handleSubmit = async (e) => {
-    let correct = await checkCorrect(currentGuess);
-    onSubmit((prevState) => {
-      return {
-        correct,
-        solvable: false,
-        attempts: --prevState.attempts
-    }});
+    if (correctCategory) {
+      let correct =  await checkCorrectSolution(currentGuess);
+      onSubmit((prevState) => {
+        return {
+          correct,
+          solvable: false,
+          attempts: --prevState.attempts
+      }});
+    } else {
+      await checkCorrectCategory(currentGuess);
+      onSubmit((prevState) => {
+        return {
+          solvable: false,
+          attempts: --prevState.attempts
+      }});
+    }
+
     setPrevGuesses((prevGuesses) => [...prevGuesses, currentGuess]);
     setCurrentGuess('');
   };
 
   useEffect(() => {
-    // solvable && setTimeout(() => focus ? );
+    // solvable && buttonRef.focus();
   }, [solvable]);
 
+  useEffect(() => {
+    const getChoices = async () => {
+      let choices = await axios.get(process.env.REACT_APP_BASE_URL + '/choices');
+      setChoices(choices.data);
+    };
+    correctCategory && getChoices();
+  }, [correctCategory]);
+
   return (
-    <StyledSolve duration={config.duration}>
+    <StyledSolve $duration={config.duration}>
       <div id="solve">
         <Options
-          options={config.categories}
+          options={correctCategory ? choices : config.categories}
           disabled={!solvable}
+          correctCategory={correctCategory}
           prevGuesses={prevGuesses}
           setCurrentGuess={setCurrentGuess}
         />
