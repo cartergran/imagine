@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { createContext, useState } from 'react';
 import { ThemeProvider } from 'styled-components';
 
 // TODO: index.js in ./components
@@ -12,11 +12,14 @@ import GlobalStyle from './styles/globalStyle';
 import theme from './styles/theme';
 import config from './config';
 
+export const CategoryContext = createContext();
+
 function App() {
   const [state, setState] = useState({
-    solvable: false,
     attempts: config.attempts,
-    correct: false
+    correctCategory: false,
+    correctSolution: false,
+    solvable: false
   });
 
   console.log('state:', state);
@@ -24,16 +27,23 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      { (state.correct || !state.attempts) && <Modal><Stats correct={state.correct}/></Modal> }
+      {
+        (state.correctSolution || !state.attempts) &&
+          <Modal>
+            <Stats correct={state.correctSolution} />
+          </Modal>
+      }
       <Layout>
-        <Board
-          rows={config.boardLayout.rows}
-          cols={config.boardLayout.cols}
-          state={state}
-          onTileClick={setState}
-        />
-        <Score attempts={state.attempts} />
-        <Solve solvable={state.solvable} onSubmit={setState} />
+        <CategoryContext.Provider value={state.correctCategory}>
+          <Board
+            rows={config.boardLayout.rows}
+            cols={config.boardLayout.cols}
+            state={state}
+            onTileClick={setState}
+          />
+          <Score attempts={state.attempts} />
+          <Solve solvable={state.solvable} onSubmit={setState} />
+        </CategoryContext.Provider>
       </Layout>
     </ThemeProvider>
   );

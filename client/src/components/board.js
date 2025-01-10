@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
+
 import Tile from './tile';
 
 const StyledBoard = styled.div`

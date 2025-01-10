@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { Transition } from 'react-transition-group';
 import config from '../config';
+
+import { CategoryContext } from '../App';
 
 const StyledTile = styled.div`
   width: 100px;
@@ -11,8 +13,11 @@ const StyledTile = styled.div`
   border: 1px solid white;
   transition: scale 0.4s;
 
-  &.mistake {
-    border: 1px solid red;
+  &.incorrect-cat {
+    border-color: red;
+  }
+  &.incorrect-sol {
+    border-color: yellow;
   }
 `;
 
@@ -36,14 +41,16 @@ const StyledImage = styled.div`
 
 export default function Tile({ loc, state, onClick }) {
   const [clicked, setClicked] = useState(false);
-  const [mistake, setMistake] = useState(false);
+  const [incorrect, setIncorrect] = useState(false);
   const [img, setImg] = useState('');
+
   const nodeRef = useRef(null);
+  const correctCategory = useContext(CategoryContext);
 
   useEffect(() => {
     if (state.attempts === config.attempts || state.correct) { return; }
-    setMistake(true);
-    setTimeout(() => setMistake(false), config.duration);
+    setIncorrect(true);
+    setTimeout(() => setIncorrect(false), config.duration);
   }, [state.correct, state.attempts])
 
   const getImg = async (r, c) => {
@@ -63,8 +70,12 @@ export default function Tile({ loc, state, onClick }) {
     getImg(r, c);
   };
 
+  const getClassName = () => {
+    return correctCategory && incorrect ? 'incorrect-sol' : (incorrect ? 'incorrect-cat' : '');
+  };
+
   return (
-    <StyledTile className={mistake ? 'mistake' : ''} $clicked={clicked} onClick={handleClick}>
+    <StyledTile className={getClassName()} $clicked={clicked} onClick={handleClick}>
       <Transition nodeRef={nodeRef} in={img !== ''} timeout={config.duration}>
         {state => (
           <StyledImage

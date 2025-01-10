@@ -40,8 +40,6 @@ const StyledOptions = styled.div`
     &.ant-radio-button-wrapper-checked {
       border: 1px solid white;
     }
-
-    // TODO: is double & not valid syntax?
     &.ant-radio-button-wrapper-disabled {
       border: 1px solid var(--disabled);
       color: var(--disabled);

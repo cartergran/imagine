@@ -10,7 +10,7 @@ const boardLayout = {
 
 const msgs = {
   correct: 'Nice!',
-  wrong: 'Sorry!'
+  incorrect: 'Sorry!'
 };
 
 const categories = [

@@ -1,9 +1,10 @@
 import { Button } from 'antd';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import config from '../config';
 
+import { CategoryContext } from '../App'
 import Options from './options';
 
 const StyledSolve = styled.div`
@@ -26,8 +27,9 @@ const StyledSolve = styled.div`
 export default function Solve({ solvable, onSubmit }) {
   const [currentGuess, setCurrentGuess] = useState('');
   const [prevGuesses, setPrevGuesses] = useState([]);
-  const [correctCategory, setCorrectCategory] = useState(false);
   const [choices, setChoices] = useState([]);
+
+  const correctCategory = useContext(CategoryContext);
 
   const checkCorrect = async (guess, type) => {
     let correct = false;
@@ -35,7 +37,8 @@ export default function Solve({ solvable, onSubmit }) {
       let res =
         await axios.get(process.env.REACT_APP_BASE_URL + `/check${type}`, { params: { guess }});
       correct = res.data;
-      (type === 'Category' && correct) && setCorrectCategory(correct);
+      (type === 'Category' && correct) &&
+        onSubmit((prevState) => { return {...prevState, correctCategory: correct }});
     } catch (err) {
       console.log('checkCorrect() Error!', err.message);
     }
@@ -48,8 +51,9 @@ export default function Solve({ solvable, onSubmit }) {
       onSubmit((prevState) => {
         return {
           ...prevState,
-          correct: correctCategory && correctGuess,
-          solvable: correctGuess
+          correctCategory: correctGuess,
+          correctSolution: correctCategory && correctGuess,
+          solvable: true
       }});
       return;
     }
@@ -57,8 +61,8 @@ export default function Solve({ solvable, onSubmit }) {
     onSubmit((prevState) => {
       return {
         ...prevState,
-        solvable: false,
         attempts: --prevState.attempts,
+        solvable: false
     }});
 
     setPrevGuesses((prevGuesses) => [...prevGuesses, currentGuess]);
