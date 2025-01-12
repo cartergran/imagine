@@ -4,6 +4,7 @@ import variables from './variables';
 const GlobalStyle = createGlobalStyle`
   ${variables};
 
+  // start elements
   html {
     box-sizing: border-box;
   }
@@ -21,7 +22,15 @@ const GlobalStyle = createGlobalStyle`
     font-size: 32px;
     margin: 0;
   }
+  // end elements
 
+  // start classes
+  .hidden {
+    opacity: 0;
+  }
+  // end classes
+
+  // start animations
   @keyframes fade-in {
     from {
       opacity: 0;
@@ -30,6 +39,7 @@ const GlobalStyle = createGlobalStyle`
       opacity: 1;
     }
   }
+  // end animations
 `;
 
 export default GlobalStyle;

@@ -20,7 +20,16 @@ const StyledSolve = styled.div`
 
   .ant-btn-primary {
     border-radius: var(--space-s);
-    animation: fade-in ${props => props.$duration || 2300}ms;
+    transition:
+      background ${props => props.$duration || 2300}ms,
+      border ${props => props.$duration || 2300}ms,
+      color ${props => props.$duration || 2300}ms;
+
+    // increase specificity to override antd
+    &[disabled] {
+      border: 1px solid var(--disabled);
+      color: var(--disabled);
+    }
   }
 `;
 
@@ -86,12 +95,12 @@ export default function Solve({ solvable, onSubmit }) {
       <div id="solve">
         <Options
           options={correctCategory ? choices : config.categories}
-          disabled={!solvable}
           correctCategory={correctCategory}
           prevGuesses={prevGuesses}
           setCurrentGuess={setCurrentGuess}
+          disabled={!solvable}
         />
-        { solvable && <Button type="primary" onClick={handleSubmit}>Submit</Button> }
+        <Button type="primary" onClick={handleSubmit} disabled={!solvable}>Submit</Button>
       </div>
     </StyledSolve>
   );

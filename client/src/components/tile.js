@@ -11,7 +11,7 @@ const StyledTile = styled.div`
   height: 100px;
 
   border: 1px solid white;
-  transition: scale 0.4s;
+  // TODO: transition: scale ?
 
   &.incorrect-cat {
     border-color: red;
@@ -35,7 +35,7 @@ const StyledImage = styled.div`
   background: url("data:image/png;base64,${props => props.$img || ''}");
   background-size: contain;
 
-  transition: opacity ${props => props.$duration || 300}ms ease-in-out 0s;
+  transition: opacity ${props => props.$duration || 2300}ms ease-in-out 0s;
   opacity: ${props => props.$opacity || 0};
 `;
 

@@ -1,5 +1,6 @@
 import { Radio } from 'antd';
 import styled from 'styled-components';
+import config from '../config';
 
 const StyledOptions = styled.div`
   .ant-radio-group {
@@ -30,7 +31,9 @@ const StyledOptions = styled.div`
     border: 1px solid white;
     border-radius: var(--space-s);
     color: white;
-    transition: border 1s, color 1s;
+    transition:
+      border ${props => props.$duration || 2300}ms,
+      color ${props => props.$duration || 2300}ms;
 
     &::before {
       content: none; // pseudo-element not rendered
@@ -49,16 +52,16 @@ const StyledOptions = styled.div`
 
 export default function Options({
   options,
-  disabled,
   correctCategory,
   prevGuesses,
-  setCurrentGuess
+  setCurrentGuess,
+  disabled
 }) {
 
   return (
-    <StyledOptions>
+    <StyledOptions $duration={config.duration}>
       <Radio.Group
-        className={correctCategory && 'sub-group'}
+        className={correctCategory ? 'sub-group' : ''}
         buttonStyle="solid"
         onChange={(e) => setCurrentGuess(e.target.value)}
       >
