@@ -1,6 +1,6 @@
 import { Radio } from 'antd';
 import styled from 'styled-components';
-import config from '../config';
+import config from '../utils/config';
 
 const StyledOptions = styled.div`
   .ant-radio-group {

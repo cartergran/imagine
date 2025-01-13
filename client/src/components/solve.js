@@ -2,7 +2,7 @@ import { Button } from 'antd';
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import config from '../config';
+import config from '../utils/config';
 
 import { CategoryContext } from '../App'
 import Options from './options';

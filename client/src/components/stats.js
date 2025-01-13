@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import config from '../config';
+import config from '../utils/config';
 
 const StyledStats = styled.div`
   display: flex;

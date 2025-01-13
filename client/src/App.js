@@ -10,7 +10,7 @@ import Board from './components/board';
 import Solve from './components/solve';
 import GlobalStyle from './styles/globalStyle';
 import theme from './styles/theme';
-import config from './config';
+import config from './utils/config';
 
 export const CategoryContext = createContext();
 

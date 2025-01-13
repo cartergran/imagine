@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { Transition } from 'react-transition-group';
-import config from '../config';
+import config from '../utils/config';
 
 import { CategoryContext } from '../App';
 
