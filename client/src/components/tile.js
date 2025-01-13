@@ -11,8 +11,11 @@ const StyledTile = styled.div`
   height: 100px;
 
   border: 1px solid white;
-  // TODO: transition: scale ?
+  transition: border ${props => props.$duration || 2300}ms;
 
+  &.preview {
+    border-color: black;
+  }
   &.incorrect-cat {
     border-color: red;
   }
@@ -71,7 +74,9 @@ export default function Tile({ loc, state, onClick }) {
   };
 
   const getClassName = () => {
-    return correctCategory && incorrect ? 'incorrect-sol' : (incorrect ? 'incorrect-cat' : '');
+    let res = correctCategory && incorrect ? 'incorrect-sol' : (incorrect ? 'incorrect-cat' : '');
+    res += state.solvable ? 'preview' : '';
+    return res;
   };
 
   return (

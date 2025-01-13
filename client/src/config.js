@@ -1,7 +1,7 @@
 const title = 'imagine';
 const day = '0';
 const attempts = 5;
-const duration = 2300;
+const duration = 805;
 
 const boardLayout = {
   rows: 4,
