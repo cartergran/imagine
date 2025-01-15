@@ -38,7 +38,7 @@ function App() {
           <Board
             rows={config.boardLayout.rows}
             cols={config.boardLayout.cols}
-            state={state}
+            toggle={{ attempts: state.attempts, solvable: state.solvable }}
             onTileClick={setState}
           />
           <Score attempts={state.attempts} />

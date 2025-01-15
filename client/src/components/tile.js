@@ -42,7 +42,7 @@ const StyledImage = styled.div`
   opacity: ${props => props.$opacity || 0};
 `;
 
-export default function Tile({ loc, state, onClick }) {
+export default function Tile({ loc, toggle, onClick }) {
   const [clicked, setClicked] = useState(false);
   const [incorrect, setIncorrect] = useState(false);
   const [img, setImg] = useState('');
@@ -51,10 +51,10 @@ export default function Tile({ loc, state, onClick }) {
   const correctCategory = useContext(CategoryContext);
 
   useEffect(() => {
-    if (state.attempts === config.attempts || state.correct) { return; }
+    if (toggle.attempts === config.attempts) { return; } // on mount
     setIncorrect(true);
     setTimeout(() => setIncorrect(false), config.duration);
-  }, [state.correct, state.attempts])
+  }, [toggle.attempts])
 
   const getImg = async (r, c) => {
     try {
@@ -66,7 +66,7 @@ export default function Tile({ loc, state, onClick }) {
   };
 
   const handleClick = (e) => {
-    if (state.solvable || clicked) { return; }
+    if (toggle.solvable || clicked) { return; }
     setClicked(true);
     onClick((prevState) => { return { ...prevState, solvable: true }});
     let [r, c] = loc;
@@ -75,19 +75,19 @@ export default function Tile({ loc, state, onClick }) {
 
   const getClassName = () => {
     let res = correctCategory && incorrect ? 'incorrect-sol' : (incorrect ? 'incorrect-cat' : '');
-    res += state.solvable ? 'preview' : '';
+    res += toggle.solvable ? 'preview' : '';
     return res;
   };
 
   return (
     <StyledTile className={getClassName()} $clicked={clicked} onClick={handleClick}>
       <Transition nodeRef={nodeRef} in={img !== ''} timeout={config.duration}>
-        {state => (
+        {phase => (
           <StyledImage
             ref={nodeRef}
             $img={img}
             $duration={config.duration}
-            $opacity={transitionStyles[state]}
+            $opacity={transitionStyles[phase]}
           />
         )}
       </Transition>

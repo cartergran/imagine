@@ -1,6 +1,9 @@
+import { useContext } from 'react';
 import { Radio } from 'antd';
 import styled from 'styled-components';
 import config from '../utils/config';
+
+import { CategoryContext } from '../App';
 
 const StyledOptions = styled.div`
   .ant-radio-group {
@@ -52,11 +55,11 @@ const StyledOptions = styled.div`
 
 export default function Options({
   options,
-  correctCategory,
   prevGuesses,
   setCurrentGuess,
   disabled
 }) {
+  const correctCategory = useContext(CategoryContext);
 
   return (
     <StyledOptions $duration={config.duration}>

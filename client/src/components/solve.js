@@ -95,7 +95,6 @@ export default function Solve({ solvable, onSubmit }) {
       <div id="solve">
         <Options
           options={correctCategory ? choices : config.categories}
-          correctCategory={correctCategory}
           prevGuesses={prevGuesses}
           setCurrentGuess={setCurrentGuess}
           disabled={!solvable}
