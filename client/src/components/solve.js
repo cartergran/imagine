@@ -44,9 +44,9 @@ export default function Solve({ solvable, onSubmit }) {
     let correct = false;
     try {
       let res =
-        await axios.get(process.env.REACT_APP_BASE_URL + `/check${type}`, { params: { guess }});
+        await axios.get(process.env.REACT_APP_BASE_URL + `/check-${type}`, { params: { guess }});
       correct = res.data;
-      (type === 'Category' && correct) &&
+      (type === 'category' && correct) &&
         onSubmit((prevState) => { return {...prevState, correctCategory: correct }});
     } catch (err) {
       console.log('checkCorrect() Error!', err.message);
@@ -55,7 +55,7 @@ export default function Solve({ solvable, onSubmit }) {
   };
 
   const handleSubmit = async (e) => {
-    let correctGuess  = await checkCorrect(currentGuess, correctCategory ? 'Solution' : 'Category');
+    let correctGuess  = await checkCorrect(currentGuess, correctCategory ? 'solution' : 'category');
     if (correctGuess) {
       onSubmit((prevState) => {
         return {

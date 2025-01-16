@@ -99,13 +99,12 @@ app.get('/choices', (_req, res) => {
   res.send(choices);
 });
 
-// TODO: is camelCase the naming format for API endpoints?
-app.get('/checkCategory', (req, res) => {
+app.get('/check-category', (req, res) => {
   let { guess } = req.query;
   res.send(guess === category)
 });
 
-app.get('/checkSolution', (req, res) => {
+app.get('/check-solution', (req, res) => {
   let { guess } = req.query;
   res.send(guess === solution);
 });
