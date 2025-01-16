@@ -64,17 +64,17 @@ export default function Solve({ solvable, onSubmit }) {
           correctSolution: correctCategory && correctGuess,
           solvable: true
       }});
-      return;
+      setPrevGuesses([]);
+    } else {
+      onSubmit((prevState) => {
+        return {
+          ...prevState,
+          attempts: --prevState.attempts,
+          solvable: false
+      }});
+      setPrevGuesses((prevGuesses) => [...prevGuesses, currentGuess]);
     }
 
-    onSubmit((prevState) => {
-      return {
-        ...prevState,
-        attempts: --prevState.attempts,
-        solvable: false
-    }});
-
-    setPrevGuesses((prevGuesses) => [...prevGuesses, currentGuess]);
     setCurrentGuess('');
   };
 
@@ -99,7 +99,13 @@ export default function Solve({ solvable, onSubmit }) {
           setCurrentGuess={setCurrentGuess}
           disabled={!solvable}
         />
-        <Button type="primary" onClick={handleSubmit} disabled={!solvable}>Submit</Button>
+        <Button
+          type="primary"
+          onClick={handleSubmit}
+          disabled={!solvable || !currentGuess}
+        >
+          Submit
+        </Button>
       </div>
     </StyledSolve>
   );

@@ -44,7 +44,8 @@ const StyledOptions = styled.div`
 
     // increase specificity to override antd
     &.ant-radio-button-wrapper-checked {
-      border: 1px solid white;
+      border: 1px solid blue;
+      color: blue;
     }
     &.ant-radio-button-wrapper-disabled {
       border: 1px solid var(--disabled);
@@ -65,7 +66,6 @@ export default function Options({
     <StyledOptions $duration={config.duration}>
       <Radio.Group
         className={correctCategory ? 'sub-group' : ''}
-        buttonStyle="solid"
         onChange={(e) => setCurrentGuess(e.target.value)}
       >
         {
