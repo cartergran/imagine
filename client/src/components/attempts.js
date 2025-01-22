@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 
-const StyledScore = styled.div`
+const StyledAttempts = styled.div`
   ${({ theme }) => theme.recycle.flexCenter};
 
   margin-top: var(--space-l);
 
-  #score {
+  #attempts {
     ${({ theme }) => theme.recycle.flexCenter};
     gap: var(--space-s);
 
@@ -21,13 +21,12 @@ const StyledScore = styled.div`
   }
 `;
 
-export default function Score({ attempts }) {
-
+export default function Attempts({ count }) {
   return (
-    <StyledScore>
-      <div id="score">
-        { Array(attempts).fill(0).map((_, i) => <span className="dash" key={i} />) }
+    <StyledAttempts>
+      <div id="attempts">
+        { Array(count).fill(0).map((_, i) => <span className="dash" key={i} />) }
       </div>
-    </StyledScore>
+    </StyledAttempts>
   );
 }

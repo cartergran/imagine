@@ -3,9 +3,9 @@ import { ThemeProvider } from 'styled-components';
 
 // TODO: index.js in ./components
 import Modal from './components/modal';
-import Stats from './components/stats';
+import Summary from './components/summary';
 import Layout from './components/layout';
-import Score from './components/score';
+import Attempts from './components/attempts';
 import Board from './components/board';
 import Solve from './components/solve';
 import GlobalStyle from './styles/globalStyle';
@@ -30,7 +30,7 @@ function App() {
       {
         (state.correctSolution || !state.attempts) &&
           <Modal>
-            <Stats correct={state.correctSolution} />
+            <Summary correct={state.correctSolution} />
           </Modal>
       }
       <Layout>
@@ -41,7 +41,7 @@ function App() {
             toggle={{ attempts: state.attempts, solvable: state.solvable }}
             onTileClick={setState}
           />
-          <Score attempts={state.attempts} />
+          <Attempts count={state.attempts} />
           <Solve solvable={state.solvable} onSubmit={setState} />
         </CategoryContext.Provider>
       </Layout>
