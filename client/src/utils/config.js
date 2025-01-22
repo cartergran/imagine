@@ -9,8 +9,8 @@ const boardLayout = {
 };
 
 const msgs = {
-  correct: 'Nice!',
-  incorrect: 'Sorry!'
+  correct: 'Nice.',
+  incorrect: 'Sorry.'
 };
 
 const categories = [

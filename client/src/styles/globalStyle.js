@@ -18,8 +18,9 @@ const GlobalStyle = createGlobalStyle`
     user-select: none;
   }
 
-  h2 {
-    font-size: 32px;
+  // reset
+  h1, h2, h3, h4, h5, h6,
+  dl, dd {
     margin: 0;
   }
   // end elements

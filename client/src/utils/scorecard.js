@@ -1,6 +1,5 @@
 import axios from 'axios';
 import config from './config';
-import metadata from '../../package.json';
 
 const magicNum = process.env.REACT_APP_MAGIC_NUM;
 
@@ -16,7 +15,7 @@ const init2DArray = (r, c, content) => {
 };
 
 const scorecard = {
-  title: `${metadata.name} #${config.day}`,
+  title: `${config.title} #${config.day}`,
   log: [],
   score: init2DArray(config.boardLayout.rows, config.boardLayout.cols, emojis[0])
 };

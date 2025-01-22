@@ -10,10 +10,10 @@ const StyledAttempts = styled.div`
     gap: var(--space-s);
 
     & .dash {
-      display: inline-block;
-
       width: 12px;
       height: 4px;
+
+      display: inline-block;
 
       border-radius: 25%;
       background-color: white;
