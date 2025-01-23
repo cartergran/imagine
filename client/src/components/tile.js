@@ -31,7 +31,7 @@ const transitionStyles = {
   exited: 0,
 };
 
-const StyledImage = styled.div`
+const StyledTileImage = styled.div`
   width: 100%;
   height: 100%;
 
@@ -56,12 +56,12 @@ export default function Tile({ loc, toggle, onClick }) {
     setTimeout(() => setFeedback(false), config.duration);
   }, [toggle.attempts])
 
-  const getImg = async (r, c) => {
+  const getTileImg = async (r, c) => {
     try {
       let res = await axios.get(process.env.REACT_APP_BASE_URL + '/tile', { params: { r, c }});
       setTileImg(res.data);
     } catch (err) {
-      console.log('getImg() Error!', err.message);
+      console.log('getTileImg() Error!', err.message);
     }
   };
 
@@ -70,7 +70,7 @@ export default function Tile({ loc, toggle, onClick }) {
     setClicked(true);
     onClick((prevState) => { return { ...prevState, solvable: true }});
     let [r, c] = loc;
-    getImg(r, c);
+    getTileImg(r, c);
   };
 
   const getClassName = () => {
@@ -89,7 +89,7 @@ export default function Tile({ loc, toggle, onClick }) {
     <StyledTile className={getClassName()} $clicked={clicked} onClick={handleClick}>
       <Transition nodeRef={nodeRef} in={tileImg !== ''} timeout={config.duration}>
         {phase => (
-          <StyledImage
+          <StyledTileImage
             ref={nodeRef}
             $tileImg={tileImg}
             $duration={config.duration}
