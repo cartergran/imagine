@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import scorecard from '../utils/scorecard';
 
@@ -22,12 +23,19 @@ const StyledScore = styled.dl`
 `;
 
 export default function Scorecard() {
+  const [score, setScore] = useState([]);
+
+  useEffect(() => {
+    scorecard.init();
+    setScore(scorecard.score);
+  }, []);
+
   return (
     <div>
       <h5>{scorecard.title}</h5>
       <StyledScore>
         {
-          scorecard.score.map((row, i) => {
+          score.map((row, i) => {
             return (
               <div key={i} className="share-row">
                 <dd aria-label={`row ${i} intel`} />

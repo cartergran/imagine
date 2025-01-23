@@ -15,6 +15,10 @@ const init2DArray = (r, c, content) => {
 };
 
 const scorecard = {
+  init: () => {
+    initScore();
+    // TODO: calcStats(); ?
+  },
   title: `${config.title} #${config.day}`,
   log: [],
   score: init2DArray(config.boardLayout.rows, config.boardLayout.cols, emojis[0])
@@ -39,7 +43,6 @@ axios.interceptors.response.use((res) => {
     let last = scorecard.log.at(-1);
     if (endpoint.includes('solution')) { /* /check-solution */
       last.correctness = correct ? magicNum : 1;
-      correct && initScore();
     } else { /* /check-category */
       last.correctness = correct ? 0 : -1;
     }

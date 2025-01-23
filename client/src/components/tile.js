@@ -10,7 +10,7 @@ const StyledTile = styled.div`
   width: 100px;
   height: 100px;
 
-  border: 1px solid white;
+  border: 2px solid white;
   transition: border ${props => props.$duration || 2300}ms;
 
   &.preview {
@@ -35,7 +35,7 @@ const StyledImage = styled.div`
   width: 100%;
   height: 100%;
 
-  background: url("data:image/png;base64,${props => props.$img || ''}");
+  background: url("data:image/png;base64,${props => props.$tileImg || ''}");
   background-size: contain;
 
   transition: opacity ${props => props.$duration || 2300}ms ease-in-out 0s;
@@ -44,22 +44,22 @@ const StyledImage = styled.div`
 
 export default function Tile({ loc, toggle, onClick }) {
   const [clicked, setClicked] = useState(false);
-  const [incorrect, setIncorrect] = useState(false);
-  const [img, setImg] = useState('');
+  const [feedback, setFeedback] = useState(false);
+  const [tileImg, setTileImg] = useState('');
 
   const nodeRef = useRef(null);
   const correctCategory = useContext(CategoryContext);
 
   useEffect(() => {
     if (toggle.attempts === config.attempts) { return; } // on mount
-    setIncorrect(true);
-    setTimeout(() => setIncorrect(false), config.duration);
+    setFeedback(true);
+    setTimeout(() => setFeedback(false), config.duration);
   }, [toggle.attempts])
 
   const getImg = async (r, c) => {
     try {
       let res = await axios.get(process.env.REACT_APP_BASE_URL + '/tile', { params: { r, c }});
-      setImg(res.data);
+      setTileImg(res.data);
     } catch (err) {
       console.log('getImg() Error!', err.message);
     }
@@ -74,18 +74,24 @@ export default function Tile({ loc, toggle, onClick }) {
   };
 
   const getClassName = () => {
-    let res = correctCategory && incorrect ? 'incorrect-sol' : (incorrect ? 'incorrect-cat' : '');
-    res += toggle.solvable ? 'preview' : '';
-    return res;
+    if (correctCategory && feedback) {
+      return 'incorrect-sol';
+    }
+
+    if (feedback) {
+      return 'incorrect-cat'
+    }
+
+    return toggle.solvable ? 'preview' : '';
   };
 
   return (
     <StyledTile className={getClassName()} $clicked={clicked} onClick={handleClick}>
-      <Transition nodeRef={nodeRef} in={img !== ''} timeout={config.duration}>
+      <Transition nodeRef={nodeRef} in={tileImg !== ''} timeout={config.duration}>
         {phase => (
           <StyledImage
             ref={nodeRef}
-            $img={img}
+            $tileImg={tileImg}
             $duration={config.duration}
             $opacity={transitionStyles[phase]}
           />
