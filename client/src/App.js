@@ -22,8 +22,6 @@ function App() {
     solvable: false
   });
 
-  console.log('state:', state);
-
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
