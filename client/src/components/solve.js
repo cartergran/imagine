@@ -40,6 +40,14 @@ export default function Solve({ solvable, onSubmit }) {
 
   const correctCategory = useContext(CategoryContext);
 
+  useEffect(() => {
+    const getChoices = async () => {
+      let choices = await axios.get(process.env.REACT_APP_BASE_URL + '/choices');
+      setChoices(choices.data);
+    };
+    correctCategory && getChoices();
+  }, [correctCategory]);
+
   const checkCorrect = async (guess, type) => {
     let correct = false;
     try {
@@ -77,18 +85,6 @@ export default function Solve({ solvable, onSubmit }) {
 
     setCurrentGuess('');
   };
-
-  useEffect(() => {
-    // solvable && buttonRef.focus();
-  }, [solvable]);
-
-  useEffect(() => {
-    const getChoices = async () => {
-      let choices = await axios.get(process.env.REACT_APP_BASE_URL + '/choices');
-      setChoices(choices.data);
-    };
-    correctCategory && getChoices();
-  }, [correctCategory]);
 
   return (
     <StyledSolve $duration={config.duration}>

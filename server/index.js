@@ -24,12 +24,13 @@ var img = {
   width: 4000,
   height: 4000,
   url: '',
-  data: {}
+  data: {},
+  base64: ''
 };
 var tiles = {
   width: img.width / board.rows,
   height: img.height / board.cols,
-  data: init2DArray(board.rows, board.cols)
+  base64Catalog: init2DArray(board.rows, board.cols)
 };
 
 // TODO: store urls in db
@@ -39,7 +40,7 @@ const resizeImg = async (img) => {
   let imgRaw = await jimp.read(img.url);
   let imgSet = imgRaw.contain(img.width, img.height);
   await imgSet.writeAsync(process.env.MAIN_IMG_PATH);
-  img.data = imgSet;
+  return imgSet;
 };
 
 const cropTile = async (loc, tileWidth, tileHeight, imgData) => {
@@ -58,7 +59,7 @@ const cropTile = async (loc, tileWidth, tileHeight, imgData) => {
 const handleTile = (err, data, loc) => {
   if (err) throw err;
   let [r, c] = loc;
-  tiles.data[r][c] = data;
+  tiles.base64Catalog[r][c] = data;
 };
 
 const getTiles = async (board, tiles, imgData) => {
@@ -78,9 +79,13 @@ const init = async (img) => {
   // img.url = getUrl();
   // img.url = process.env.IMG_URL;
   img.url = process.env.MAIN_IMG_PATH;
-  // sets img.data
-  await resizeImg(img);
-  img.data && await getTiles(board, tiles, img.data);
+
+  img.data = await resizeImg(img); // returns jimp obj (to use crop() for tiles)
+  img.base64 = await img.data.getBase64Async(jimp.MIME_JPEG);
+
+  if (img.data) {
+    await getTiles(board, tiles, img.data);
+  }
 };
 
 init(img);
@@ -92,7 +97,7 @@ app.use(function (req, res, next) {
 
 app.get('/tile', (req, res) => {
   let { r, c } = req.query;
-  res.send(tiles.data[r][c]);
+  res.send(tiles.base64Catalog[r][c]);
 });
 
 app.get('/choices', (_req, res) => {
@@ -107,6 +112,10 @@ app.get('/check-category', (req, res) => {
 app.get('/check-solution', (req, res) => {
   let { guess } = req.query;
   res.send(guess === solution);
+});
+
+app.get('/img', (_req, res) => {
+  res.send(img.base64);
 });
 
 app.listen(PORT, () => {

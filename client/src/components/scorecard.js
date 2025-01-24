@@ -1,6 +1,14 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
 import scorecard from '../utils/scorecard';
+
+const StyledScorecard = styled.div`
+  .eval {
+    display: flex;
+    justify-content: center;
+  }
+`;
 
 const StyledScore = styled.dl`
   display: flex;
@@ -19,34 +27,57 @@ const StyledScore = styled.dl`
       font-size: 23px;
     }
   }
-}
+`;
+
+const StyledImage = styled.div`
+  // see above <span /> size for calc (4x4)
+  width: calc(23px * 4);
+  height: calc(23px * 4);
+
+  background: url("${props => props.$img || ''}");
+  background-size: contain;
 `;
 
 export default function Scorecard() {
   const [score, setScore] = useState([]);
+  const [img, setImg] = useState('');
 
   useEffect(() => {
+    getImg();
+
     scorecard.init();
     setScore(scorecard.score);
   }, []);
 
+  const getImg = async () => {
+    try {
+      let res = await axios.get(process.env.REACT_APP_BASE_URL + '/img');
+      setImg(res.data);
+    } catch (err) {
+      console.log('getImg() Error!', err.message);
+    }
+  };
+
   return (
-    <div>
+    <StyledScorecard>
       <h5>{scorecard.title}</h5>
-      <StyledScore>
-        {
-          score.map((row, i) => {
-            return (
-              <div key={i} className="share-row">
-                <dd aria-label={`row ${i} intel`} />
-                <dt>
-                  { row.map((tile, j) => <span key={j} className="share-tile">{tile}</span>) }
-                </dt>
-              </div>
-            );
-          })
-        }
-      </StyledScore>
-    </div>
+      <div className="eval">
+        <StyledScore>
+          {
+            score.map((row, i) => {
+              return (
+                <div key={i} className="share-row">
+                  <dd aria-label={`row ${i} intel`} />
+                  <dt>
+                    { row.map((tile, j) => <span key={j} className="share-tile">{tile}</span>) }
+                  </dt>
+                </div>
+              );
+            })
+          }
+        </StyledScore>
+        <StyledImage $img={img} />
+      </div>
+    </StyledScorecard>
   );
 }
