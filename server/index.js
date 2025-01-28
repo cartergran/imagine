@@ -2,9 +2,14 @@ import express from 'express';
 import jimp from 'jimp';
 import fs from 'fs';
 import 'dotenv/config';
+import path from 'path';
+import { fileURLToPath } from 'url';
 // import { fileTypeFromBuffer } from 'file-type';
 
 const PORT = process.env.PORT || 3001;
+// https://nodejs.org/api/esm.html#no-__filename-or-__dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app = express();
 
 // TODO
@@ -47,13 +52,13 @@ const cropTile = async (loc, tileWidth, tileHeight, imgData) => {
   let [r, c] = loc;
   let x = c * tileWidth;
   let y = r * tileHeight;
-  let path = `${process.env.TILE_IMG_PATH}${r}${c}.jpg`;
+  let tilePath = `${process.env.TILE_IMG_PATH}${r}${c}.jpg`;
 
   let img = await jimp.read(imgData);
   let tileImg = img.crop(x, y, tileWidth, tileHeight);
-  await tileImg.writeAsync(path);
+  await tileImg.writeAsync(tilePath);
 
-  fs.readFile(path, { encoding: 'base64' }, (err, data) => handleTile(err, data, loc));
+  fs.readFile(tilePath, { encoding: 'base64' }, (err, data) => handleTile(err, data, loc));
 };
 
 const handleTile = (err, data, loc) => {
@@ -95,6 +100,9 @@ app.use(function (req, res, next) {
   next();
 });
 
+// serve static files from CRA
+app.use(express.static(path.resolve(__dirname, '../client/build')));
+
 app.get('/tile', (req, res) => {
   let { r, c } = req.query;
   res.send(tiles.base64Catalog[r][c]);
@@ -116,6 +124,11 @@ app.get('/check-solution', (req, res) => {
 
 app.get('/img', (_req, res) => {
   res.send(img.base64);
+});
+
+// catch all other requests & return to home
+app.get('*', (_req, res) => {
+  res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
 });
 
 app.listen(PORT, () => {
