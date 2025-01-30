@@ -24,9 +24,10 @@
 # server
 /node_modules
 package-lock.json
-/server/images
+/server/imgs
 .DS_Store
 .env
+/server/gcs-key.json
 
 # other
 npm-debug.log*

@@ -35,7 +35,7 @@ const StyledTileImage = styled.div`
   width: 100%;
   height: 100%;
 
-  background: url("data:image/jpeg;base64,${props => props.$tileImg || ''}");
+  background: url("${props => props.$tileImg || ''}");
   background-size: contain;
 
   transition: opacity ${props => props.$duration || 2300}ms ease-in-out 0s;
