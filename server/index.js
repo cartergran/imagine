@@ -11,7 +11,9 @@ import { Storage } from '@google-cloud/storage';
 const PORT = process.env.PORT || 3001;
 const accessURL = process.env.ACCESS_URL
 const bucketName = process.env.BUCKET_NAME;
-const fileName = process.env.FILE_NAME;
+const folderName = process.env.FOLDER_NAME;
+const imgPath = `${folderName}/${process.env.IMG_FILE_NAME}`;
+const intelPath = `${folderName}/${process.env.INTEL_FILE_NAME}`;
 
 // https://nodejs.org/api/esm.html#no-__filename-or-__dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -19,15 +21,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const storage = new Storage();
 
-// TODO: gcs
-const category = 'Gaming';
-const choices = ['Alienware', 'Dell', 'Logitech', 'Razer', 'Xbox'];
-const solution = 'Razer';
-
-const init2DArray = (r, c) => {
-  return Array.from({ length: r }, _ => Array(c).fill(0));
-};
-
+var intel = {};
 var img = {
   width: 4000,
   height: 4000,
@@ -44,12 +38,17 @@ var tiles = {
   base64Catalog: init2DArray(board.rows, board.cols)
 };
 
-const processImg = async (bucketName, fileName, width, height) => {
+// hoist
+function init2DArray(r, c) {
+  return Array.from({ length: r }, _ => Array(c).fill(0));
+};
+
+const processImg = async (bucketName, imgPath, width, height) => {
   let img;
   try {
-    let file = storage.bucket(bucketName).file(fileName);
-    let [contents] = await file.download();
-    img = await jimp.read(contents);
+    let imgFile = storage.bucket(bucketName).file(imgPath);
+    let [imgContents] = await imgFile.download();
+    img = await jimp.read(imgContents);
     img.contain(width, height);
 
     // await img.writeAsync(process.env.MAIN_IMG_PATH);
@@ -57,6 +56,18 @@ const processImg = async (bucketName, fileName, width, height) => {
     console.error('processImg() error!', err.message);
   }
   return img;
+};
+
+const processIntel = async(bucketName, intelPath) => {
+  let intel;
+  try {
+    let intelFile = storage.bucket(bucketName).file(intelPath);
+    let [intelContents] = await intelFile.download();
+    intel = JSON.parse(intelContents.toString());
+  } catch (err) {
+    console.error('processIntel() error!', err.message);
+  }
+  return intel;
 };
 
 const getBase64Img = async (imgData, mimeType) => {
@@ -105,15 +116,16 @@ const getTiles = async (board, tiles, imgData) => {
 };
 
 // call every 24 hours
-const init = async (img, board, tiles) => {
-  img.data = await processImg(bucketName, fileName, img.width, img.height);
+const init = async (intel, img, board, tiles) => {
+  Object.assign(intel, await processIntel(bucketName, intelPath));
+  img.data = await processImg(bucketName, imgPath, img.width, img.height);
   if (img.data) {
     await getTiles(board, tiles, img.data);
     img.base64 = await getBase64Img(img.data, jimp.MIME_JPEG)
   }
 };
 
-init(img, board, tiles);
+init(intel, img, board, tiles);
 
 app.use(function (_req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', accessURL);
@@ -129,17 +141,17 @@ app.get('/tile', (req, res) => {
 });
 
 app.get('/choices', (_req, res) => {
-  res.send(choices);
+  res.send(intel.choices);
 });
 
 app.get('/check-category', (req, res) => {
   let { guess } = req.query;
-  res.send(guess === category)
+  res.send(guess === intel.category)
 });
 
 app.get('/check-solution', (req, res) => {
   let { guess } = req.query;
-  res.send(guess === solution);
+  res.send(guess === intel.solution);
 });
 
 app.get('/img', (_req, res) => {
