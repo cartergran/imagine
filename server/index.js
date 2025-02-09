@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import jimp from 'jimp';
 import 'dotenv/config';
 import path from 'path';
@@ -132,10 +133,7 @@ const init = async (intel, img, board, tiles) => {
 
 init(intel, img, board, tiles);
 
-app.use(function (_req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', accessURL);
-  next();
-});
+app.use(cors());
 
 // serve static files from CRA
 app.use(express.static(path.resolve(__dirname, '../client/build')));
