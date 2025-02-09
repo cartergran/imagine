@@ -21,7 +21,7 @@ const scorecard = {
   },
   title: `${config.title} #${config.day}`,
   log: [],
-  score: init2DArray(config.boardLayout.rows, config.boardLayout.cols, emojis[0])
+  score: init2DArray(config.board.rows, config.board.cols, emojis[0])
 };
 
 const initScore = () => {

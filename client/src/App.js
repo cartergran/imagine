@@ -34,8 +34,8 @@ function App() {
       <Layout>
         <CategoryContext.Provider value={state.correctCategory}>
           <Board
-            rows={config.boardLayout.rows}
-            cols={config.boardLayout.cols}
+            rows={config.board.rows}
+            cols={config.board.cols}
             toggle={{ attempts: state.attempts, solvable: state.solvable }}
             onTileClick={setState}
           />

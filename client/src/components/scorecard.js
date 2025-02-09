@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import scorecard from '../utils/scorecard';
+import config from '../utils/config';
 
 const StyledScorecard = styled.div`
   .eval {
@@ -31,8 +32,8 @@ const StyledScore = styled.dl`
 
 const StyledImage = styled.div`
   // see above <span /> size for calc (4x4)
-  width: calc(32px * 4);
-  height: calc(32px * 4);
+  width: calc(32px * ${props => props.$rows || 4});
+  height: calc(32px * ${props => props.$cols || 4});
 
   background: url("${props => props.$img || ''}");
   background-size: contain;
@@ -76,7 +77,7 @@ export default function Scorecard() {
             })
           }
         </StyledScore>
-        <StyledImage $img={img} />
+        <StyledImage $img={img} $rows={config.board.rows} $cols={config.board.cols} />
       </div>
     </StyledScorecard>
   );

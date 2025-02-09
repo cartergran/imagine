@@ -3,7 +3,7 @@ const day = '0';
 const attempts = 5;
 const duration = 805;
 
-const boardLayout = {
+const board = {
   rows: 4,
   cols: 4
 };
@@ -18,7 +18,7 @@ const config = {
   day,
   attempts,
   duration,
-  boardLayout,
+  board,
   msgs
 };
 
