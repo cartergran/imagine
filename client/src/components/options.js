@@ -34,6 +34,8 @@ const StyledOptions = styled.div`
     border: 1px solid white;
     border-radius: var(--space-s);
     color: white;
+    font-size: 11px;
+    padding-inline: 0;
     transition:
       border ${props => props.$duration || 2300}ms,
       color ${props => props.$duration || 2300}ms;

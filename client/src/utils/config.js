@@ -13,26 +13,13 @@ const msgs = {
   incorrect: 'Sorry.'
 };
 
-const categories = [
-  'Apparel',
-  'Architecture',
-  'Art',
-  'Food',
-  'Gaming',
-  'Movie',
-  'Nature',
-  'Songs',
-  'Sports'
-];
-
 const config = {
   title,
   day,
   attempts,
   duration,
   boardLayout,
-  msgs,
-  categories
+  msgs
 };
 
 export default config;

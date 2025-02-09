@@ -7,8 +7,8 @@ import config from '../utils/config';
 import { CategoryContext } from '../App';
 
 const StyledTile = styled.div`
-  width: 100px;
-  height: 100px;
+  width: 88px;
+  height: 88px;
 
   border: 2px solid white;
   transition: border ${props => props.$duration || 2300}ms;
@@ -58,8 +58,8 @@ export default function Tile({ loc, toggle, onClick }) {
 
   const getTileImg = async (r, c) => {
     try {
-      let res = await axios.get(process.env.REACT_APP_BASE_URL + '/tile', { params: { r, c }});
-      setTileImg(res.data);
+      let tileRes = await axios.get('tile', { params: { r, c }});
+      setTileImg(tileRes.data);
     } catch (err) {
       console.log('getTileImg() Error!', err.message);
     }

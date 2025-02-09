@@ -21,7 +21,12 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const storage = new Storage();
 
-var intel = {};
+var intel = {
+  categories: [],
+  choices: [],
+  category: '',
+  solution: ''
+};
 var img = {
   width: 4000,
   height: 4000,
@@ -134,6 +139,10 @@ app.use(function (_req, res, next) {
 
 // serve static files from CRA
 app.use(express.static(path.resolve(__dirname, '../client/build')));
+
+app.get('/categories', (_req, res) => {
+  res.send(intel.categories);
+});
 
 app.get('/tile', (req, res) => {
   let { r, c } = req.query;
