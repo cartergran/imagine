@@ -10,17 +10,19 @@ import { Storage } from '@google-cloud/storage';
 
 // env vars
 const PORT = process.env.PORT || 3001;
-const accessURL = process.env.ACCESS_URL
-const bucketName = process.env.BUCKET_NAME;
-const folderName = process.env.FOLDER_NAME;
-const imgPath = `${folderName}/${process.env.IMG_FILE_NAME}`;
-const intelPath = `${folderName}/${process.env.INTEL_FILE_NAME}`;
+const accessURL = process.env.ACCESS_URL || '';
+const bucketName = process.env.BUCKET_NAME || '';
+const folderName = process.env.FOLDER_NAME || '';
+const imgPath = `${folderName}/${process.env.IMG_FILE_NAME || ''}`;
+const intelPath = `${folderName}/${process.env.INTEL_FILE_NAME || ''}`;
+const gcsCredsBase64 = process.env.GCS_KEY_BASE64 || '';
+const gcsCreds = JSON.parse(Buffer.from(gcsCredsBase64, 'base64').toString('utf8'));
 
 // https://nodejs.org/api/esm.html#no-__filename-or-__dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
-const storage = new Storage();
+const storage = new Storage({ credentials: gcsCreds });
 
 var intel = {
   categories: [],
@@ -133,7 +135,10 @@ const init = async (intel, img, board, tiles) => {
 
 init(intel, img, board, tiles);
 
-app.use(cors());
+app.use(cors({
+  origin: accessURL,
+  methods: ['GET']
+}));
 
 // serve static files from CRA
 app.use(express.static(path.resolve(__dirname, '../client/build')));
