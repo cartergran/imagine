@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import axios from 'axios';
 import config from '../utils/config';
 
-import { CategoryContext } from '../App'
+import { PuzzleContext } from '../App';
 import Options from './options';
 
 const StyledSolve = styled.div`
@@ -39,7 +39,10 @@ export default function Solve({ solvable, onSubmit }) {
   const [categories, setCategories] = useState([]);
   const [choices, setChoices] = useState([]);
 
-  const correctCategory = useContext(CategoryContext);
+  const { correctCategory, buzzer } = useContext(PuzzleContext);
+
+  const toggleOptions = !solvable || buzzer;
+  const toggleSubmit = !solvable || !currentGuess || buzzer;
 
   useEffect(() => {
     const getCategories = async () => {
@@ -101,12 +104,12 @@ export default function Solve({ solvable, onSubmit }) {
           options={correctCategory ? choices : categories}
           prevGuesses={prevGuesses}
           setCurrentGuess={setCurrentGuess}
-          disabled={!solvable}
+          disabled={toggleOptions}
         />
         <Button
           type="primary"
           onClick={handleSubmit}
-          disabled={!solvable || !currentGuess}
+          disabled={toggleSubmit}
         >
           Submit
         </Button>

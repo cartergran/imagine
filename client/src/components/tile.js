@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Transition } from 'react-transition-group';
 import config from '../utils/config';
 
-import { CategoryContext } from '../App';
+import { PuzzleContext } from '../App';
 
 const StyledTile = styled.div`
   width: 88px;
@@ -48,7 +48,9 @@ export default function Tile({ loc, toggle, onClick }) {
   const [tileImg, setTileImg] = useState('');
 
   const nodeRef = useRef(null);
-  const correctCategory = useContext(CategoryContext);
+  const { correctCategory, buzzer } = useContext(PuzzleContext);
+
+  const toggleTileClick = toggle.solvable || clicked || buzzer;
 
   useEffect(() => {
     if (toggle.attempts === config.attempts) { return; } // on mount
@@ -66,7 +68,7 @@ export default function Tile({ loc, toggle, onClick }) {
   };
 
   const handleClick = (e) => {
-    if (toggle.solvable || clicked) { return; }
+    if (toggleTileClick) { return; }
     setClicked(true);
     onClick((prevState) => { return { ...prevState, solvable: true }});
     let [r, c] = loc;

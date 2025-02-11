@@ -3,7 +3,7 @@ import { Radio } from 'antd';
 import styled from 'styled-components';
 import config from '../utils/config';
 
-import { CategoryContext } from '../App';
+import { PuzzleContext } from '../App';
 
 const StyledOptions = styled.div`
   .ant-radio-group {
@@ -62,7 +62,7 @@ export default function Options({
   setCurrentGuess,
   disabled
 }) {
-  const correctCategory = useContext(CategoryContext);
+  const { correctCategory } = useContext(PuzzleContext);
 
   return (
     <StyledOptions $duration={config.duration}>
