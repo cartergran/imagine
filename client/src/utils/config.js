@@ -3,7 +3,7 @@ const day = '0';
 const attempts = 5;
 const duration = 805;
 
-const boardLayout = {
+const board = {
   rows: 4,
   cols: 4
 };
@@ -13,26 +13,13 @@ const msgs = {
   incorrect: 'Sorry.'
 };
 
-const categories = [
-  'Apparel',
-  'Architecture',
-  'Art',
-  'Food',
-  'Gaming',
-  'Movie',
-  'Nature',
-  'Songs',
-  'Sports'
-];
-
 const config = {
   title,
   day,
   attempts,
   duration,
-  boardLayout,
-  msgs,
-  categories
+  board,
+  msgs
 };
 
 export default config;

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import axios from 'axios';
 import config from '../utils/config';
 
-import { CategoryContext } from '../App'
+import { PuzzleContext } from '../App';
 import Options from './options';
 
 const StyledSolve = styled.div`
@@ -36,14 +36,26 @@ const StyledSolve = styled.div`
 export default function Solve({ solvable, onSubmit }) {
   const [currentGuess, setCurrentGuess] = useState('');
   const [prevGuesses, setPrevGuesses] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [choices, setChoices] = useState([]);
 
-  const correctCategory = useContext(CategoryContext);
+  const { correctCategory, buzzer } = useContext(PuzzleContext);
+
+  const toggleOptions = !solvable || buzzer;
+  const toggleSubmit = !solvable || !currentGuess || buzzer;
+
+  useEffect(() => {
+    const getCategories = async () => {
+      let categoriesRes = await axios.get('categories');
+      setCategories(categoriesRes.data);
+    };
+    getCategories();
+  }, [])
 
   useEffect(() => {
     const getChoices = async () => {
-      let choices = await axios.get(process.env.REACT_APP_BASE_URL + '/choices');
-      setChoices(choices.data);
+      let choicesRes = await axios.get('choices');
+      setChoices(choicesRes.data);
     };
     correctCategory && getChoices();
   }, [correctCategory]);
@@ -51,9 +63,8 @@ export default function Solve({ solvable, onSubmit }) {
   const checkCorrect = async (guess, type) => {
     let correct = false;
     try {
-      let res =
-        await axios.get(process.env.REACT_APP_BASE_URL + `/check-${type}`, { params: { guess }});
-      correct = res.data;
+      let correctRes = await axios.get(`check-${type}`, { params: { guess }});
+      correct = correctRes.data;
       (type === 'category' && correct) &&
         onSubmit((prevState) => { return {...prevState, correctCategory: correct }});
     } catch (err) {
@@ -90,15 +101,15 @@ export default function Solve({ solvable, onSubmit }) {
     <StyledSolve $duration={config.duration}>
       <div id="solve">
         <Options
-          options={correctCategory ? choices : config.categories}
+          options={correctCategory ? choices : categories}
           prevGuesses={prevGuesses}
           setCurrentGuess={setCurrentGuess}
-          disabled={!solvable}
+          disabled={toggleOptions}
         />
         <Button
           type="primary"
           onClick={handleSubmit}
-          disabled={!solvable || !currentGuess}
+          disabled={toggleSubmit}
         >
           Submit
         </Button>

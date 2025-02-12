@@ -4,11 +4,11 @@ import axios from 'axios';
 import { Transition } from 'react-transition-group';
 import config from '../utils/config';
 
-import { CategoryContext } from '../App';
+import { PuzzleContext } from '../App';
 
 const StyledTile = styled.div`
-  width: 100px;
-  height: 100px;
+  width: 88px;
+  height: 88px;
 
   border: 2px solid white;
   transition: border ${props => props.$duration || 2300}ms;
@@ -35,7 +35,7 @@ const StyledTileImage = styled.div`
   width: 100%;
   height: 100%;
 
-  background: url("data:image/jpeg;base64,${props => props.$tileImg || ''}");
+  background: url("${props => props.$tileImg || ''}");
   background-size: contain;
 
   transition: opacity ${props => props.$duration || 2300}ms ease-in-out 0s;
@@ -48,7 +48,9 @@ export default function Tile({ loc, toggle, onClick }) {
   const [tileImg, setTileImg] = useState('');
 
   const nodeRef = useRef(null);
-  const correctCategory = useContext(CategoryContext);
+  const { correctCategory, buzzer } = useContext(PuzzleContext);
+
+  const toggleTileClick = toggle.solvable || clicked || buzzer;
 
   useEffect(() => {
     if (toggle.attempts === config.attempts) { return; } // on mount
@@ -58,15 +60,15 @@ export default function Tile({ loc, toggle, onClick }) {
 
   const getTileImg = async (r, c) => {
     try {
-      let res = await axios.get(process.env.REACT_APP_BASE_URL + '/tile', { params: { r, c }});
-      setTileImg(res.data);
+      let tileRes = await axios.get('tile', { params: { r, c }});
+      setTileImg(tileRes.data);
     } catch (err) {
       console.log('getTileImg() Error!', err.message);
     }
   };
 
   const handleClick = (e) => {
-    if (toggle.solvable || clicked) { return; }
+    if (toggleTileClick) { return; }
     setClicked(true);
     onClick((prevState) => { return { ...prevState, solvable: true }});
     let [r, c] = loc;

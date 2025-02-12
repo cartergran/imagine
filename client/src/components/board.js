@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import config from '../utils/config';
 
 import Tile from './tile';
 
@@ -10,20 +11,20 @@ const StyledBoard = styled.div`
 
   #board {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(4, 1fr);
+    grid-template-columns: repeat(${props => props.$cols || 4}, 1fr);
+    grid-template-rows: repeat(${props => props.$rows || 4}, 1fr);
     gap: var(--space-s);
   }
 `;
 
-export default function Board({ rows, cols, toggle, onTileClick }) {
+export default function Board({ toggle, onTileClick }) {
   const [board, setBoard] = useState([]);
 
   useEffect(() => {
     let initBoard = () => {
       let res = [];
-      for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
+      for (let i = 0; i < config.board.rows; i++) {
+        for (let j = 0; j < config.board.cols; j++) {
           res.push(
             <Tile key={`${i}${j}`} loc={`${i}${j}`} toggle={toggle} onClick={onTileClick} />
           );
@@ -33,10 +34,10 @@ export default function Board({ rows, cols, toggle, onTileClick }) {
     };
 
     initBoard();
-  }, [rows, cols, toggle, onTileClick]);
+  }, [toggle, onTileClick]);
 
   return (
-    <StyledBoard>
+    <StyledBoard $rows={config.board.rows} $cols={config.board.cols}>
       <div id="board">
         { board }
       </div>

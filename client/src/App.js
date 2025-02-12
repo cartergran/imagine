@@ -12,7 +12,7 @@ import GlobalStyle from './styles/globalStyle';
 import theme from './styles/theme';
 import config from './utils/config';
 
-export const CategoryContext = createContext();
+export const PuzzleContext = createContext();
 
 function App() {
   const [state, setState] = useState({
@@ -22,28 +22,26 @@ function App() {
     solvable: false
   });
 
-  console.log('state:', state);
+  const buzzer = state.correctSolution || !state.attempts;
 
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
       {
-        (state.correctSolution || !state.attempts) &&
+        (buzzer) &&
           <Modal>
             <Summary correct={state.correctSolution} />
           </Modal>
       }
       <Layout>
-        <CategoryContext.Provider value={state.correctCategory}>
+        <PuzzleContext.Provider value={{ correctCategory: state.correctCategory, buzzer }}>
           <Board
-            rows={config.boardLayout.rows}
-            cols={config.boardLayout.cols}
             toggle={{ attempts: state.attempts, solvable: state.solvable }}
             onTileClick={setState}
           />
           <Attempts count={state.attempts} />
           <Solve solvable={state.solvable} onSubmit={setState} />
-        </CategoryContext.Provider>
+        </PuzzleContext.Provider>
       </Layout>
     </ThemeProvider>
   );
