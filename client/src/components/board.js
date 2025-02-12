@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import config from '../utils/config';
 
@@ -11,35 +10,39 @@ const StyledBoard = styled.div`
 
   #board {
     display: grid;
-    grid-template-columns: repeat(${props => props.$cols || 4}, 1fr);
     grid-template-rows: repeat(${props => props.$rows || 4}, 1fr);
+    gap: var(--space-s);
+  }
+
+  .row {
+    // create own flex context inside grid cell
+    display: flex;
     gap: var(--space-s);
   }
 `;
 
 export default function Board({ toggle, onTileClick }) {
-  const [board, setBoard] = useState([]);
-
-  useEffect(() => {
-    let initBoard = () => {
-      let res = [];
-      for (let i = 0; i < config.board.rows; i++) {
-        for (let j = 0; j < config.board.cols; j++) {
-          res.push(
-            <Tile key={`${i}${j}`} loc={`${i}${j}`} toggle={toggle} onClick={onTileClick} />
-          );
-        }
-      }
-      setBoard(res);
-    };
-
-    initBoard();
-  }, [toggle, onTileClick]);
-
   return (
     <StyledBoard $rows={config.board.rows} $cols={config.board.cols}>
       <div id="board">
-        { board }
+        {
+          Array.from({ length: config.board.rows }).map((_,  r) => (
+            <div key={r} className="row">
+              {
+                Array.from({ length: config.board.cols }).map((_, c) => {
+                  return (
+                    <Tile
+                      key={`${r}${c}`}
+                      loc={`${r}${c}`}
+                      toggle={toggle}
+                      onClick={onTileClick}
+                    />
+                  );
+                })
+              }
+            </div>
+          ))
+        }
       </div>
     </StyledBoard>
   );
