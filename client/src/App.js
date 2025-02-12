@@ -36,8 +36,6 @@ function App() {
       <Layout>
         <PuzzleContext.Provider value={{ correctCategory: state.correctCategory, buzzer }}>
           <Board
-            rows={config.board.rows}
-            cols={config.board.cols}
             toggle={{ attempts: state.attempts, solvable: state.solvable }}
             onTileClick={setState}
           />
