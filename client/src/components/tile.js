@@ -7,10 +7,10 @@ import config from '../utils/config';
 import { PuzzleContext } from '../App';
 
 const StyledTile = styled.div`
-  width: 88px;
-  height: 88px;
+  width: 48px;
+  height: 48px;
 
-  border: 2px solid white;
+  border: 1px solid white;
   transition: border ${props => props.$duration || 2300}ms;
 
   &.preview {
@@ -56,7 +56,7 @@ export default function Tile({ loc, toggle, onClick }) {
     if (toggle.attempts === config.attempts) { return; } // on mount
     setFeedback(true);
     setTimeout(() => setFeedback(false), config.duration);
-  }, [toggle.attempts])
+  }, [toggle.attempts]);
 
   const getTileImg = async (r, c) => {
     try {
@@ -70,7 +70,7 @@ export default function Tile({ loc, toggle, onClick }) {
   const handleClick = (e) => {
     if (toggleTileClick) { return; }
     setClicked(true);
-    onClick((prevState) => { return { ...prevState, solvable: true }});
+    onClick((clicksLeft) => clicksLeft - 1);
     let [r, c] = loc;
     getTileImg(r, c);
   };

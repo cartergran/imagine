@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import config from '../utils/config';
 
@@ -21,7 +22,21 @@ const StyledBoard = styled.div`
   }
 `;
 
-export default function Board({ toggle, onTileClick }) {
+export default function Board({ toggle, onEndSelection }) {
+  const [clicksLeft, setClicksLeft] = useState(config.clicksPerAttempt);
+
+  useEffect(() => {
+    if (clicksLeft === 0) {
+      onEndSelection((prevState) => { return { ...prevState, solvable: true }});
+    }
+  }, [clicksLeft, onEndSelection]);
+
+  useEffect(() => {
+    if (!toggle.solvable) {
+      setClicksLeft(config.clicksPerAttempt);
+    }
+  }, [toggle.solvable]);
+
   return (
     <StyledBoard $rows={config.board.rows} $cols={config.board.cols}>
       <div id="board">
@@ -35,7 +50,7 @@ export default function Board({ toggle, onTileClick }) {
                       key={`${r}${c}`}
                       loc={`${r}${c}`}
                       toggle={toggle}
-                      onClick={onTileClick}
+                      onClick={setClicksLeft}
                     />
                   );
                 })

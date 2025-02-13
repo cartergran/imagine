@@ -50,7 +50,7 @@ export default function Solve({ solvable, onSubmit }) {
       setCategories(categoriesRes.data);
     };
     getCategories();
-  }, [])
+  }, []);
 
   useEffect(() => {
     const getChoices = async () => {
