@@ -1,9 +1,9 @@
-import { useContext } from 'react';
+// import { useContext } from 'react';
 import { Radio } from 'antd';
 import styled from 'styled-components';
 import config from '../utils/config';
 
-import { PuzzleContext } from '../App';
+// import { PuzzleContext } from '../App';
 
 const StyledOptions = styled.div`
   .ant-radio-group {
@@ -12,7 +12,8 @@ const StyledOptions = styled.div`
     grid-template-rows: auto auto auto;
     gap: var(--space-s);
 
-    &.sub-group {
+    // + formation
+    &.plus-group {
       :nth-child(odd) {
         grid-column: 2;
       }
@@ -62,12 +63,12 @@ export default function Options({
   setCurrentGuess,
   disabled
 }) {
-  const { correctCategory } = useContext(PuzzleContext);
+  // const { correctCategory } = useContext(PuzzleContext);
 
   return (
     <StyledOptions $duration={config.duration}>
       <Radio.Group
-        className={correctCategory ? 'sub-group' : ''}
+        className={'' /* correctCategory ? 'plus-group' : '' */}
         onChange={(e) => setCurrentGuess(e.target.value)}
       >
         {
