@@ -31,8 +31,8 @@ var intel = {
   solution: ''
 };
 var img = {
-  width: 1001, // TODO
-  height: 1001, // TODO
+  width: 2002,
+  height: 2002,
   data: {},
   base64: ''
 };

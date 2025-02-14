@@ -20,10 +20,6 @@ const StyledModal = styled.dialog`
     max-width: 480px;
     padding: var(--space-l);
     text-align: center;
-
-    #content {
-      width: 320px;
-    }
   }
 `;
 

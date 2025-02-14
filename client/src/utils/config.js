@@ -10,8 +10,8 @@ const board = {
 };
 
 const msgs = {
-  correct: 'Nice.',
-  incorrect: 'Sorry.'
+  correct: 'Ball IQ.',
+  incorrect: 'Tuff.'
 };
 
 const config = {

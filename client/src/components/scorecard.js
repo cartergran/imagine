@@ -20,23 +20,25 @@ const StyledScore = styled.dl`
     display: inline-flex;
 
     span {
-      width: 32px;
-      height: 32px;
+      width: 24px;
+      height: 24px;
 
       ${({ theme }) => theme.recycle.flexCenter};
 
-      font-size: 32px;
+      font-size: 24px;
     }
   }
 `;
 
 const StyledImage = styled.div`
   // see above <span /> size for calc (4x4)
-  width: calc(32px * ${props => props.$rows || 4});
-  height: calc(32px * ${props => props.$cols || 4});
+  width: calc(24px * ${props => props.$rows || 4});
+  height: calc(24px * ${props => props.$cols || 4});
 
   background: url("${props => props.$img || ''}");
-  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 `;
 
 export default function Scorecard() {
