@@ -10,7 +10,7 @@ import Options from './options';
 const StyledSolve = styled.div`
   ${({ theme }) => theme.recycle.flexCenter};
 
-  margin: var(--space-l) 0;
+  margin-top: var(--space-l);
 
   #solve {
     ${({ theme }) => theme.recycle.flexCenter};

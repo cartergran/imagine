@@ -42,6 +42,11 @@ const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
     cursor: pointer;
   }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
   // end elements
 
   // start classes
