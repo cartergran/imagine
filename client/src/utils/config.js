@@ -1,6 +1,6 @@
 const title = 'imagine';
 const day = '0';
-const attempts = 5;
+const numAttempts = 5;
 const clicksPerAttempt = 5;
 const duration = 805;
 
@@ -17,7 +17,7 @@ const msgs = {
 const config = {
   title,
   day,
-  attempts,
+  numAttempts,
   clicksPerAttempt,
   duration,
   board,

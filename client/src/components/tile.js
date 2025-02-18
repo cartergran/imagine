@@ -53,10 +53,10 @@ export default function Tile({ loc, toggle, onClick }) {
   const toggleTileClick = toggle.solvable || clicked || buzzer;
 
   useEffect(() => {
-    if (toggle.attempts === config.attempts) { return; } // on mount
+    if (toggle.numAttempts === config.numAttempts) { return; } // on mount
     setFeedback(true);
     setTimeout(() => setFeedback(false), config.duration);
-  }, [toggle.attempts]);
+  }, [toggle.numAttempts]);
 
   const getTileImg = async (r, c) => {
     try {

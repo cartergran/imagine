@@ -88,7 +88,7 @@ export default function Solve({ solvable, onSubmit }) {
       onSubmit((prevState) => {
         return {
           ...prevState,
-          attempts: --prevState.attempts,
+          numAttempts: --prevState.numAttempts,
           solvable: false
       }});
       setPrevGuesses((prevGuesses) => [...prevGuesses, currentGuess]);

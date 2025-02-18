@@ -16,13 +16,13 @@ export const PuzzleContext = createContext();
 
 function App() {
   const [state, setState] = useState({
-    attempts: config.attempts,
+    numAttempts: config.numAttempts,
     correctCategory: false,
     correctSolution: false,
     solvable: false
   });
 
-  const buzzer = state.correctSolution || !state.attempts;
+  const buzzer = state.correctSolution || !state.numAttempts;
 
   return (
     <ThemeProvider theme={theme}>
@@ -36,10 +36,10 @@ function App() {
       <Layout>
         <PuzzleContext.Provider value={{ correctCategory: state.correctCategory, buzzer }}>
           <Board
-            toggle={{ attempts: state.attempts, solvable: state.solvable }}
+            toggle={{ numAttempts: state.numAttempts, solvable: state.solvable }}
             onEndSelection={setState}
           />
-          <Attempts count={state.attempts} />
+          <Attempts count={state.numAttempts} />
           <Solve solvable={state.solvable} onSubmit={setState} />
         </PuzzleContext.Provider>
       </Layout>
