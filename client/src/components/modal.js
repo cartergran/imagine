@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 
+import { X as CloseIcon } from 'lucide-react';
+
 const StyledModal = styled.dialog`
   width: 100%;
   height: 100%;
@@ -15,22 +17,46 @@ const StyledModal = styled.dialog`
   padding: 0;
   z-index: ${process.env.REACT_APP_MAGIC_NUM};
 
-  #modal {
+  .modal {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+
+    position: relative;
+
     color: white;
     max-width: 480px;
-    padding: var(--space-l);
+    padding: var(--space-xl);
     text-align: center;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  .modal-header {
+    h3 {
+      font-size: 22px;
+    }
   }
 `;
 
-export default function Modal({ children }) {
+export default function Modal({ header, children, handleClose }) {
   return (
     <StyledModal>
-      <div id="modal">
-        <div id="close">
-          { /* TODO */ }
+      <div class="modal">
+        {
+          handleClose &&
+            <button className="modal-close" onClick={handleClose}>
+              <CloseIcon size={32} />
+            </button>
+        }
+        <div class="modal-header">
+          <h3>{header}</h3>
         </div>
-        <div id="content">
+        <div class="modal-content">
           { children }
         </div>
       </div>

@@ -9,6 +9,7 @@ const variables = css`
     --space-s: 8px;
     --space-m: 16px;
     --space-l: 24px;
+    --space-xl: 32px;
   }
 `;
 

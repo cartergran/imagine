@@ -29,8 +29,8 @@ function App() {
       <GlobalStyle />
       {
         (buzzer) &&
-          <Modal>
-            <Summary correct={state.correctSolution} />
+          <Modal header={state.correctSolution ? config.msgs.correct : config.msgs.incorrect}>
+            <Summary />
           </Modal>
       }
       <Layout>

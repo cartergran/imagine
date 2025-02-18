@@ -30,6 +30,18 @@ const GlobalStyle = createGlobalStyle`
   dl, dd {
     margin: 0;
   }
+
+  // reset
+  button {
+    all: unset;
+
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    box-sizing: border-box;
+    cursor: pointer;
+  }
   // end elements
 
   // start classes
