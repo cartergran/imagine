@@ -46,17 +46,17 @@ const StyledModal = styled.dialog`
 export default function Modal({ header, children, handleClose }) {
   return (
     <StyledModal>
-      <div class="modal">
+      <div className="modal">
         {
           handleClose &&
             <button className="modal-close" onClick={handleClose}>
               <CloseIcon size={32} />
             </button>
         }
-        <div class="modal-header">
+        <div className="modal-header">
           <h3>{header}</h3>
         </div>
-        <div class="modal-content">
+        <div className="modal-content">
           { children }
         </div>
       </div>
