@@ -69,10 +69,10 @@ export default function Scorecard() {
           {
             score.map((row, i) => {
               return (
-                <div key={i} className="share-row">
+                <div key={i}>
                   <dd aria-label={`row ${i} intel`} />
                   <dt>
-                    { row.map((tile, j) => <span key={j} className="share-tile">{tile}</span>) }
+                    { row.map((tile, j) => <span key={j}>{tile}</span>) }
                   </dt>
                 </div>
               );
