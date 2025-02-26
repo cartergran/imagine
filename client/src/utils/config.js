@@ -14,6 +14,28 @@ const msgs = {
   incorrect: 'Tuff.'
 };
 
+const tools = {
+  summary: 'summary',
+  manual: 'manual',
+  default: ''
+};
+
+export const manualConfig = {
+  header: 'How To Play',
+  description: {
+    summary: `Imagine the class & species of an animal in ${numAttempts} attempts.`,
+    details: [
+      `The ${board.rows} x ${board.cols} tile grid depicts one image of an animal.`,
+      `Before each attempt select ${clicksPerAttempt} tiles to reveal a portion of the image.`,
+      `After selecting the initial class of animal correctly, the options will change to species of
+      that class.`,
+      `On the scorecard, the color of the tiles change according to your attempts.`
+    ]
+  },
+  // TODO
+  example: {}
+};
+
 const config = {
   title,
   day,
@@ -21,7 +43,8 @@ const config = {
   clicksPerAttempt,
   duration,
   board,
-  msgs
+  msgs,
+  tools
 };
 
 export default config;
