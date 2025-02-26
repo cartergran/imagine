@@ -5,7 +5,12 @@ import scorecard from '../utils/scorecard';
 import config from '../utils/config';
 
 const StyledScorecard = styled.div`
-  .eval {
+  .scorecard-title {
+    margin-bottom: var(--space-s);
+    text-align: center;
+  }
+
+  .scorecard-eval {
     display: flex;
     justify-content: center;
   }
@@ -41,16 +46,21 @@ const StyledImage = styled.div`
   background-size: cover;
 `;
 
-export default function Scorecard() {
-  const [score, setScore] = useState([]);
-  const [img, setImg] = useState('');
+export default function Scorecard({ title: exampleTitle, score: exampleScore, img: exampleImg }) {
+  const [score, setScore] = useState(exampleScore || [[]]);
+  const [img, setImg] = useState(exampleImg || '');
+
+  // TODO: conditionally require props (all or none)
+  const isExample = exampleTitle && exampleScore && exampleImg;
 
   useEffect(() => {
-    getImg();
+    if (!isExample) {
+      getImg();
 
-    scorecard.init();
-    setScore(scorecard.score);
-  }, []);
+      scorecard.init();
+      setScore(scorecard.score);
+    }
+  }, [isExample]);
 
   const getImg = async () => {
     try {
@@ -63,8 +73,8 @@ export default function Scorecard() {
 
   return (
     <StyledScorecard>
-      <h5>{scorecard.title}</h5>
-      <div className="eval">
+      <h5 className="scorecard-title">{!isExample ? scorecard.title : exampleTitle}</h5>
+      <div className="scorecard-eval">
         <StyledScore>
           {
             score.map((row, i) => {

@@ -27,7 +27,6 @@ const StyledModal = styled.dialog`
     color: white;
     max-width: 480px;
     padding: var(--space-xl);
-    text-align: center;
   }
 
   .modal-close {
@@ -37,6 +36,8 @@ const StyledModal = styled.dialog`
   }
 
   .modal-header {
+    text-align: center;
+
     h3 {
       font-size: 22px;
     }
