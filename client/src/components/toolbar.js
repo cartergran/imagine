@@ -78,7 +78,7 @@ export default function Toolbar() {
         </button>
       </StyledToolbar>
       {
-        (activeTool) &&
+        activeTool &&
           <Modal header={modalProps.header} handleClose={modalProps.handleClose}>
             { renderTools[activeTool] }
           </Modal>

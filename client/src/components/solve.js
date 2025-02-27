@@ -111,7 +111,7 @@ export default function Solve({ solvable, onSubmit }) {
           onClick={handleSubmit}
           disabled={toggleSubmit}
         >
-          Submit
+          { config.actions.submit }
         </Button>
       </div>
     </StyledSolve>

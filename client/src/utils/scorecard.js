@@ -59,6 +59,10 @@ axios.interceptors.response.use((res) => {
     } else {
       currentLog.correctness = correct ? 0 : -1;
     }
+
+    if (currentLog.correctness === magicNum || scorecard.logs.length === config.numAttempts) {
+      scorecard.init();
+    }
   }
   return res;
 }, (err) => { return Promise.reject(err); });

@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 import Scorecard from './scorecard';
+import Share from './share';
 
 const StyledSummary = styled.div`
   display: flex;
@@ -12,7 +13,7 @@ export default function Summary() {
   return (
     <StyledSummary>
       <Scorecard />
-      {/* TODO: <Share /> */}
+      <Share />
     </StyledSummary>
   );
 };

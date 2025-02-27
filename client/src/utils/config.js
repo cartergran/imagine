@@ -9,6 +9,11 @@ const board = {
   cols: 7
 };
 
+const actions = {
+  submit: 'Submit',
+  share: 'Share'
+};
+
 const msgs = {
   correct: 'Ball IQ.',
   incorrect: 'Tuff.'
@@ -61,6 +66,7 @@ const config = {
   clicksPerAttempt,
   duration,
   board,
+  actions,
   msgs,
   tools
 };

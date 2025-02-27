@@ -47,18 +47,15 @@ const StyledImage = styled.div`
 `;
 
 export default function Scorecard({ title: exampleTitle, score: exampleScore, img: exampleImg }) {
-  const [score, setScore] = useState(exampleScore || [[]]);
   const [img, setImg] = useState(exampleImg || '');
 
   // TODO: conditionally require props (all or none)
   const isExample = exampleTitle && exampleScore && exampleImg;
+  const score = isExample ? exampleScore : scorecard.score;
 
   useEffect(() => {
     if (!isExample) {
       getImg();
-
-      scorecard.init();
-      setScore(scorecard.score);
     }
   }, [isExample]);
 
@@ -73,7 +70,7 @@ export default function Scorecard({ title: exampleTitle, score: exampleScore, im
 
   return (
     <StyledScorecard>
-      <h5 className="scorecard-title">{!isExample ? scorecard.title : exampleTitle}</h5>
+      <h5 className="scorecard-title">{isExample ? exampleTitle : scorecard.title}</h5>
       <div className="scorecard-eval">
         <StyledScore>
           {
