@@ -10,6 +10,9 @@ const variables = css`
     --space-m: 16px;
     --space-l: 24px;
     --space-xl: 32px;
+
+    // sizing
+    --tile-size: 48px;
   }
 `;
 

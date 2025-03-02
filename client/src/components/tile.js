@@ -1,35 +1,15 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import { Transition } from 'react-transition-group';
 import config from '../utils/config';
 
 import { PuzzleContext } from '../App';
+import Flip from './flip';
 
 const StyledTile = styled.div`
-  width: 48px;
-  height: 48px;
-
-  border: 1px solid white;
-  transition: border ${props => props.$duration || 2300}ms;
-
-  &.preview {
-    border-color: black;
-  }
-  &.incorrect-cat {
-    border-color: red;
-  }
-  &.incorrect-sol {
-    border-color: yellow;
-  }
+  width: var(--tile-size);
+  height: var(--tile-size);
 `;
-
-const transitionStyles = {
-  entering: 1,
-  entered: 1,
-  exiting: 0,
-  exited: 0,
-};
 
 const StyledTileImage = styled.div`
   width: 100%;
@@ -37,9 +17,6 @@ const StyledTileImage = styled.div`
 
   background: url("${props => props.$tileImg || ''}");
   background-size: contain;
-
-  transition: opacity ${props => props.$duration || 2300}ms ease-in-out 0s;
-  opacity: ${props => props.$opacity || 0};
 `;
 
 export default function Tile({ loc, toggle, onClick }) {
@@ -47,10 +24,9 @@ export default function Tile({ loc, toggle, onClick }) {
   const [feedback, setFeedback] = useState(false);
   const [tileImg, setTileImg] = useState('');
 
-  const nodeRef = useRef(null);
   const { correctCategory, buzzer } = useContext(PuzzleContext);
 
-  const toggleTileClick = toggle.solvable || clicked || buzzer;
+  const toggleTileClick = clicked || toggle.solvable || buzzer;
 
   useEffect(() => {
     if (toggle.numAttempts === config.numAttempts) { return; } // on mount
@@ -59,46 +35,45 @@ export default function Tile({ loc, toggle, onClick }) {
   }, [toggle.numAttempts]);
 
   const getTileImg = async (r, c) => {
+    let tileImgRes = { data: '' };
     try {
-      let tileRes = await axios.get('tile', { params: { r, c }});
-      setTileImg(tileRes.data);
+      tileImgRes = await axios.get('tile', { params: { r, c }});
     } catch (err) {
       console.log('getTileImg() Error!', err.message);
     }
+    return tileImgRes.data;
   };
 
   const handleClick = (e) => {
     if (toggleTileClick) { return; }
-    setClicked(true);
-    onClick((clicksLeft) => clicksLeft - 1);
     let [r, c] = loc;
-    getTileImg(r, c);
+    getTileImg(r, c).then((tileImgRes) => {
+      setTileImg(tileImgRes);
+      setClicked(true);
+      onClick((clicksLeft) => clicksLeft - 1);
+    });
   };
 
-  const getClassName = () => {
+  const getBorderColor = () => {
+    // incorrect solution on attempt
     if (correctCategory && feedback) {
-      return 'incorrect-sol';
+      return 'yellow';
     }
 
+    // incorrect category on attempt
     if (feedback) {
-      return 'incorrect-cat'
+      return 'red'
     }
 
-    return toggle.solvable ? 'preview' : '';
+    // initial flip || unselected
+    return toggle.solvable ? 'black' : 'white';
   };
 
   return (
-    <StyledTile className={getClassName()} $clicked={clicked} onClick={handleClick}>
-      <Transition nodeRef={nodeRef} in={tileImg !== ''} timeout={config.duration}>
-        {phase => (
-          <StyledTileImage
-            ref={nodeRef}
-            $tileImg={tileImg}
-            $duration={config.duration}
-            $opacity={transitionStyles[phase]}
-          />
-        )}
-      </Transition>
+    <StyledTile onClick={handleClick}>
+      <Flip borderColor={getBorderColor()} isFlipped={clicked}>
+        <StyledTileImage $tileImg={tileImg} />
+      </Flip>
     </StyledTile>
   );
 }
