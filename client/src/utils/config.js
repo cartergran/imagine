@@ -1,5 +1,7 @@
 const title = 'imagine';
-const day = '0';
+const day = process.env.REACT_APP_DAY;
+const share = `${title} #${day}`;
+
 const numAttempts = 5;
 const clicksPerAttempt = 5;
 const duration = 805;
@@ -62,6 +64,7 @@ export const manualConfig = {
 const config = {
   title,
   day,
+  share,
   numAttempts,
   clicksPerAttempt,
   duration,

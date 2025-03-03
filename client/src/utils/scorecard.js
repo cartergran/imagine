@@ -27,7 +27,7 @@ const scorecard = {
     initScore(this);
     // TODO: calcStats(); ?
   },
-  title: `${config.title} #${config.day}`,
+  title: config.share,
   logs: [{ tileClicks: [], correctness: 0 }],
   score: init2DArray(config.board.rows, config.board.cols, emojis[0])
 };

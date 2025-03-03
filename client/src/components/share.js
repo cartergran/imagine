@@ -9,10 +9,23 @@ const StyledShare = styled.div`
 
 // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
 export default function Share() {
-  const shareData = {
-    title: scorecard.title,
-    text: scorecard.score.map((row) => row.join('')).join('\n')
+  const isMobile= /iPhone/.test(navigator.userAgent);
+
+  const initShareData = () => {
+    if (isMobile) {
+      // ignores title field
+      let text = `
+        ${config.share}
+
+        ${scorecard.score.map((row) => row.join('')).join('\n')}
+      `;
+      text = text.trim().replaceAll(' ', '');
+      return { text }
+    }
+    return { title: config.share, text: scorecard.score.map((row) => row.join('')).join('\n') }
   };
+
+  const shareData = initShareData(isMobile);
 
   const handleShare = async () => {
     if (navigator.share) {
