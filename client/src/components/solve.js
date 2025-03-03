@@ -21,9 +21,9 @@ const StyledSolve = styled.div`
   .ant-btn-primary {
     border-radius: var(--space-s);
     transition:
-      background ${props => props.$duration || 2300}ms,
-      border ${props => props.$duration || 2300}ms,
-      color ${props => props.$duration || 2300}ms;
+      background ${config.duration}ms,
+      border ${config.duration}ms,
+      color ${config.duration}ms;
 
     // increase specificity to override antd
     &[disabled] {
@@ -98,7 +98,7 @@ export default function Solve({ solvable, onSubmit }) {
   };
 
   return (
-    <StyledSolve $duration={config.duration}>
+    <StyledSolve>
       <div id="solve">
         <Options
           options={correctCategory ? choices : categories}

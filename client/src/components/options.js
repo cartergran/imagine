@@ -38,8 +38,8 @@ const StyledOptions = styled.div`
     font-size: 11px;
     padding-inline: 0;
     transition:
-      border ${props => props.$duration || 2300}ms,
-      color ${props => props.$duration || 2300}ms;
+      border ${config.duration}ms,
+      color ${config.duration}ms;
 
     &::before {
       content: none; // pseudo-element not rendered
@@ -66,7 +66,7 @@ export default function Options({
   // const { correctCategory } = useContext(PuzzleContext);
 
   return (
-    <StyledOptions $duration={config.duration}>
+    <StyledOptions>
       <Radio.Group
         className={'' /* correctCategory ? 'plus-group' : '' */}
         onChange={(e) => setCurrentGuess(e.target.value)}
