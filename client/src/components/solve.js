@@ -33,13 +33,13 @@ const StyledSolve = styled.div`
   }
 `;
 
-export default function Solve({ solvable, onSubmit }) {
+export default function Solve({ onSubmit }) {
   const [currentGuess, setCurrentGuess] = useState('');
   const [prevGuesses, setPrevGuesses] = useState([]);
   const [categories, setCategories] = useState([]);
   const [choices, setChoices] = useState([]);
 
-  const { correctCategory, buzzer } = useContext(PuzzleContext);
+  const { correctCategory, solvable, buzzer } = useContext(PuzzleContext);
 
   const toggleOptions = !solvable || buzzer;
   const toggleSubmit = !solvable || !currentGuess || buzzer;
@@ -73,7 +73,7 @@ export default function Solve({ solvable, onSubmit }) {
     return correct;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async () => {
     let correctGuess  = await checkCorrect(currentGuess, correctCategory ? 'solution' : 'category');
     if (correctGuess) {
       onSubmit((prevState) => {
@@ -89,7 +89,8 @@ export default function Solve({ solvable, onSubmit }) {
         return {
           ...prevState,
           numAttempts: --prevState.numAttempts,
-          solvable: false
+          solvable: false,
+          maxSelection: false
       }});
       setPrevGuesses((prevGuesses) => [...prevGuesses, currentGuess]);
     }

@@ -17,12 +17,14 @@ function App() {
     numAttempts: config.numAttempts,
     correctCategory: false,
     correctSolution: false,
-    solvable: false
+    solvable: false,
+    maxSelection: false
   });
 
   const context = {
     correctCategory: state.correctCategory,
     correctSolution: state.correctSolution,
+    solvable: state.solvable,
     buzzer: state.correctSolution || !state.numAttempts
   };
 
@@ -32,11 +34,11 @@ function App() {
       <PuzzleContext.Provider value={context}>
         <Layout>
             <Board
-              toggle={{ numAttempts: state.numAttempts, solvable: state.solvable }}
-              onEndSelection={setState}
+              toggle={{ numAttempts: state.numAttempts, maxSelection: state.maxSelection }}
+              onSelection={setState}
             />
             <Attempts count={state.numAttempts} />
-            <Solve solvable={state.solvable} onSubmit={setState} />
+            <Solve onSubmit={setState} />
         </Layout>
       </PuzzleContext.Provider>
     </ThemeProvider>

@@ -3,7 +3,7 @@ const day = process.env.REACT_APP_DAY;
 const share = `${title} #${day}`;
 
 const numAttempts = 5;
-const clicksPerAttempt = 5;
+const selectionsPerAttempt = 5;
 const duration = 805;
 
 const board = {
@@ -33,7 +33,8 @@ export const manualConfig = {
     summary: `Imagine the class and species of an animal in ${numAttempts} attempts.`,
     details: [
       `The ${board.rows} x ${board.cols} tile grid depicts one image of an animal.`,
-      `Before each attempt select ${clicksPerAttempt} tiles to reveal a portion of the image.`,
+      `Before each attempt select anywhere from 1 to ${selectionsPerAttempt} tiles to reveal a
+      portion of the image.`,
       `After choosing the initial class of animal correctly, the options will change to species of
       that class.`,
       `On the scorecard, the color of the tiles change according to your attempts.`
@@ -49,8 +50,8 @@ export const manualConfig = {
     subheader: 'Example',
     overview: '{ class: Mammal, species: Red Panda }',
     score: [
-      ['⬛','⬛','⬛','⬛','⬛','🟩','🟥'],
-      ['🟨','🟥','🟨','🟨','🟨','🟩','🟩'],
+      ['⬛','⬛','⬛','⬛','⬛','⬛','🟥'],
+      ['🟨','🟥','🟨','🟨','🟨','🟩','⬛'],
       ['🟨','🟨','🟨','🟥','🟨','🟩','🟩'],
       ['⬛','⬛','🟥','⬛','⬛','🟥','🟨'],
       ['⬛','⬛','⬛','⬛','⬛','⬛','🟨'],
@@ -66,7 +67,7 @@ const config = {
   day,
   share,
   numAttempts,
-  clicksPerAttempt,
+  selectionsPerAttempt,
   duration,
   board,
   actions,

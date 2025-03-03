@@ -26,7 +26,7 @@ export default function Tile({ loc, toggle, onClick }) {
 
   const { correctCategory, buzzer } = useContext(PuzzleContext);
 
-  const toggleTileClick = clicked || toggle.solvable || buzzer;
+  const toggleTileClick = clicked || toggle.maxSelection || buzzer;
 
   useEffect(() => {
     if (toggle.numAttempts === config.numAttempts) { return; } // on mount
@@ -65,8 +65,8 @@ export default function Tile({ loc, toggle, onClick }) {
       return 'red'
     }
 
-    // initial flip || unselected
-    return toggle.solvable ? 'black' : 'white';
+    // preview || selection
+    return toggle.maxSelection ? 'black' : 'white';
   };
 
   return (

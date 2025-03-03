@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import config from '../utils/config';
 
+import { PuzzleContext } from '../App';
 import Tile from './tile';
 
 const StyledBoard = styled.div`
@@ -22,20 +23,24 @@ const StyledBoard = styled.div`
   }
 `;
 
-export default function Board({ toggle, onEndSelection }) {
-  const [clicksLeft, setClicksLeft] = useState(config.clicksPerAttempt);
+export default function Board({ toggle, onSelection }) {
+  const [selectionsLeft, setSelectionsLeft] = useState(config.selectionsPerAttempt);
+
+  const { solvable } = useContext(PuzzleContext);
 
   useEffect(() => {
-    if (clicksLeft === 0) {
-      onEndSelection((prevState) => { return { ...prevState, solvable: true }});
+    if (selectionsLeft === config.selectionsPerAttempt - 1) {
+      onSelection((prevState) => { return { ...prevState, solvable: true }});
+    } else if (selectionsLeft === 0) {
+      onSelection((prevState) => { return { ...prevState, maxSelection: true }});
     }
-  }, [clicksLeft, onEndSelection]);
+  }, [selectionsLeft, onSelection]);
 
   useEffect(() => {
-    if (!toggle.solvable) {
-      setClicksLeft(config.clicksPerAttempt);
+    if (!solvable) {
+      setSelectionsLeft(config.selectionsPerAttempt);
     }
-  }, [toggle.solvable]);
+  }, [solvable]);
 
   return (
     <StyledBoard $rows={config.board.rows} $cols={config.board.cols}>
@@ -50,7 +55,7 @@ export default function Board({ toggle, onEndSelection }) {
                       key={`${r}${c}`}
                       loc={`${r}${c}`}
                       toggle={toggle}
-                      onClick={setClicksLeft}
+                      onClick={setSelectionsLeft}
                     />
                   );
                 })
