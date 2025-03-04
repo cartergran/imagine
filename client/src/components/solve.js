@@ -33,6 +33,15 @@ const StyledSolve = styled.div`
   }
 `;
 
+// fisher-yates shuffle
+const shuffleArray = (arr) => {
+  for (let i = arr.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1)); // random index
+    [arr[i], arr[j]] = [arr[j], arr[i]]; // swap elements
+  }
+  return arr;
+}
+
 export default function Solve({ onSubmit }) {
   const [currentGuess, setCurrentGuess] = useState('');
   const [prevGuesses, setPrevGuesses] = useState([]);
@@ -47,7 +56,7 @@ export default function Solve({ onSubmit }) {
   useEffect(() => {
     const getCategories = async () => {
       let categoriesRes = await axios.get('categories');
-      setCategories(categoriesRes.data);
+      setCategories(shuffleArray(categoriesRes.data));
     };
     getCategories();
   }, []);
@@ -55,7 +64,7 @@ export default function Solve({ onSubmit }) {
   useEffect(() => {
     const getChoices = async () => {
       let choicesRes = await axios.get('choices');
-      setChoices(choicesRes.data);
+      setChoices(shuffleArray(choicesRes.data));
     };
     correctCategory && getChoices();
   }, [correctCategory]);
