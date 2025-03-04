@@ -58,7 +58,7 @@ export default function Toolbar() {
 
   useEffect(() => {
     if (summary.toggle) {
-      handleSummaryClick();
+      setTimeout(handleSummaryClick, config.duration * 3);
     }
   }, [summary.toggle, handleSummaryClick]);
 

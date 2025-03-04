@@ -53,12 +53,6 @@ export default function Scorecard({ title: exampleTitle, score: exampleScore, im
   const isExample = exampleTitle && exampleScore && exampleImg;
   const score = isExample ? exampleScore : scorecard.score;
 
-  useEffect(() => {
-    if (!isExample) {
-      getImg();
-    }
-  }, [isExample]);
-
   const getImg = async () => {
     try {
       let imgRes = await axios.get('img');
@@ -67,6 +61,12 @@ export default function Scorecard({ title: exampleTitle, score: exampleScore, im
       console.log('getImg() Error!', err.message);
     }
   };
+
+  useEffect(() => {
+    if (!isExample) {
+      getImg();
+    }
+  }, [isExample]);
 
   return (
     <StyledScorecard>

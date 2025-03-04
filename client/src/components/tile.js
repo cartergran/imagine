@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import config from '../utils/config';
@@ -25,14 +25,9 @@ export default function Tile({ loc, toggle, onClick }) {
   const [tileImg, setTileImg] = useState('');
 
   const { correctCategory, buzzer } = useContext(PuzzleContext);
+  // const onMount = useRef(true);
 
   const toggleTileClick = clicked || toggle.maxSelection || buzzer;
-
-  useEffect(() => {
-    if (toggle.numAttempts === config.numAttempts) { return; } // on mount
-    setFeedback(true);
-    setTimeout(() => setFeedback(false), config.duration);
-  }, [toggle.numAttempts]);
 
   const getTileImg = async (r, c) => {
     let tileImgRes = { data: '' };
@@ -44,15 +39,31 @@ export default function Tile({ loc, toggle, onClick }) {
     return tileImgRes.data;
   };
 
-  const handleClick = (e) => {
-    if (toggleTileClick) { return; }
+  const remixTile = useCallback(() => {
     let [r, c] = loc;
     getTileImg(r, c).then((tileImgRes) => {
       setTileImg(tileImgRes);
       setClicked(true);
       onClick((clicksLeft) => clicksLeft - 1);
     });
+  }, [loc, onClick]);
+
+  const handleClick = () => {
+    if (toggleTileClick) { return; }
+    remixTile();
   };
+
+  useEffect(() => {
+    if (!buzzer) { return; }
+    let [r] = loc;
+    let time = ((r * config.board.cols) + config.board.cols) * process.env.REACT_APP_MAGIC_NUM;
+    let timer = setTimeout(remixTile, time);
+    return () => clearTimeout(timer);
+  }, [buzzer, loc, remixTile]);
+
+  // useEffect(() => {
+  //   if (onMount.current) { onMount.current = false; }
+  // }, []);
 
   const getBorderColor = () => {
     // incorrect solution on attempt
@@ -68,6 +79,13 @@ export default function Tile({ loc, toggle, onClick }) {
     // preview || selection
     return toggle.maxSelection ? 'black' : 'white';
   };
+
+  useEffect(() => {
+    if (toggle.numAttempts === config.selectionsPerAttempt) { return; }
+    setFeedback(true);
+    let timer = setTimeout(() => setFeedback(false), config.duration);
+    return () => clearTimeout(timer);
+  }, [toggle.numAttempts]);
 
   return (
     <StyledTile onClick={handleClick}>
