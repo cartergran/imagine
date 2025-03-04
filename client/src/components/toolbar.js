@@ -34,8 +34,11 @@ const renderTools = {
 };
 
 export default function Toolbar() {
-  const [activeTool, setActiveTool] = useState(tools.default);
-  const [modalProps, setModalProps] = useState({ header: '', handleClose() {} });
+  const [activeTool, setActiveTool] = useState(tools.manual);
+  const [modalProps, setModalProps] = useState({
+    header: manualConfig.header,
+    handleClose: () => setActiveTool(tools.default)
+  });
 
   const { buzzer, correctSolution } = useContext(PuzzleContext);
 
@@ -65,7 +68,7 @@ export default function Toolbar() {
       handleClose: () => setActiveTool(tools.default)
     })
     setActiveTool(tools.manual);
-  }
+  };
 
   return (
     <>

@@ -24,15 +24,17 @@ const StyledModal = styled.dialog`
 
     position: relative;
 
+    background-color: slategray;
+    border-radius: 8px;
     color: white;
-    max-width: 480px;
+    max-width: 384px; // board width := { (tileWidth x cols) + (boardGap * (cols - 1)) }
     padding: var(--space-xl);
   }
 
   .modal-close {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: var(--space-s);
+    right: var(--space-s);
   }
 
   .modal-header {
