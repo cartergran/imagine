@@ -55,11 +55,10 @@ export default function Tile({ loc, toggle, onClick }) {
 
   useEffect(() => {
     if (!buzzer) { return; }
-    let [r] = loc;
-    let time = ((r * config.board.cols) + config.board.cols) * process.env.REACT_APP_MAGIC_NUM;
+    let time = ((loc.r * config.board.cols) + config.board.cols) * process.env.REACT_APP_MAGIC_NUM;
     let timer = setTimeout(remixTile, time);
     return () => clearTimeout(timer);
-  }, [buzzer, loc, remixTile]);
+  }, [buzzer, loc.r, remixTile]);
 
   // useEffect(() => {
   //   if (onMount.current) { onMount.current = false; }
