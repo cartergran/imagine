@@ -18,6 +18,11 @@ const StyledModal = styled.dialog`
   z-index: ${process.env.REACT_APP_MAGIC_NUM};
 
   .modal {
+    // max width = board width
+    // max width := (scoreWidth + imgWidth) + (paddingWidth * 2)
+    // board width := (tileWidth * cols) + (boardGap * (cols - 1))
+    max-width: 384px;
+
     display: flex;
     flex-direction: column;
     gap: var(--space-l);
@@ -27,8 +32,7 @@ const StyledModal = styled.dialog`
     background-color: slategray;
     border-radius: 8px;
     color: white;
-    max-width: 384px; // board width := { (tileWidth x cols) + (boardGap * (cols - 1)) }
-    padding: var(--space-xl);
+    padding: var(--space-xl) var(--space-l);
   }
 
   .modal-close {
