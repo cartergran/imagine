@@ -2,6 +2,7 @@ import axios from 'axios';
 import config from './config';
 
 const magicNum = process.env.REACT_APP_MAGIC_NUM;
+var buzzer = false;
 var currentTurn = true;
 
 const emojis = {
@@ -34,7 +35,8 @@ const scorecard = {
 };
 
 axios.interceptors.request.use((req) => {
-  if (req.url.includes('tile')) {
+  // check for buzzer - 'flip all' requests happen after buzzer
+  if (req.url.includes('tile') && !buzzer) {
     let currentLog = scorecard.logs.at(-1);
     let currentTileSelection = currentLog.tileSelection;
 
@@ -42,6 +44,8 @@ axios.interceptors.request.use((req) => {
     if (currentTurn && currentTileSelection.length < config.selectionsPerAttempt)
       currentTileSelection.push(req.params);
     else {
+      currentTurn = true;
+
       let newLog = { tileSelection: [req.params], correctness: 0 };
       scorecard.logs.push(newLog);
     }
@@ -62,7 +66,8 @@ axios.interceptors.response.use((res) => {
       currentLog.correctness = correct ? 0 : -1;
     }
 
-    if (currentLog.correctness === magicNum || scorecard.logs.length === config.numAttempts) {
+    buzzer = currentLog.correctness === magicNum || scorecard.logs.length === config.numAttempts
+    if (buzzer) {
       scorecard.init();
     }
   }
