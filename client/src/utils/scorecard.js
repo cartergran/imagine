@@ -2,7 +2,7 @@ import axios from 'axios';
 import config from './config';
 
 const magicNum = process.env.REACT_APP_MAGIC_NUM;
-var check = false;
+var currentTurn = true;
 
 const emojis = {
   [-1]: '🟥', // eslint-disable-next-line
@@ -39,11 +39,9 @@ axios.interceptors.request.use((req) => {
     let currentTileSelection = currentLog.tileSelection;
 
     // req.params := { r, c }
-    if (!check && currentTileSelection.length < config.selectionsPerAttempt)
+    if (currentTurn && currentTileSelection.length < config.selectionsPerAttempt)
       currentTileSelection.push(req.params);
     else {
-      check = false;
-
       let newLog = { tileSelection: [req.params], correctness: 0 };
       scorecard.logs.push(newLog);
     }
@@ -54,9 +52,8 @@ axios.interceptors.request.use((req) => {
 axios.interceptors.response.use((res) => {
   let endpoint = res.config.url;
   if (endpoint.includes('check')) {
-    check = true;
-
     let correct = res.data;
+    currentTurn = correct;
     let currentLog = scorecard.logs.at(-1);
 
     if (endpoint.includes('solution')) {
