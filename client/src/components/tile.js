@@ -19,15 +19,23 @@ const StyledTileImage = styled.div`
   background-size: contain;
 `;
 
+const feedbackDuration = config.duration * (process.env.REACT_APP_MAGIC_NUM / 10);
+const feedbackColors = {
+  incorrect: 'red',
+  correctCategory: 'yellow',
+  correctSolution: 'green'
+};
+
 export default function Tile({ loc, toggle, onClick }) {
   const [clicked, setClicked] = useState(false);
   const [feedback, setFeedback] = useState(false);
+  const [feedbackColor, setFeedbackColor] = useState('');
   const [tileImg, setTileImg] = useState('');
 
-  const { correctCategory, buzzer } = useContext(PuzzleContext);
+  const { correctCategory, correctSolution, buzzer } = useContext(PuzzleContext);
   // const onMount = useRef(true);
 
-  const toggleTileClick = clicked || toggle.maxSelection || buzzer;
+  const toggleTileClick = feedback || clicked || toggle.maxSelection || buzzer;
 
   const getTileImg = async (r, c) => {
     let tileImgRes = { data: '' };
@@ -43,10 +51,12 @@ export default function Tile({ loc, toggle, onClick }) {
     let [r, c] = loc;
     getTileImg(r, c).then((tileImgRes) => {
       setTileImg(tileImgRes);
-      setClicked(true);
-      onClick((clicksLeft) => clicksLeft - 1);
+      if (!buzzer) {
+        setClicked(true);
+        onClick((clicksLeft) => clicksLeft - 1);
+      }
     });
-  }, [loc, onClick]);
+  }, [loc, onClick, buzzer]);
 
   const handleClick = () => {
     if (toggleTileClick) { return; }
@@ -55,6 +65,7 @@ export default function Tile({ loc, toggle, onClick }) {
 
   useEffect(() => {
     if (!buzzer) { return; }
+
     let time = ((loc.r * config.board.cols) + config.board.cols) * process.env.REACT_APP_MAGIC_NUM;
     let timer = setTimeout(remixTile, time);
     return () => clearTimeout(timer);
@@ -64,15 +75,25 @@ export default function Tile({ loc, toggle, onClick }) {
   //   if (onMount.current) { onMount.current = false; }
   // }, []);
 
-  const getBorderColor = () => {
-    // incorrect solution on attempt
-    if (correctCategory && feedback) {
-      return 'yellow';
+  const getFeedbackColor = useCallback(() => {
+    if (correctSolution) {
+      return feedbackColors.correctSolution;
     }
 
-    // incorrect category on attempt
+    if (correctCategory) {
+      return feedbackColors.correctCategory;
+    }
+
+    return feedbackColors.incorrect;
+  }, [correctCategory, correctSolution]);
+
+  const getBorderColor = () => {
+    if (buzzer) {
+      return feedbackColor;
+    }
+
     if (feedback) {
-      return 'red'
+      return getFeedbackColor();
     }
 
     // preview || selection
@@ -81,14 +102,21 @@ export default function Tile({ loc, toggle, onClick }) {
 
   useEffect(() => {
     if (toggle.numAttempts === config.selectionsPerAttempt) { return; }
+
     setFeedback(true);
-    let timer = setTimeout(() => setFeedback(false), config.duration);
+    let timer = setTimeout(() => setFeedback(false), feedbackDuration);
     return () => clearTimeout(timer);
   }, [toggle.numAttempts]);
 
+  useEffect(() => {
+    if ((feedback || buzzer) && clicked && !feedbackColor) {
+      setFeedbackColor(getFeedbackColor());
+    }
+  }, [feedback, buzzer, clicked, feedbackColor, getFeedbackColor]);
+
   return (
     <StyledTile onClick={handleClick}>
-      <Flip borderColor={getBorderColor()} isFlipped={clicked}>
+      <Flip borderColor={getBorderColor()} isFlipped={clicked || buzzer}>
         <StyledTileImage $tileImg={tileImg} />
       </Flip>
     </StyledTile>

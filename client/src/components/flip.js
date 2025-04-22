@@ -19,7 +19,7 @@ const StyledFlipBase = styled.div`
   transform-style: preserve-3d;
 
   & .flip-content {
-    border: 1px solid ${props => props.$borderColor || 'white'};
+    border: 2px solid ${props => props.$borderColor || 'white'};
   }
 `;
 

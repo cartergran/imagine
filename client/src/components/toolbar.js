@@ -40,7 +40,7 @@ export default function Toolbar() {
     handleClose: () => setActiveTool(tools.default)
   });
 
-  const { buzzer, correctSolution } = useContext(PuzzleContext);
+  const { correctSolution, buzzer } = useContext(PuzzleContext);
 
   // summary updates once @ end --> buzzer = true, correctSolution = true || false
   const summary = {
