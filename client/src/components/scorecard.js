@@ -50,8 +50,9 @@ export default function Scorecard({ title: exampleTitle, score: exampleScore, im
   const [img, setImg] = useState(exampleImg || '');
 
   // TODO: conditionally require props (all or none)
+  // TODO: update example with scoring system
   const isExample = exampleTitle && exampleScore && exampleImg;
-  const score = isExample ? exampleScore : scorecard.score;
+  const score = isExample ? exampleScore : scorecard.card;
 
   const getImg = async () => {
     try {

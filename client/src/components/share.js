@@ -12,13 +12,14 @@ export default function Share() {
   const isMobile = /iPhone/.test(navigator.userAgent);
 
   const initShareData = () => {
-    let title = config.share;
-    let text = scorecard.score.map((row) => row.join('')).join('\n');
+    let title = scorecard.title;
+    let text = scorecard.card.map((row) => row.join('')).join('\n');
 
     if (isMobile) {
       // ignores title field
       return { text: `${title}\n\n${text}` };
     }
+    // shareData object structure
     return { title, text };
   };
 
