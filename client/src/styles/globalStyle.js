@@ -27,8 +27,27 @@ const GlobalStyle = createGlobalStyle`
   // reset
   body,
   h1, h2, h3, h4, h5, h6,
-  dl, dd {
+  dl, dd,
+  ul {
     margin: 0;
+    padding: 0;
+  }
+
+  // reset
+  button {
+    all: unset;
+
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    box-sizing: border-box;
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
   }
   // end elements
 

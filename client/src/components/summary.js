@@ -1,7 +1,7 @@
 import styled from 'styled-components';
-import config from '../utils/config';
 
 import Scorecard from './scorecard';
+import Share from './share';
 
 const StyledSummary = styled.div`
   display: flex;
@@ -9,12 +9,11 @@ const StyledSummary = styled.div`
   gap: var(--space-l);
 `;
 
-export default function Summary({ correct }) {
+export default function Summary() {
   return (
     <StyledSummary>
-      <h1>{ correct ? config.msgs.correct : config.msgs.incorrect }</h1>
       <Scorecard />
-      {/* TODO: <Share /> */}
+      <Share />
     </StyledSummary>
   );
 };

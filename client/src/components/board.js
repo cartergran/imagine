@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import config from '../utils/config';
 
+import { PuzzleContext } from '../App';
 import Tile from './tile';
 
 const StyledBoard = styled.div`
@@ -11,35 +12,57 @@ const StyledBoard = styled.div`
 
   #board {
     display: grid;
-    grid-template-columns: repeat(${props => props.$cols || 4}, 1fr);
     grid-template-rows: repeat(${props => props.$rows || 4}, 1fr);
+    gap: var(--space-s);
+  }
+
+  .row {
+    // create own flex context inside grid cell
+    display: flex;
     gap: var(--space-s);
   }
 `;
 
-export default function Board({ toggle, onTileClick }) {
-  const [board, setBoard] = useState([]);
+export default function Board({ toggle, onSelection }) {
+  const [selectionsLeft, setSelectionsLeft] = useState(config.selectionsPerAttempt);
+
+  const { solvable } = useContext(PuzzleContext);
 
   useEffect(() => {
-    let initBoard = () => {
-      let res = [];
-      for (let i = 0; i < config.board.rows; i++) {
-        for (let j = 0; j < config.board.cols; j++) {
-          res.push(
-            <Tile key={`${i}${j}`} loc={`${i}${j}`} toggle={toggle} onClick={onTileClick} />
-          );
-        }
-      }
-      setBoard(res);
-    };
+    if (selectionsLeft === config.selectionsPerAttempt - 1) {
+      onSelection((prevState) => { return { ...prevState, solvable: true }});
+    } else if (selectionsLeft === 0) {
+      onSelection((prevState) => { return { ...prevState, maxSelection: true }});
+    }
+  }, [selectionsLeft, onSelection]);
 
-    initBoard();
-  }, [toggle, onTileClick]);
+  useEffect(() => {
+    if (!solvable) {
+      setSelectionsLeft(config.selectionsPerAttempt);
+    }
+  }, [solvable]);
 
   return (
     <StyledBoard $rows={config.board.rows} $cols={config.board.cols}>
       <div id="board">
-        { board }
+        {
+          Array.from({ length: config.board.rows }).map((_,  r) => (
+            <div key={r} className="row">
+              {
+                Array.from({ length: config.board.cols }).map((_, c) => {
+                  return (
+                    <Tile
+                      key={`${r}${c}`}
+                      loc={`${r}${c}`}
+                      toggle={toggle}
+                      onClick={setSelectionsLeft}
+                    />
+                  );
+                })
+              }
+            </div>
+          ))
+        }
       </div>
     </StyledBoard>
   );

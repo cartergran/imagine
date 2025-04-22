@@ -5,7 +5,12 @@ import scorecard from '../utils/scorecard';
 import config from '../utils/config';
 
 const StyledScorecard = styled.div`
-  .eval {
+  .scorecard-title {
+    margin-bottom: var(--space-s);
+    text-align: center;
+  }
+
+  .scorecard-eval {
     display: flex;
     justify-content: center;
   }
@@ -20,35 +25,33 @@ const StyledScore = styled.dl`
     display: inline-flex;
 
     span {
-      width: 32px;
-      height: 32px;
+      width: 24px;
+      height: 24px;
 
       ${({ theme }) => theme.recycle.flexCenter};
 
-      font-size: 32px;
+      font-size: 24px;
     }
   }
 `;
 
 const StyledImage = styled.div`
   // see above <span /> size for calc (4x4)
-  width: calc(32px * ${props => props.$rows || 4});
-  height: calc(32px * ${props => props.$cols || 4});
+  width: calc(24px * ${props => props.$rows || 4});
+  height: calc(24px * ${props => props.$cols || 4});
 
   background: url("${props => props.$img || ''}");
-  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 `;
 
-export default function Scorecard() {
-  const [score, setScore] = useState([]);
-  const [img, setImg] = useState('');
+export default function Scorecard({ title: exampleTitle, score: exampleScore, img: exampleImg }) {
+  const [img, setImg] = useState(exampleImg || '');
 
-  useEffect(() => {
-    getImg();
-
-    scorecard.init();
-    setScore(scorecard.score);
-  }, []);
+  // TODO: conditionally require props (all or none)
+  const isExample = exampleTitle && exampleScore && exampleImg;
+  const score = isExample ? exampleScore : scorecard.score;
 
   const getImg = async () => {
     try {
@@ -59,18 +62,24 @@ export default function Scorecard() {
     }
   };
 
+  useEffect(() => {
+    if (!isExample) {
+      getImg();
+    }
+  }, [isExample]);
+
   return (
     <StyledScorecard>
-      <h5>{scorecard.title}</h5>
-      <div className="eval">
+      <h5 className="scorecard-title">{isExample ? exampleTitle : scorecard.title}</h5>
+      <div className="scorecard-eval">
         <StyledScore>
           {
             score.map((row, i) => {
               return (
-                <div key={i} className="share-row">
+                <div key={i}>
                   <dd aria-label={`row ${i} intel`} />
                   <dt>
-                    { row.map((tile, j) => <span key={j} className="share-tile">{tile}</span>) }
+                    { row.map((tile, j) => <span key={j}>{tile}</span>) }
                   </dt>
                 </div>
               );

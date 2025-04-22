@@ -10,7 +10,7 @@ import Options from './options';
 const StyledSolve = styled.div`
   ${({ theme }) => theme.recycle.flexCenter};
 
-  margin: 24px 0;
+  margin-top: var(--space-l);
 
   #solve {
     ${({ theme }) => theme.recycle.flexCenter};
@@ -21,9 +21,9 @@ const StyledSolve = styled.div`
   .ant-btn-primary {
     border-radius: var(--space-s);
     transition:
-      background ${props => props.$duration || 2300}ms,
-      border ${props => props.$duration || 2300}ms,
-      color ${props => props.$duration || 2300}ms;
+      background ${config.duration}ms,
+      border ${config.duration}ms,
+      color ${config.duration}ms;
 
     // increase specificity to override antd
     &[disabled] {
@@ -33,13 +33,22 @@ const StyledSolve = styled.div`
   }
 `;
 
-export default function Solve({ solvable, onSubmit }) {
+// fisher-yates shuffle
+const shuffleArray = (arr) => {
+  for (let i = arr.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1)); // random index
+    [arr[i], arr[j]] = [arr[j], arr[i]]; // swap elements
+  }
+  return arr;
+}
+
+export default function Solve({ onSubmit }) {
   const [currentGuess, setCurrentGuess] = useState('');
   const [prevGuesses, setPrevGuesses] = useState([]);
   const [categories, setCategories] = useState([]);
   const [choices, setChoices] = useState([]);
 
-  const { correctCategory, buzzer } = useContext(PuzzleContext);
+  const { correctCategory, solvable, buzzer } = useContext(PuzzleContext);
 
   const toggleOptions = !solvable || buzzer;
   const toggleSubmit = !solvable || !currentGuess || buzzer;
@@ -47,15 +56,15 @@ export default function Solve({ solvable, onSubmit }) {
   useEffect(() => {
     const getCategories = async () => {
       let categoriesRes = await axios.get('categories');
-      setCategories(categoriesRes.data);
+      setCategories(shuffleArray(categoriesRes.data));
     };
     getCategories();
-  }, [])
+  }, []);
 
   useEffect(() => {
     const getChoices = async () => {
       let choicesRes = await axios.get('choices');
-      setChoices(choicesRes.data);
+      setChoices(shuffleArray(choicesRes.data));
     };
     correctCategory && getChoices();
   }, [correctCategory]);
@@ -73,7 +82,7 @@ export default function Solve({ solvable, onSubmit }) {
     return correct;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async () => {
     let correctGuess  = await checkCorrect(currentGuess, correctCategory ? 'solution' : 'category');
     if (correctGuess) {
       onSubmit((prevState) => {
@@ -88,8 +97,9 @@ export default function Solve({ solvable, onSubmit }) {
       onSubmit((prevState) => {
         return {
           ...prevState,
-          attempts: --prevState.attempts,
-          solvable: false
+          numAttempts: --prevState.numAttempts,
+          solvable: false,
+          maxSelection: false
       }});
       setPrevGuesses((prevGuesses) => [...prevGuesses, currentGuess]);
     }
@@ -98,7 +108,7 @@ export default function Solve({ solvable, onSubmit }) {
   };
 
   return (
-    <StyledSolve $duration={config.duration}>
+    <StyledSolve>
       <div id="solve">
         <Options
           options={correctCategory ? choices : categories}
@@ -111,7 +121,7 @@ export default function Solve({ solvable, onSubmit }) {
           onClick={handleSubmit}
           disabled={toggleSubmit}
         >
-          Submit
+          { config.actions.submit }
         </Button>
       </div>
     </StyledSolve>

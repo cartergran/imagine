@@ -31,14 +31,14 @@ var intel = {
   solution: ''
 };
 var img = {
-  width: 4000,
-  height: 4000,
+  width: 2002,
+  height: 2002,
   data: {},
   base64: ''
 };
 var board = {
-  rows: 4,
-  cols: 4
+  rows: 7,
+  cols: 7
 };
 var tiles = {
   width: img.width / board.rows,
