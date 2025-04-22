@@ -37,19 +37,23 @@ export const manualConfig = {
       portion of the image.`,
       `After choosing the initial class of animal correctly, the options will change to species of
       that class.`,
-      `On the scorecard, the color of the tiles change according to your attempts.`
-    ],
-    scoring: {
-      '⬛': 'Unselected.',
-      '🟥': 'Incorrect choice of class.',
-      '🟨': 'Incorrect choice of species.',
-      '🟩': 'Puzzle solved.'
+      `On the scorecard, the color of the tiles change according to the selection and result
+      of each attempt. This is what determines your score.`
+    ]
+  },
+  scoring: {
+    subheader: 'Scoring',
+    counts: {
+      '🟥': '+0. Incorrect choice of class.',
+      '🟨': '+1. Correct class, incorrect choice of species.',
+      '🟩': '+2. Puzzle solved.',
+      '⬛': '+3. Unselected.'
     }
   },
   example: {
     subheader: 'Example',
-    overview: '{ class: Mammal, species: Red Panda }',
-    score: [
+    overview: '{ class: Mammal, species: Red Panda, score: 101/146 }',
+    card: [
       ['⬛','⬛','⬛','⬛','⬛','⬛','🟥'],
       ['🟨','🟥','🟨','🟨','🟨','🟩','⬛'],
       ['🟨','🟨','🟨','🟥','🟨','🟩','🟩'],
@@ -58,6 +62,7 @@ export const manualConfig = {
       ['⬛','⬛','⬛','⬛','⬛','🟨','🟨'],
       ['⬛','⬛','⬛','⬛','⬛','🟨','🟨']
     ],
+    score: 101,
     img: process.env.REACT_APP_EXAMPLE_IMG
   }
 };
