@@ -25,7 +25,7 @@ const StyledModal = styled.dialog`
 
     display: flex;
     flex-direction: column;
-    gap: var(--space-l);
+    gap: var(--space-m);
 
     position: relative;
 

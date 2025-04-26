@@ -6,7 +6,7 @@ import Scorecard from './scorecard';
 const StyledManual = styled.div`
   display: flex;
   flex-direction: column;
-  gap: var(--space-m);
+  gap: var(--space-s);
 
   font-size: 14px;
   text-align: left;
