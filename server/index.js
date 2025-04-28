@@ -34,7 +34,16 @@ var img = {
   width: 2002,
   height: 2002,
   data: {},
-  base64: ''
+  base64: '',
+  distorted: {
+    data: {},
+    base64: ''
+  }
+};
+var distort = {
+  lines: 1414,
+  maxLineHeight: 23,
+  maxShift: 44,
 };
 var board = {
   rows: 7,
@@ -64,6 +73,31 @@ const processImg = async (bucketName, imgPath, width, height) => {
     console.error('processImg() error!', err.message);
   }
   return img;
+};
+
+const distortImg = (imgData, lines, maxLineHeight, maxShift) => {
+  let width = imgData.bitmap.width;
+  let height = imgData.bitmap.height;
+
+  let clone = imgData.clone();
+
+  for (let i = 0; i < lines; i++){
+    let y = Math.floor(Math.random() * height);
+    let lineHeight = Math.floor(Math.random() * maxLineHeight) + 1; // [1 - maxLineHeight]px line
+    let shift = Math.floor(Math.random() * (maxShift * 2)) - maxShift; // shift left or right
+
+    for (let dy = 0; dy < lineHeight; dy++) {
+      for (let x = 0; x < width; x++) {
+        let srcX = x + shift;
+        let deltaY = y + dy;
+
+        if (srcX >= 0 && srcX < width && deltaY < height) {
+          let color = clone.getPixelColor(srcX, deltaY);
+          imgData.setPixelColor(color, x, deltaY);
+        }
+      }
+    }
+  }
 };
 
 const processIntel = async(bucketName, intelPath) => {
@@ -127,9 +161,14 @@ const getTiles = async (board, tiles, imgData) => {
 const init = async (intel, img, board, tiles) => {
   Object.assign(intel, await processIntel(bucketName, intelPath));
   img.data = await processImg(bucketName, imgPath, img.width, img.height);
+
   if (img.data) {
     await getTiles(board, tiles, img.data);
     img.base64 = await getBase64Img(img.data, jimp.MIME_JPEG)
+
+    // img.distorted.data = img.data;
+    // distortImg(img.distorted.data, distort.lines, distort.maxLineHeight, distort.maxShift);
+    // img.distorted.base64 = await getBase64Img(img.distorted.data, jimp.MIME_JPEG)
   }
 };
 
