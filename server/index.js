@@ -195,12 +195,12 @@ app.get('/choices', (_req, res) => {
   res.send(intel.choices);
 });
 
-app.get('/check-category', (req, res) => {
+app.get('/check/category', (req, res) => {
   let { guess } = req.query;
   res.send(guess === intel.category)
 });
 
-app.get('/check-solution', (req, res) => {
+app.get('/check/solution', (req, res) => {
   let { guess } = req.query;
   res.send(guess === intel.solution);
 });

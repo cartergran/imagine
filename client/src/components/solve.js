@@ -72,7 +72,7 @@ export default function Solve({ onSubmit }) {
   const checkCorrect = async (guess, type) => {
     let correct = false;
     try {
-      let correctRes = await axios.get(`check-${type}`, { params: { guess }});
+      let correctRes = await axios.get(`check/${type}`, { params: { guess }});
       correct = correctRes.data;
       (type === 'category' && correct) &&
         onSubmit((prevState) => { return {...prevState, correctCategory: correct }});
