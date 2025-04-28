@@ -101,7 +101,7 @@ export default function Tile({ loc, toggle, onClick }) {
   };
 
   useEffect(() => {
-    if (toggle.numAttempts === config.selectionsPerAttempt) { return; }
+    if (toggle.numAttempts === config.numAttempts) { return; }
 
     setFeedback(true);
     let timer = setTimeout(() => setFeedback(false), feedbackDuration);
