@@ -37,10 +37,10 @@ export default function Tile({ loc, toggle, onClick }) {
 
   const toggleTileClick = feedback || clicked || toggle.maxSelection || buzzer;
 
-  const getTileImg = async (r, c) => {
+  const getTileImg = async (attempt, r, c,) => {
     let tileImgRes = { data: '' };
     try {
-      tileImgRes = await axios.get('tile', { params: { r, c }});
+      tileImgRes = await axios.get('tile', { params: { attempt, r, c }});
     } catch (err) {
       console.log('getTileImg() Error!', err.message);
     }
@@ -48,15 +48,16 @@ export default function Tile({ loc, toggle, onClick }) {
   };
 
   const remixTile = useCallback(() => {
+    let attempt = buzzer ? config.numAttempts - 1 : config.numAttempts - toggle.numAttempts;
     let [r, c] = loc;
-    getTileImg(r, c).then((tileImgRes) => {
-      setTileImg(tileImgRes);
+    getTileImg(attempt, r, c).then((tileImgRes) => {
+      if (!tileImg) { setTileImg(tileImgRes); }
       if (!buzzer) {
         setClicked(true);
         onClick((clicksLeft) => clicksLeft - 1);
       }
     });
-  }, [loc, onClick, buzzer]);
+  }, [toggle.numAttempts, loc, onClick, buzzer]);
 
   const handleClick = () => {
     if (toggleTileClick) { return; }

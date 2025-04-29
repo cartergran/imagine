@@ -24,6 +24,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const storage = new Storage({ credentials: gcsCreds });
 
+var numAttempts = 5;
 var intel = {
   categories: [],
   choices: [],
@@ -35,15 +36,7 @@ var img = {
   height: 2002,
   data: {},
   base64: '',
-  distorted: {
-    data: {},
-    base64: ''
-  }
-};
-var distort = {
-  lines: 1414,
-  maxLineHeight: 23,
-  maxShift: 44,
+  distorted: [] // descending order from most distorted
 };
 var board = {
   rows: 7,
@@ -52,13 +45,22 @@ var board = {
 var tiles = {
   width: img.width / board.rows,
   height: img.height / board.cols,
-  base64Catalog: init2DArray(board.rows, board.cols)
+  base64Catalog: init3DArray(numAttempts, board.rows, board.cols)
+};
+var baseDistortion = {
+  lines: 4004,
+  maxLineHeight: 44,
+  maxShift: 44,
 };
 
 // hoist
-function init2DArray(r, c) {
-  return Array.from({ length: r }, _ => Array(c).fill(0));
-};
+function init3DArray(i, j, k) {
+  return Array.from({ length: i }, _ =>
+    Array.from({ length: j }, _ =>
+      Array(k).fill(0)
+    )
+  );
+}
 
 const processImg = async (bucketName, imgPath, width, height) => {
   let img;
@@ -75,31 +77,6 @@ const processImg = async (bucketName, imgPath, width, height) => {
   return img;
 };
 
-const distortImg = (imgData, lines, maxLineHeight, maxShift) => {
-  let width = imgData.bitmap.width;
-  let height = imgData.bitmap.height;
-
-  let clone = imgData.clone();
-
-  for (let i = 0; i < lines; i++){
-    let y = Math.floor(Math.random() * height);
-    let lineHeight = Math.floor(Math.random() * maxLineHeight) + 1; // [1 - maxLineHeight]px line
-    let shift = Math.floor(Math.random() * (maxShift * 2)) - maxShift; // shift left or right
-
-    for (let dy = 0; dy < lineHeight; dy++) {
-      for (let x = 0; x < width; x++) {
-        let srcX = x + shift;
-        let deltaY = y + dy;
-
-        if (srcX >= 0 && srcX < width && deltaY < height) {
-          let color = clone.getPixelColor(srcX, deltaY);
-          imgData.setPixelColor(color, x, deltaY);
-        }
-      }
-    }
-  }
-};
-
 const processIntel = async(bucketName, intelPath) => {
   let intel;
   try {
@@ -111,6 +88,46 @@ const processIntel = async(bucketName, intelPath) => {
   }
   return intel;
 };
+
+const distortImg = (imgOriginal, imgData, distortion) => {
+  let width = imgOriginal.bitmap.width;
+  let height = imgOriginal.bitmap.height;
+  let { lines, maxLineHeight, maxShift } = distortion;
+
+  for (let i = 0; i < lines; i++){
+    let y = Math.floor(Math.random() * height);
+    // [1 - maxLineHeight]px line
+    let lineHeight = Math.floor(Math.random() * maxLineHeight) + 1;
+    // shift left or right
+    let shift = Math.floor(Math.random() * (maxShift * 2)) - maxShift;
+
+    for (let dy = 0; dy < lineHeight; dy++) {
+      for (let x = 0; x < width; x++) {
+        let srcX = x + shift;
+        let deltaY = y + dy;
+
+        if (srcX >= 0 && srcX < width && deltaY < height) {
+          let color = imgOriginal.getPixelColor(srcX, deltaY);
+          imgData.setPixelColor(color, x, deltaY);
+        }
+      }
+    }
+  }
+  return imgData;
+};
+
+const getDistortedImgs = (imgOriginal, baseDistortion, numAttempts) => {
+  let distortedImgs = [];
+  // descending order from most distorted
+  for (let i = numAttempts - 1; i > 0; i--) {
+    let distortion = Object.fromEntries(Object.entries(baseDistortion).map(([k, v]) => [k, v * i]));
+    let distortedImg =  distortImg(imgOriginal, imgOriginal.clone(), distortion);
+    // distortedImg.writeAsync(`${process.env.DISTORTED_IMG_PATH}${i}.jpg`);
+
+    distortedImgs.push(distortedImg);
+  }
+  return distortedImgs;
+}
 
 const getBase64Img = async (imgData, mimeType) => {
   let base64Img = '';
@@ -145,13 +162,18 @@ const handleTile = (err, data, loc) => {
 };
 */
 
-const getTiles = async (board, tiles, imgData) => {
-  for (let r = 0; r < board.rows; r++) {
-    for (let c = 0; c < board.cols; c++) {
-      try {
-        tiles.base64Catalog[r][c] = await cropTile([r, c], tiles.width, tiles.height, imgData);
-      } catch(err) {
-        console.error(`cropTile() error @ r:${r} c:${c}!`, err.message);
+const getTiles = async (board, tiles, imgOriginal, imgsDistorted) => {
+  // descending order from most distorted
+  const imgsData = [...imgsDistorted, imgOriginal];
+
+  for (let [i, imgData] of imgsData.entries()) {
+    for (let r = 0; r < board.rows; r++) {
+      for (let c = 0; c < board.cols; c++) {
+        try {
+          tiles.base64Catalog[i][r][c] = await cropTile([r, c], tiles.width, tiles.height, imgData);
+        } catch(err) {
+          console.error(`cropTile() error @ i:${i} r:${r} c:${c}!`, err.message);
+        }
       }
     }
   }
@@ -163,12 +185,10 @@ const init = async (intel, img, board, tiles) => {
   img.data = await processImg(bucketName, imgPath, img.width, img.height);
 
   if (img.data) {
-    await getTiles(board, tiles, img.data);
-    img.base64 = await getBase64Img(img.data, jimp.MIME_JPEG)
+    img.distorted = getDistortedImgs(img.data, baseDistortion, numAttempts);
 
-    // img.distorted.data = img.data;
-    // distortImg(img.distorted.data, distort.lines, distort.maxLineHeight, distort.maxShift);
-    // img.distorted.base64 = await getBase64Img(img.distorted.data, jimp.MIME_JPEG)
+    await getTiles(board, tiles, img.data, img.distorted);
+    img.base64 = await getBase64Img(img.data, jimp.MIME_JPEG)
   }
 };
 
@@ -187,8 +207,8 @@ app.get('/categories', (_req, res) => {
 });
 
 app.get('/tile', (req, res) => {
-  let { r, c } = req.query;
-  res.send(tiles.base64Catalog[r][c]);
+  let { attempt, r, c } = req.query;
+  res.send(tiles.base64Catalog[attempt][r][c]);
 });
 
 app.get('/choices', (_req, res) => {
