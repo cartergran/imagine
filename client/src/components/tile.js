@@ -48,16 +48,18 @@ export default function Tile({ loc, toggle, onClick }) {
   };
 
   const remixTile = useCallback(() => {
+    if (!buzzer) {
+      setClicked(true);
+      onClick((clicksLeft) => clicksLeft - 1);
+    }
+
+    // attempt [0 - 4]
     let attempt = buzzer ? config.numAttempts - 1 : config.numAttempts - toggle.numAttempts;
     let [r, c] = loc;
     getTileImg(attempt, r, c).then((tileImgRes) => {
       if (!tileImg) { setTileImg(tileImgRes); }
-      if (!buzzer) {
-        setClicked(true);
-        onClick((clicksLeft) => clicksLeft - 1);
-      }
     });
-  }, [toggle.numAttempts, loc, onClick, buzzer]);
+  }, [toggle.numAttempts, loc, onClick, buzzer, tileImg]);
 
   const handleClick = () => {
     if (toggleTileClick) { return; }
@@ -97,8 +99,8 @@ export default function Tile({ loc, toggle, onClick }) {
       return getFeedbackColor();
     }
 
-    // preview || selection
-    return toggle.maxSelection ? 'black' : 'white';
+    // clicked ||  preview || selection
+    return clicked || toggle.maxSelection ? 'black' : 'white';
   };
 
   useEffect(() => {
