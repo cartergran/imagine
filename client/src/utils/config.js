@@ -33,12 +33,13 @@ export const manualConfig = {
     summary: `Imagine the class and species of an animal in ${numAttempts} attempts.`,
     details: [
       `The ${board.rows} x ${board.cols} tile grid depicts one image of an animal.`,
+      `The image starts pixelated and becomes clearer with each attempt.`,
       `Before each attempt select anywhere from 1 to ${selectionsPerAttempt} tiles to reveal a
       portion of the image.`,
-      `After choosing the initial class of animal correctly, the options will change to species of
-      that class.`,
-      `On the scorecard, the color of the tiles change according to the selection and result
-      of each attempt. This is what determines your score.`
+      `After choosing the class of animal correctly, the options will narrow to species of that
+      class.`,
+      `The tiles on the scorecard change color based on your selections and results, which
+      determine your final score.`
     ]
   },
   scoring: {
