@@ -39,7 +39,7 @@ export default function Manual() {
         </ul>
       </div>
       <h5 className="manual-subheader">{scoring.subheader}</h5>
-      <div class="manual-scoring">
+      <div className="manual-scoring">
         <ul>
           {
             Object.entries(scoring.counts).map(([ color, spec ], i) =>
