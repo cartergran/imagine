@@ -36,7 +36,7 @@ var img = {
   height: 2002,
   data: {},
   base64: '',
-  distorted: [] // descending order from most distorted
+  pixelated: [] // descending order from most pixelated
 };
 var board = {
   rows: 7,
@@ -47,11 +47,7 @@ var tiles = {
   height: img.height / board.cols,
   base64Catalog: init3DArray(numAttempts, board.rows, board.cols)
 };
-var baseDistortion = {
-  lines: 4004,
-  maxLineHeight: 44,
-  maxShift: 44,
-};
+var basePixelation = 11;
 
 // hoist
 function init3DArray(i, j, k) {
@@ -89,44 +85,18 @@ const processIntel = async(bucketName, intelPath) => {
   return intel;
 };
 
-const distortImg = (imgOriginal, imgData, distortion) => {
-  let width = imgOriginal.bitmap.width;
-  let height = imgOriginal.bitmap.height;
-  let { lines, maxLineHeight, maxShift } = distortion;
-
-  for (let i = 0; i < lines; i++){
-    let y = Math.floor(Math.random() * height);
-    // [1 - maxLineHeight]px line
-    let lineHeight = Math.floor(Math.random() * maxLineHeight) + 1;
-    // shift left or right
-    let shift = Math.floor(Math.random() * (maxShift * 2)) - maxShift;
-
-    for (let dy = 0; dy < lineHeight; dy++) {
-      for (let x = 0; x < width; x++) {
-        let srcX = x + shift;
-        let deltaY = y + dy;
-
-        if (srcX >= 0 && srcX < width && deltaY < height) {
-          let color = imgOriginal.getPixelColor(srcX, deltaY);
-          imgData.setPixelColor(color, x, deltaY);
-        }
-      }
-    }
-  }
-  return imgData;
-};
-
-const getDistortedImgs = (imgOriginal, baseDistortion, numAttempts) => {
-  let distortedImgs = [];
-  // descending order from most distorted
+const getPixelatedImgs = (imgOriginal, basePixelation, numAttempts) => {
+  let pixelatedImgs = [];
+  // descending order from most pixelated
   for (let i = numAttempts - 1; i > 0; i--) {
-    let distortion = Object.fromEntries(Object.entries(baseDistortion).map(([k, v]) => [k, v * i]));
-    let distortedImg =  distortImg(imgOriginal, imgOriginal.clone(), distortion);
-    // distortedImg.writeAsync(`${process.env.DISTORTED_IMG_PATH}${i}.jpg`);
+    let pixelation = basePixelation * i;
+    let pixelatedImg = imgOriginal.clone();
+    pixelatedImg.pixelate(pixelation);
+    // pixelatedImg.writeAsync(`${process.env.PIXELATED_IMG_PATH}${i}.jpg`);
 
-    distortedImgs.push(distortedImg);
+    pixelatedImgs.push(pixelatedImg);
   }
-  return distortedImgs;
+  return pixelatedImgs;
 }
 
 const getBase64Img = async (imgData, mimeType) => {
@@ -162,9 +132,9 @@ const handleTile = (err, data, loc) => {
 };
 */
 
-const getTiles = async (board, tiles, imgOriginal, imgsDistorted) => {
-  // descending order from most distorted
-  const imgsData = [...imgsDistorted, imgOriginal];
+const getTiles = async (board, tiles, imgOriginal, imgsPixelated) => {
+  // descending order from most pixelated
+  const imgsData = [...imgsPixelated, imgOriginal];
 
   for (let [i, imgData] of imgsData.entries()) {
     for (let r = 0; r < board.rows; r++) {
@@ -185,9 +155,9 @@ const init = async (intel, img, board, tiles) => {
   img.data = await processImg(bucketName, imgPath, img.width, img.height);
 
   if (img.data) {
-    img.distorted = getDistortedImgs(img.data, baseDistortion, numAttempts);
+    img.pixelated = getPixelatedImgs(img.data, basePixelation, numAttempts);
 
-    await getTiles(board, tiles, img.data, img.distorted);
+    await getTiles(board, tiles, img.data, img.pixelated);
     img.base64 = await getBase64Img(img.data, jimp.MIME_JPEG)
   }
 };
