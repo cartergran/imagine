@@ -47,8 +47,8 @@ const StyledOptions = styled.div`
 
     // increase specificity to override antd
     &.ant-radio-button-wrapper-checked {
-      border: 1px solid blue;
-      color: blue;
+      border: 1px solid dodgerblue;
+      color: dodgerblue;
     }
     &.ant-radio-button-wrapper-disabled {
       border: 1px solid var(--disabled);
