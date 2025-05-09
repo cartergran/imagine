@@ -31,6 +31,7 @@ export default function Tile({ loc, toggle, onClick }) {
   const [feedback, setFeedback] = useState(false);
   const [feedbackColor, setFeedbackColor] = useState('');
   const [tileImg, setTileImg] = useState('');
+  const [flipped, setFlipped] = useState(false);
 
   const { correctCategory, correctSolution, buzzer } = useContext(PuzzleContext);
   // const onMount = useRef(true);
@@ -48,6 +49,8 @@ export default function Tile({ loc, toggle, onClick }) {
   };
 
   const remixTile = useCallback(() => {
+    setFlipped(true);
+
     if (!buzzer) {
       setClicked(true);
       onClick((clicksLeft) => clicksLeft - 1);
@@ -69,10 +72,10 @@ export default function Tile({ loc, toggle, onClick }) {
   useEffect(() => {
     if (!buzzer) { return; }
 
-    let time = ((loc.r * config.board.cols) + config.board.cols) * process.env.REACT_APP_MAGIC_NUM;
+    let time = ((loc.r * config.board.cols) + loc.c) * process.env.REACT_APP_MAGIC_NUM;
     let timer = setTimeout(remixTile, time);
     return () => clearTimeout(timer);
-  }, [buzzer, loc.r, remixTile]);
+  }, [buzzer, loc, remixTile]);
 
   // useEffect(() => {
   //   if (onMount.current) { onMount.current = false; }
@@ -119,7 +122,7 @@ export default function Tile({ loc, toggle, onClick }) {
 
   return (
     <StyledTile onClick={handleClick} data-testid="tile">
-      <Flip borderColor={getBorderColor()} isFlipped={clicked || buzzer}>
+      <Flip borderColor={getBorderColor()} isFlipped={flipped}>
         <StyledTileImage $tileImg={tileImg} />
       </Flip>
     </StyledTile>
