@@ -13,13 +13,13 @@ const StyledBoard = styled.div`
   #board {
     display: grid;
     grid-template-rows: repeat(${props => props.$rows || 4}, 1fr);
-    gap: var(--space-s);
+    gap: var(--space-xs);
   }
 
   .row {
     // create own flex context inside grid cell
     display: flex;
-    gap: var(--space-s);
+    gap: var(--space-xs);
   }
 `;
 
