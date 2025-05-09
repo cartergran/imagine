@@ -55,7 +55,7 @@ export default function Tile({ loc, toggle, onClick }) {
 
     // attempt [0 - 4]
     let attempt = buzzer ? config.numAttempts - 1 : config.numAttempts - toggle.numAttempts;
-    let [r, c] = loc;
+    let {r, c} = loc;
     getTileImg(attempt, r, c).then((tileImgRes) => {
       if (!tileImg) { setTileImg(tileImgRes); }
     });
@@ -118,7 +118,7 @@ export default function Tile({ loc, toggle, onClick }) {
   }, [feedback, buzzer, clicked, feedbackColor, getFeedbackColor]);
 
   return (
-    <StyledTile onClick={handleClick}>
+    <StyledTile onClick={handleClick} data-testid="tile">
       <Flip borderColor={getBorderColor()} isFlipped={clicked || buzzer}>
         <StyledTileImage $tileImg={tileImg} />
       </Flip>

@@ -6,7 +6,7 @@ import { PuzzleContext } from '../App';
 import Tile from './tile';
 
 const StyledBoard = styled.div`
-  ${({ theme }) => theme.recycle.flexCenter};
+  ${({ theme }) => theme?.recycle?.flexCenter};
 
   margin-top: var(--space-l);
 
@@ -53,7 +53,7 @@ export default function Board({ toggle, onSelection }) {
                   return (
                     <Tile
                       key={`${r}${c}`}
-                      loc={`${r}${c}`}
+                      loc={{r, c}}
                       toggle={toggle}
                       onClick={setSelectionsLeft}
                     />
