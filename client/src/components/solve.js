@@ -1,5 +1,6 @@
 import { Button } from 'antd';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { CSSTransition } from 'react-transition-group';
 import styled from 'styled-components';
 import axios from 'axios';
 import config from '../utils/config';
@@ -45,10 +46,11 @@ const shuffleArray = (arr) => {
 export default function Solve({ onSubmit }) {
   const [currentGuess, setCurrentGuess] = useState('');
   const [prevGuesses, setPrevGuesses] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [choices, setChoices] = useState([]);
+  const [currentOptions, setCurrentOptions] = useState([]);
+  const [transitionOptions, setTransitionOptions] = useState(true);
 
   const { correctCategory, solvable, buzzer } = useContext(PuzzleContext);
+  const optionsRef = useRef(null);
 
   const toggleOptions = !solvable || buzzer;
   const toggleSubmit = !solvable || !currentGuess || buzzer;
@@ -56,17 +58,24 @@ export default function Solve({ onSubmit }) {
   useEffect(() => {
     const getCategories = async () => {
       let categoriesRes = await axios.get('categories');
-      setCategories(shuffleArray(categoriesRes.data));
+      let categories = shuffleArray(categoriesRes.data);
+      setCurrentOptions(categories)
     };
     getCategories();
   }, []);
 
   useEffect(() => {
+    if (!correctCategory) { return; }
     const getChoices = async () => {
       let choicesRes = await axios.get('choices');
-      setChoices(shuffleArray(choicesRes.data));
+      let choices = shuffleArray(choicesRes.data);
+      setTimeout(() => {
+        setCurrentOptions(choices);
+        setTransitionOptions(true);
+      }, config.duration);
     };
-    correctCategory && getChoices();
+    setTransitionOptions(false);
+    getChoices();
   }, [correctCategory]);
 
   const checkCorrect = async (guess, type) => {
@@ -110,12 +119,20 @@ export default function Solve({ onSubmit }) {
   return (
     <StyledSolve>
       <div id="solve">
-        <Options
-          options={correctCategory ? choices : categories}
-          prevGuesses={prevGuesses}
-          setCurrentGuess={setCurrentGuess}
-          disabled={toggleOptions}
-        />
+        <CSSTransition
+          in={transitionOptions}
+          nodeRef={optionsRef}
+          timeout={config.duration}
+          classNames="fade"
+        >
+          <Options
+            ref={optionsRef}
+            options={currentOptions}
+            prevGuesses={prevGuesses}
+            setCurrentGuess={setCurrentGuess}
+            disabled={toggleOptions}
+          />
+        </CSSTransition>
         <Button
           type="primary"
           onClick={handleSubmit}

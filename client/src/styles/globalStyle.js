@@ -1,5 +1,6 @@
 import { createGlobalStyle } from 'styled-components';
 import variables from './variables';
+import config from '../utils/config';
 
 const GlobalStyle = createGlobalStyle`
   ${variables};
@@ -58,13 +59,22 @@ const GlobalStyle = createGlobalStyle`
   // end classes
 
   // start animations
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
+  .fade-enter {
+    opacity: 0;
+  }
+  .fade-enter-active {
+    opacity: 1;
+    transition: opacity ${config.duration}ms ease-in;
+  }
+  .fade-exit {
+    opacity: 1;
+  }
+  .fade-exit-active {
+    opacity: 0;
+    transition: opacity ${config.duration}ms ease-out;
+  }
+  .fade-exit-done {
+    opacity: 0;
   }
   // end animations
 `;

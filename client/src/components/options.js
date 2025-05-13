@@ -1,4 +1,5 @@
 // import { useContext } from 'react';
+import { forwardRef } from 'react';
 import { Radio } from 'antd';
 import styled from 'styled-components';
 import config from '../utils/config';
@@ -57,16 +58,16 @@ const StyledOptions = styled.div`
   }
 `;
 
-export default function Options({
+export default forwardRef(function Options({
   options,
   prevGuesses,
   setCurrentGuess,
   disabled
-}) {
+}, ref) {
   // const { correctCategory } = useContext(PuzzleContext);
 
   return (
-    <StyledOptions>
+    <StyledOptions ref={ref}>
       <Radio.Group
         className={'' /* correctCategory ? 'plus-group' : '' */}
         onChange={(e) => setCurrentGuess(e.target.value)}
@@ -87,4 +88,4 @@ export default function Options({
       </Radio.Group>
     </StyledOptions>
   );
-}
+});
