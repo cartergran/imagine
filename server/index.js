@@ -10,6 +10,7 @@ import { Storage } from '@google-cloud/storage';
 
 // env vars
 const PORT = process.env.PORT || 3001;
+const nodeEnv = process.env.NODE_ENV || '';
 const accessURL = process.env.ACCESS_URL || '';
 const bucketName = process.env.BUCKET_NAME || '';
 const folderName = process.env.FOLDER_NAME || '';
@@ -163,6 +164,16 @@ const init = async (intel, img, board, tiles) => {
 };
 
 init(intel, img, board, tiles);
+
+app.use((req, res, next) => {
+  // MDN docs := x-forwarded-proto de-facto standard header for identifying the protocols
+  if (nodeEnv !== 'dev' && req.header('x-forwarded-proto') !== 'https') {
+    // 301 := moved permanently
+    res.redirect(301, `https://${req.header('host')}${req.url}`);
+  } else {
+    next();
+  }
+});
 
 app.use(cors({
   origin: accessURL,
