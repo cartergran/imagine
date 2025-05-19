@@ -57,12 +57,12 @@ export default function Tile({ loc, toggle, onClick }) {
     }
 
     // attempt [0 - 4]
-    let attempt = buzzer ? config.numAttempts - 1 : config.numAttempts - toggle.numAttempts;
+    let attempt = buzzer ? config.totalAttempts - 1 : config.totalAttempts - toggle.attemptsLeft;
     let {r, c} = loc;
     getTileImg(attempt, r, c).then((tileImgRes) => {
       if (!tileImg) { setTileImg(tileImgRes); }
     });
-  }, [toggle.numAttempts, loc, onClick, buzzer, tileImg]);
+  }, [toggle.attemptsLeft, loc, onClick, buzzer, tileImg]);
 
   const handleClick = () => {
     if (toggleTileClick) { return; }
@@ -107,12 +107,12 @@ export default function Tile({ loc, toggle, onClick }) {
   };
 
   useEffect(() => {
-    if (toggle.numAttempts === config.numAttempts) { return; }
+    if (toggle.attemptsLeft === config.totalAttempts) { return; }
 
     setFeedback(true);
     let timer = setTimeout(() => setFeedback(false), feedbackDuration);
     return () => clearTimeout(timer);
-  }, [toggle.numAttempts]);
+  }, [toggle.attemptsLeft]);
 
   useEffect(() => {
     if ((feedback || buzzer) && clicked && !feedbackColor) {

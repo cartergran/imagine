@@ -106,7 +106,7 @@ export default function Solve({ onSubmit }) {
       onSubmit((prevState) => {
         return {
           ...prevState,
-          numAttempts: --prevState.numAttempts,
+          attemptsLeft: --prevState.attemptsLeft,
           solvable: false,
           maxSelection: false
       }});

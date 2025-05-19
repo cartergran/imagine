@@ -1,8 +1,8 @@
 const title = 'imagine';
-const day = process.env.REACT_APP_DAY;
-const share = `${title} #${day}`;
+const puzzleNum = process.env.REACT_APP_PUZZLE_NUM;
+const share = `${title} #${puzzleNum}`;
 
-const numAttempts = 5;
+const totalAttempts = 5;
 const selectionsPerAttempt = 5;
 const duration = 805;
 
@@ -30,7 +30,7 @@ const tools = {
 export const manualConfig = {
   header: 'How To Play',
   description: {
-    summary: `Imagine the class and species of an animal in ${numAttempts} attempts.`,
+    summary: `Imagine the class and species of an animal in ${totalAttempts} attempts.`,
     details: [
       `The ${board.rows} x ${board.cols} tile grid depicts one image of an animal.`,
       `The image starts pixelated and becomes clearer with each attempt.`,
@@ -70,9 +70,8 @@ export const manualConfig = {
 
 const config = {
   title,
-  day,
   share,
-  numAttempts,
+  totalAttempts,
   selectionsPerAttempt,
   duration,
   board,

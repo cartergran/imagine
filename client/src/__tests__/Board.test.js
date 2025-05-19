@@ -5,7 +5,7 @@ import Board from '../components/board';
 
 test('renders all tiles', () => {
   const testToggle = {
-    numAttempts: config.numAttempts,
+    attemptsLeft: config.totalAttempts,
     maxSelection: false
   }
 

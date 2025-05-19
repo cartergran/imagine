@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3001;
 const nodeEnv = process.env.NODE_ENV || '';
 const accessURL = process.env.ACCESS_URL || '';
 const bucketName = process.env.BUCKET_NAME || '';
-const folderName = process.env.FOLDER_NAME || '';
+const folderName = process.env.REACT_APP_PUZZLE_NUM || '';
 const imgPath = `${folderName}/${process.env.IMG_FILE_NAME || ''}`;
 const intelPath = `${folderName}/${process.env.INTEL_FILE_NAME || ''}`;
 const gcsCredsBase64 = process.env.GCS_KEY_BASE64 || '';
@@ -25,7 +25,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const storage = new Storage({ credentials: gcsCreds });
 
-var numAttempts = 5;
+var totalAttempts = 5;
 var intel = {
   categories: [],
   choices: [],
@@ -46,7 +46,7 @@ var board = {
 var tiles = {
   width: img.width / board.rows,
   height: img.height / board.cols,
-  base64Catalog: init3DArray(numAttempts, board.rows, board.cols)
+  base64Catalog: init3DArray(totalAttempts, board.rows, board.cols)
 };
 var basePixelation = 11;
 
@@ -86,10 +86,10 @@ const processIntel = async(bucketName, intelPath) => {
   return intel;
 };
 
-const getPixelatedImgs = (imgOriginal, basePixelation, numAttempts) => {
+const getPixelatedImgs = (imgOriginal, basePixelation, totalAttempts) => {
   let pixelatedImgs = [];
   // descending order from most pixelated
-  for (let i = numAttempts - 1; i > 0; i--) {
+  for (let i = totalAttempts - 1; i > 0; i--) {
     let pixelation = basePixelation * i;
     let pixelatedImg = imgOriginal.clone();
     pixelatedImg.pixelate(pixelation);
@@ -156,7 +156,7 @@ const init = async (intel, img, board, tiles) => {
   img.data = await processImg(bucketName, imgPath, img.width, img.height);
 
   if (img.data) {
-    img.pixelated = getPixelatedImgs(img.data, basePixelation, numAttempts);
+    img.pixelated = getPixelatedImgs(img.data, basePixelation, totalAttempts);
 
     await getTiles(board, tiles, img.data, img.pixelated);
     img.base64 = await getBase64Img(img.data, jimp.MIME_JPEG)

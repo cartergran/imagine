@@ -88,7 +88,7 @@ axios.interceptors.response.use((res) => {
     }
 
     let correctSolution = currentLog.correctness === counts.solution;
-    let atMaxAttempts = scorecard.logs.length === config.numAttempts;
+    let atMaxAttempts = scorecard.logs.length === config.totalAttempts;
     buzzer = correctSolution || atMaxAttempts
     if (buzzer) {
       scorecard.init();
