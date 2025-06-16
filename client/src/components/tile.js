@@ -123,7 +123,7 @@ export default function Tile({ loc, toggle, onClick }) {
   return (
     <StyledTile onClick={handleClick} data-testid="tile">
       <Flip borderColor={getBorderColor()} isFlipped={flipped}>
-        <StyledTileImage $tileImg={tileImg} />
+        <StyledTileImage $tileImg={tileImg} data-testid="tile-img" />
       </Flip>
     </StyledTile>
   );
