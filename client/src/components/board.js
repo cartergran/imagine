@@ -6,20 +6,20 @@ import { PuzzleContext } from '../App';
 import Tile from './tile';
 
 const StyledBoard = styled.div`
-  ${({ theme }) => theme.recycle.flexCenter};
+  ${({ theme }) => theme?.recycle?.flexCenter};
 
   margin-top: var(--space-l);
 
   #board {
     display: grid;
     grid-template-rows: repeat(${props => props.$rows || 4}, 1fr);
-    gap: var(--space-s);
+    gap: var(--space-xs);
   }
 
   .row {
     // create own flex context inside grid cell
     display: flex;
-    gap: var(--space-s);
+    gap: var(--space-xs);
   }
 `;
 
@@ -53,7 +53,7 @@ export default function Board({ toggle, onSelection }) {
                   return (
                     <Tile
                       key={`${r}${c}`}
-                      loc={`${r}${c}`}
+                      loc={{r, c}}
                       toggle={toggle}
                       onClick={setSelectionsLeft}
                     />

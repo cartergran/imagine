@@ -19,20 +19,29 @@ const StyledTileImage = styled.div`
   background-size: contain;
 `;
 
+const feedbackDuration = config.duration * (process.env.REACT_APP_MAGIC_NUM / 10);
+const feedbackColors = {
+  incorrect: 'red',
+  correctCategory: 'yellow',
+  correctSolution: 'green'
+};
+
 export default function Tile({ loc, toggle, onClick }) {
   const [clicked, setClicked] = useState(false);
   const [feedback, setFeedback] = useState(false);
+  const [feedbackColor, setFeedbackColor] = useState('');
   const [tileImg, setTileImg] = useState('');
+  const [flipped, setFlipped] = useState(false);
 
-  const { correctCategory, buzzer } = useContext(PuzzleContext);
+  const { correctCategory, correctSolution, buzzer } = useContext(PuzzleContext);
   // const onMount = useRef(true);
 
-  const toggleTileClick = clicked || toggle.maxSelection || buzzer;
+  const toggleTileClick = feedback || clicked || toggle.maxSelection || buzzer;
 
-  const getTileImg = async (r, c) => {
+  const getTileImg = async (attempt, r, c,) => {
     let tileImgRes = { data: '' };
     try {
-      tileImgRes = await axios.get('tile', { params: { r, c }});
+      tileImgRes = await axios.get('tile', { params: { attempt, r, c }});
     } catch (err) {
       console.log('getTileImg() Error!', err.message);
     }
@@ -40,13 +49,20 @@ export default function Tile({ loc, toggle, onClick }) {
   };
 
   const remixTile = useCallback(() => {
-    let [r, c] = loc;
-    getTileImg(r, c).then((tileImgRes) => {
-      setTileImg(tileImgRes);
+    setFlipped(true);
+
+    if (!buzzer) {
       setClicked(true);
       onClick((clicksLeft) => clicksLeft - 1);
+    }
+
+    // attempt [0 - 4]
+    let attempt = buzzer ? config.totalAttempts - 1 : config.totalAttempts - toggle.attemptsLeft;
+    let {r, c} = loc;
+    getTileImg(attempt, r, c).then((tileImgRes) => {
+      if (!tileImg) { setTileImg(tileImgRes); }
     });
-  }, [loc, onClick]);
+  }, [toggle.attemptsLeft, loc, onClick, buzzer, tileImg]);
 
   const handleClick = () => {
     if (toggleTileClick) { return; }
@@ -55,41 +71,59 @@ export default function Tile({ loc, toggle, onClick }) {
 
   useEffect(() => {
     if (!buzzer) { return; }
-    let time = ((loc.r * config.board.cols) + config.board.cols) * process.env.REACT_APP_MAGIC_NUM;
+
+    let time = ((loc.r * config.board.cols) + loc.c) * process.env.REACT_APP_MAGIC_NUM;
     let timer = setTimeout(remixTile, time);
     return () => clearTimeout(timer);
-  }, [buzzer, loc.r, remixTile]);
+  }, [buzzer, loc, remixTile]);
 
   // useEffect(() => {
   //   if (onMount.current) { onMount.current = false; }
   // }, []);
 
+  const getFeedbackColor = useCallback(() => {
+    if (correctSolution) {
+      return feedbackColors.correctSolution;
+    }
+
+    if (correctCategory) {
+      return feedbackColors.correctCategory;
+    }
+
+    return feedbackColors.incorrect;
+  }, [correctCategory, correctSolution]);
+
   const getBorderColor = () => {
-    // incorrect solution on attempt
-    if (correctCategory && feedback) {
-      return 'yellow';
+    if (buzzer) {
+      return feedbackColor;
     }
 
-    // incorrect category on attempt
     if (feedback) {
-      return 'red'
+      return getFeedbackColor();
     }
 
-    // preview || selection
-    return toggle.maxSelection ? 'black' : 'white';
+    // clicked ||  preview || selection
+    return clicked || toggle.maxSelection ? 'black' : 'white';
   };
 
   useEffect(() => {
-    if (toggle.numAttempts === config.selectionsPerAttempt) { return; }
+    if (toggle.attemptsLeft === config.totalAttempts) { return; }
+
     setFeedback(true);
-    let timer = setTimeout(() => setFeedback(false), config.duration);
+    let timer = setTimeout(() => setFeedback(false), feedbackDuration);
     return () => clearTimeout(timer);
-  }, [toggle.numAttempts]);
+  }, [toggle.attemptsLeft]);
+
+  useEffect(() => {
+    if ((feedback || buzzer) && clicked && !feedbackColor) {
+      setFeedbackColor(getFeedbackColor());
+    }
+  }, [feedback, buzzer, clicked, feedbackColor, getFeedbackColor]);
 
   return (
-    <StyledTile onClick={handleClick}>
-      <Flip borderColor={getBorderColor()} isFlipped={clicked}>
-        <StyledTileImage $tileImg={tileImg} />
+    <StyledTile onClick={handleClick} data-testid="tile">
+      <Flip borderColor={getBorderColor()} isFlipped={flipped}>
+        <StyledTileImage $tileImg={tileImg} data-testid="tile-img" />
       </Flip>
     </StyledTile>
   );

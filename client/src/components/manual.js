@@ -6,8 +6,9 @@ import Scorecard from './scorecard';
 const StyledManual = styled.div`
   display: flex;
   flex-direction: column;
-  gap: var(--space-m);
+  gap: var(--space-s);
 
+  font-size: 14px;
   text-align: left;
 
   .manual-subheader {
@@ -15,20 +16,18 @@ const StyledManual = styled.div`
     font-weight: 500;
   }
 
-  .manual-details {
+  .manual-details, .manual-scoring {
     ul {
-      font-size: 14px;
       padding-left: var(--space-m);
     }
+  }
 
-    li:has(ul) {
-      list-style-type: none;
-      margin-top: var(--space-s);
-    }
+  .manual-scoring {
+    font-size: 12px;
   }
 `;
 
-const { description, example } = manualConfig;
+const { description, scoring, example } = manualConfig;
 
 export default function Manual() {
   return (
@@ -37,20 +36,26 @@ export default function Manual() {
       <div className="manual-details">
         <ul>
           { description.details.map((detail, i) => <li key={i}>{detail}</li>) }
-          <li>
-            <ul>
-              {
-                Object.entries(description.scoring).map(([ color, spec ], i) =>
-                  <li key={i}>{`${color}: ${spec}`}</li>
-                )
-              }
-            </ul>
-          </li>
+        </ul>
+      </div>
+      <h5 className="manual-subheader">{scoring.subheader}</h5>
+      <div className="manual-scoring">
+        <ul>
+          {
+            Object.entries(scoring.counts).map(([ color, spec ], i) =>
+              <li key={i}>{`${color}: ${spec}`}</li>
+            )
+          }
         </ul>
       </div>
       <h5 className="manual-subheader">{example.subheader}</h5>
       <div className="manual-example">
-        <Scorecard title={example.overview} score={example.score} img={example.img} />
+        <Scorecard
+          title={example.overview}
+          card={example.card}
+          score={example.score}
+          img={example.img}
+        />
       </div>
     </StyledManual>
   );

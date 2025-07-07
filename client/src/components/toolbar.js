@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { ChartNoAxesColumn as SummaryIcon, Settings as ManualIcon } from 'lucide-react';
+import { ChartNoAxesColumn as SummaryIcon, CircleHelp as ManualIcon } from 'lucide-react';
 import config, { manualConfig } from '../utils/config';
 
 import { PuzzleContext } from '../App';
@@ -40,7 +40,7 @@ export default function Toolbar() {
     handleClose: () => setActiveTool(tools.default)
   });
 
-  const { buzzer, correctSolution } = useContext(PuzzleContext);
+  const { correctSolution, buzzer } = useContext(PuzzleContext);
 
   // summary updates once @ end --> buzzer = true, correctSolution = true || false
   const summary = {

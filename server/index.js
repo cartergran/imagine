@@ -10,9 +10,10 @@ import { Storage } from '@google-cloud/storage';
 
 // env vars
 const PORT = process.env.PORT || 3001;
+const nodeEnv = process.env.NODE_ENV || '';
 const accessURL = process.env.ACCESS_URL || '';
 const bucketName = process.env.BUCKET_NAME || '';
-const folderName = process.env.FOLDER_NAME || '';
+const folderName = process.env.REACT_APP_PUZZLE_NUM || '';
 const imgPath = `${folderName}/${process.env.IMG_FILE_NAME || ''}`;
 const intelPath = `${folderName}/${process.env.INTEL_FILE_NAME || ''}`;
 const gcsCredsBase64 = process.env.GCS_KEY_BASE64 || '';
@@ -24,6 +25,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const storage = new Storage({ credentials: gcsCreds });
 
+var totalAttempts = 5;
 var intel = {
   categories: [],
   choices: [],
@@ -34,7 +36,8 @@ var img = {
   width: 2002,
   height: 2002,
   data: {},
-  base64: ''
+  base64: '',
+  pixelated: [] // descending order from most pixelated
 };
 var board = {
   rows: 7,
@@ -43,13 +46,18 @@ var board = {
 var tiles = {
   width: img.width / board.rows,
   height: img.height / board.cols,
-  base64Catalog: init2DArray(board.rows, board.cols)
+  base64Catalog: init3DArray(totalAttempts, board.rows, board.cols)
 };
+var basePixelation = 11;
 
 // hoist
-function init2DArray(r, c) {
-  return Array.from({ length: r }, _ => Array(c).fill(0));
-};
+function init3DArray(i, j, k) {
+  return Array.from({ length: i }, _ =>
+    Array.from({ length: j }, _ =>
+      Array(k).fill(0)
+    )
+  );
+}
 
 const processImg = async (bucketName, imgPath, width, height) => {
   let img;
@@ -77,6 +85,20 @@ const processIntel = async(bucketName, intelPath) => {
   }
   return intel;
 };
+
+const getPixelatedImgs = (imgOriginal, basePixelation, totalAttempts) => {
+  let pixelatedImgs = [];
+  // descending order from most pixelated
+  for (let i = totalAttempts - 1; i > 0; i--) {
+    let pixelation = basePixelation * i;
+    let pixelatedImg = imgOriginal.clone();
+    pixelatedImg.pixelate(pixelation);
+    // pixelatedImg.writeAsync(`${process.env.PIXELATED_IMG_PATH}${i}.jpg`);
+
+    pixelatedImgs.push(pixelatedImg);
+  }
+  return pixelatedImgs;
+}
 
 const getBase64Img = async (imgData, mimeType) => {
   let base64Img = '';
@@ -111,13 +133,18 @@ const handleTile = (err, data, loc) => {
 };
 */
 
-const getTiles = async (board, tiles, imgData) => {
-  for (let r = 0; r < board.rows; r++) {
-    for (let c = 0; c < board.cols; c++) {
-      try {
-        tiles.base64Catalog[r][c] = await cropTile([r, c], tiles.width, tiles.height, imgData);
-      } catch(err) {
-        console.error(`cropTile() error @ r:${r} c:${c}!`, err.message);
+const getTiles = async (board, tiles, imgOriginal, imgsPixelated) => {
+  // descending order from most pixelated
+  const imgsData = [...imgsPixelated, imgOriginal];
+
+  for (let [i, imgData] of imgsData.entries()) {
+    for (let r = 0; r < board.rows; r++) {
+      for (let c = 0; c < board.cols; c++) {
+        try {
+          tiles.base64Catalog[i][r][c] = await cropTile([r, c], tiles.width, tiles.height, imgData);
+        } catch(err) {
+          console.error(`cropTile() error @ i:${i} r:${r} c:${c}!`, err.message);
+        }
       }
     }
   }
@@ -127,13 +154,26 @@ const getTiles = async (board, tiles, imgData) => {
 const init = async (intel, img, board, tiles) => {
   Object.assign(intel, await processIntel(bucketName, intelPath));
   img.data = await processImg(bucketName, imgPath, img.width, img.height);
+
   if (img.data) {
-    await getTiles(board, tiles, img.data);
+    img.pixelated = getPixelatedImgs(img.data, basePixelation, totalAttempts);
+
+    await getTiles(board, tiles, img.data, img.pixelated);
     img.base64 = await getBase64Img(img.data, jimp.MIME_JPEG)
   }
 };
 
 init(intel, img, board, tiles);
+
+app.use((req, res, next) => {
+  // MDN docs := x-forwarded-proto de-facto standard header for identifying the protocols
+  if (nodeEnv !== 'dev' && req.header('x-forwarded-proto') !== 'https') {
+    // 301 := moved permanently
+    res.redirect(301, `https://${req.header('host')}${req.url}`);
+  } else {
+    next();
+  }
+});
 
 app.use(cors({
   origin: accessURL,
@@ -148,20 +188,20 @@ app.get('/categories', (_req, res) => {
 });
 
 app.get('/tile', (req, res) => {
-  let { r, c } = req.query;
-  res.send(tiles.base64Catalog[r][c]);
+  let { attempt, r, c } = req.query;
+  res.send(tiles.base64Catalog[attempt][r][c]);
 });
 
 app.get('/choices', (_req, res) => {
   res.send(intel.choices);
 });
 
-app.get('/check-category', (req, res) => {
+app.get('/check/category', (req, res) => {
   let { guess } = req.query;
   res.send(guess === intel.category)
 });
 
-app.get('/check-solution', (req, res) => {
+app.get('/check/solution', (req, res) => {
   let { guess } = req.query;
   res.send(guess === intel.solution);
 });

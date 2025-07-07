@@ -1,8 +1,8 @@
 const title = 'imagine';
-const day = process.env.REACT_APP_DAY;
-const share = `${title} #${day}`;
+const puzzleNum = process.env.REACT_APP_PUZZLE_NUM;
+const share = `${title} #${puzzleNum}`;
 
-const numAttempts = 5;
+const totalAttempts = 5;
 const selectionsPerAttempt = 5;
 const duration = 805;
 
@@ -30,26 +30,31 @@ const tools = {
 export const manualConfig = {
   header: 'How To Play',
   description: {
-    summary: `Imagine the class and species of an animal in ${numAttempts} attempts.`,
+    summary: `Imagine the class and species of an animal in ${totalAttempts} attempts.`,
     details: [
       `The ${board.rows} x ${board.cols} tile grid depicts one image of an animal.`,
+      `The image starts pixelated and becomes clearer with each attempt.`,
       `Before each attempt select anywhere from 1 to ${selectionsPerAttempt} tiles to reveal a
       portion of the image.`,
-      `After choosing the initial class of animal correctly, the options will change to species of
-      that class.`,
-      `On the scorecard, the color of the tiles change according to your attempts.`
-    ],
-    scoring: {
-      '⬛': 'Unselected.',
-      '🟥': 'Incorrect choice of class.',
-      '🟨': 'Incorrect choice of species.',
-      '🟩': 'Puzzle solved.'
+      `After choosing the class of animal correctly, the options will narrow to species of that
+      class.`,
+      `The tiles on the scorecard change color based on your selections and results, which
+      determine your final score.`
+    ]
+  },
+  scoring: {
+    subheader: 'Scoring',
+    counts: {
+      '🟥': '+0. Incorrect choice of class.',
+      '🟨': '+1. Correct class, incorrect choice of species.',
+      '🟩': '+2. Puzzle solved.',
+      '⬛': '+3. Unselected.'
     }
   },
   example: {
     subheader: 'Example',
-    overview: '{ class: Mammal, species: Red Panda }',
-    score: [
+    overview: '{ class: Mammal, species: Red Panda, score: 101/146 }',
+    card: [
       ['⬛','⬛','⬛','⬛','⬛','⬛','🟥'],
       ['🟨','🟥','🟨','🟨','🟨','🟩','⬛'],
       ['🟨','🟨','🟨','🟥','🟨','🟩','🟩'],
@@ -58,15 +63,15 @@ export const manualConfig = {
       ['⬛','⬛','⬛','⬛','⬛','🟨','🟨'],
       ['⬛','⬛','⬛','⬛','⬛','🟨','🟨']
     ],
+    score: 101,
     img: process.env.REACT_APP_EXAMPLE_IMG
   }
 };
 
 const config = {
   title,
-  day,
   share,
-  numAttempts,
+  totalAttempts,
   selectionsPerAttempt,
   duration,
   board,

@@ -1,37 +1,58 @@
 import axios from 'axios';
 import config from './config';
 
-const magicNum = process.env.REACT_APP_MAGIC_NUM;
 var buzzer = false;
 var currentTurn = true;
 
-const emojis = {
-  [-1]: '🟥', // eslint-disable-next-line
-  [0]: '⬛', // eslint-disable-next-line
-  [1]: '🟨',
-  [magicNum]: '🟩'
+const counts = {
+  incorrect: 0,
+  category: 1,
+  solution: 2,
+  unselected: 3
 };
+const emojis = {
+  [counts.incorrect]: '🟥',
+  [counts.category]: '🟨',
+  [counts.solution]: '🟩',
+  [counts.unselected]: '⬛',
+};
+var numTiles = config.board.cols * config.board.rows;
+var maxScore = ((numTiles - 1) * counts.unselected) + counts.solution;
 
 const init2DArray = (r, c, content) => {
   return Array.from({ length: r }, _ => Array(c).fill(content));
 };
 
-const initScore = (scorecard) => {
+const signCard = (scorecard) => {
   for (let { tileSelection, correctness } of scorecard.logs) {
     for (let { r, c } of tileSelection) {
-      scorecard.score[r][c] = emojis[correctness];
+      scorecard.card[r][c] = emojis[correctness];
     }
   }
 }
 
+const calcScore = (scorecard) => {
+  let { numSelected, selectedScore } = scorecard.logs.reduce((acc, log) => {
+    let numTilesLog = log.tileSelection.length;
+    acc.numSelected += numTilesLog;
+    acc.selectedScore += numTilesLog * log.correctness;
+    return acc;
+  }, { numSelected: 0, selectedScore: 0 });
+  let unselectedScore = (numTiles - numSelected) * counts.unselected;
+  scorecard.score = selectedScore + unselectedScore;
+};
+
 const scorecard = {
   init() {
-    initScore(this);
+    signCard(this);
+    calcScore(this);
+    scorecard.title = `${config.share} ${scorecard.score}/${maxScore}`;
     // TODO: calcStats(); ?
   },
-  title: config.share,
-  logs: [{ tileSelection: [], correctness: 0 }],
-  score: init2DArray(config.board.rows, config.board.cols, emojis[0])
+  title: '',
+  logs: [{ tileSelection: [], correctness: null }],
+  card: init2DArray(config.board.rows, config.board.cols, emojis[counts.unselected]),
+  score: 0
 };
 
 axios.interceptors.request.use((req) => {
@@ -46,7 +67,7 @@ axios.interceptors.request.use((req) => {
     else {
       currentTurn = true;
 
-      let newLog = { tileSelection: [req.params], correctness: 0 };
+      let newLog = { tileSelection: [req.params], correctness: null };
       scorecard.logs.push(newLog);
     }
   }
@@ -61,12 +82,14 @@ axios.interceptors.response.use((res) => {
     let currentLog = scorecard.logs.at(-1);
 
     if (endpoint.includes('solution')) {
-      currentLog.correctness = correct ? magicNum : 1;
+      currentLog.correctness = correct ? counts.solution : counts.category;
     } else {
-      currentLog.correctness = correct ? 0 : -1;
+      currentLog.correctness = correct ? counts.category : counts.incorrect;
     }
 
-    buzzer = currentLog.correctness === magicNum || scorecard.logs.length === config.numAttempts
+    let correctSolution = currentLog.correctness === counts.solution;
+    let atMaxAttempts = scorecard.logs.length === config.totalAttempts;
+    buzzer = correctSolution || atMaxAttempts
     if (buzzer) {
       scorecard.init();
     }

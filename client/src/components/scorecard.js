@@ -16,7 +16,7 @@ const StyledScorecard = styled.div`
   }
 `;
 
-const StyledScore = styled.dl`
+const StyledCard = styled.dl`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -46,12 +46,17 @@ const StyledImage = styled.div`
   background-size: cover;
 `;
 
-export default function Scorecard({ title: exampleTitle, score: exampleScore, img: exampleImg }) {
+export default function Scorecard({
+  title: exampleTitle,
+  card: exampleCard,
+  score: exampleScore,
+  img: exampleImg
+}) {
   const [img, setImg] = useState(exampleImg || '');
 
   // TODO: conditionally require props (all or none)
-  const isExample = exampleTitle && exampleScore && exampleImg;
-  const score = isExample ? exampleScore : scorecard.score;
+  const isExample = exampleTitle && exampleCard && exampleScore && exampleImg;
+  const card = isExample ? exampleCard : scorecard.card;
 
   const getImg = async () => {
     try {
@@ -72,9 +77,9 @@ export default function Scorecard({ title: exampleTitle, score: exampleScore, im
     <StyledScorecard>
       <h5 className="scorecard-title">{isExample ? exampleTitle : scorecard.title}</h5>
       <div className="scorecard-eval">
-        <StyledScore>
+        <StyledCard>
           {
-            score.map((row, i) => {
+            card.map((row, i) => {
               return (
                 <div key={i}>
                   <dd aria-label={`row ${i} intel`} />
@@ -85,7 +90,7 @@ export default function Scorecard({ title: exampleTitle, score: exampleScore, im
               );
             })
           }
-        </StyledScore>
+        </StyledCard>
         <StyledImage $img={img} $rows={config.board.rows} $cols={config.board.cols} />
       </div>
     </StyledScorecard>
