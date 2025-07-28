@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { memo, useMemo, useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import config from '../utils/config';
 
@@ -23,17 +23,23 @@ const StyledBoard = styled.div`
   }
 `;
 
+const TileWrapper = memo(({ r, c, attemptsLeft, maxSelection, onClick }) => {
+  const loc = useMemo(() => ({ r, c }), [r, c]);
+  return <Tile
+    loc={loc}
+    attemptsLeft={attemptsLeft}
+    maxSelection={maxSelection}
+    onClick={onClick}
+  />;
+});
+
 export default function Board({ toggle, onSelection }) {
   const [selectionsLeft, setSelectionsLeft] = useState(config.selectionsPerAttempt);
 
   const { solvable } = useContext(PuzzleContext);
 
   useEffect(() => {
-    if (selectionsLeft === config.selectionsPerAttempt - 1) {
-      onSelection((prevState) => { return { ...prevState, solvable: true }});
-    } else if (selectionsLeft === 0) {
-      onSelection((prevState) => { return { ...prevState, maxSelection: true }});
-    }
+    onSelection(selectionsLeft);
   }, [selectionsLeft, onSelection]);
 
   useEffect(() => {
@@ -41,6 +47,10 @@ export default function Board({ toggle, onSelection }) {
       setSelectionsLeft(config.selectionsPerAttempt);
     }
   }, [solvable]);
+
+  const handleTileClick = useCallback(() => {
+    setSelectionsLeft((clicksLeft) => clicksLeft - 1);
+  }, []);
 
   return (
     <StyledBoard $rows={config.board.rows} $cols={config.board.cols}>
@@ -51,11 +61,13 @@ export default function Board({ toggle, onSelection }) {
               {
                 Array.from({ length: config.board.cols }).map((_, c) => {
                   return (
-                    <Tile
+                    <TileWrapper
                       key={`${r}${c}`}
-                      loc={{r, c}}
-                      toggle={toggle}
-                      onClick={setSelectionsLeft}
+                      r={r}
+                      c={c}
+                      attemptsLeft={toggle.attemptsLeft}
+                      maxSelection={toggle.maxSelection}
+                      onClick={handleTileClick}
                     />
                   );
                 })

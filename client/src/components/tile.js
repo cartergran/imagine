@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import config from '../utils/config';
@@ -26,7 +26,7 @@ const feedbackColors = {
   correctSolution: 'green'
 };
 
-export default function Tile({ loc, toggle, onClick }) {
+export default memo(function Tile({ loc, attemptsLeft, maxSelection, onClick }) {
   const [clicked, setClicked] = useState(false);
   const [feedback, setFeedback] = useState(false);
   const [feedbackColor, setFeedbackColor] = useState('');
@@ -36,7 +36,7 @@ export default function Tile({ loc, toggle, onClick }) {
   const { correctCategory, correctSolution, buzzer } = useContext(PuzzleContext);
   // const onMount = useRef(true);
 
-  const toggleTileClick = feedback || clicked || toggle.maxSelection || buzzer;
+  const toggleTileClick = feedback || clicked || maxSelection || buzzer;
 
   const getTileImg = async (attempt, r, c,) => {
     let tileImgRes = { data: '' };
@@ -57,12 +57,12 @@ export default function Tile({ loc, toggle, onClick }) {
     }
 
     // attempt [0 - 4]
-    let attempt = buzzer ? config.totalAttempts - 1 : config.totalAttempts - toggle.attemptsLeft;
-    let {r, c} = loc;
+    let attempt = buzzer ? config.totalAttempts - 1 : config.totalAttempts - attemptsLeft;
+    let { r, c } = loc;
     getTileImg(attempt, r, c).then((tileImgRes) => {
       if (!tileImg) { setTileImg(tileImgRes); }
     });
-  }, [toggle.attemptsLeft, loc, onClick, buzzer, tileImg]);
+  }, [attemptsLeft, loc, onClick, buzzer, tileImg]);
 
   const handleClick = () => {
     if (toggleTileClick) { return; }
@@ -72,7 +72,8 @@ export default function Tile({ loc, toggle, onClick }) {
   useEffect(() => {
     if (!buzzer) { return; }
 
-    let time = ((loc.r * config.board.cols) + loc.c) * process.env.REACT_APP_MAGIC_NUM;
+    let { r, c } = loc;
+    let time = ((r * config.board.cols) + c) * process.env.REACT_APP_MAGIC_NUM;
     let timer = setTimeout(remixTile, time);
     return () => clearTimeout(timer);
   }, [buzzer, loc, remixTile]);
@@ -103,16 +104,16 @@ export default function Tile({ loc, toggle, onClick }) {
     }
 
     // clicked ||  preview || selection
-    return clicked || toggle.maxSelection ? 'black' : 'white';
+    return clicked || maxSelection ? 'black' : 'white';
   };
 
   useEffect(() => {
-    if (toggle.attemptsLeft === config.totalAttempts) { return; }
+    if (attemptsLeft === config.totalAttempts) { return; }
 
     setFeedback(true);
     let timer = setTimeout(() => setFeedback(false), feedbackDuration);
     return () => clearTimeout(timer);
-  }, [toggle.attemptsLeft]);
+  }, [attemptsLeft]);
 
   useEffect(() => {
     if ((feedback || buzzer) && clicked && !feedbackColor) {
@@ -127,4 +128,4 @@ export default function Tile({ loc, toggle, onClick }) {
       </Flip>
     </StyledTile>
   );
-}
+});
