@@ -11,6 +11,7 @@ import Board from './components/board';
 import Solve from './components/solve';
 
 export const PuzzleContext = createContext();
+export const SolvableContext = createContext();
 
 function App() {
   const [state, setState] = useState({
@@ -21,13 +22,11 @@ function App() {
     maxSelection: false
   });
 
-  // TODO: optimize context
-  const context = useMemo(() => ({
+  const puzzleContext = useMemo(() => ({
     correctCategory: state.correctCategory,
     correctSolution: state.correctSolution,
-    solvable: state.solvable,
     buzzer: state.correctSolution || !state.attemptsLeft
-  }), [state.correctCategory, state.correctSolution, state.solvable, state.attemptsLeft]);
+  }), [state.correctCategory, state.correctSolution, state.attemptsLeft]);
 
   const toggle = useMemo(() => (
     { attemptsLeft: state.attemptsLeft, maxSelection: state.maxSelection }
@@ -44,15 +43,17 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      <PuzzleContext.Provider value={context}>
-        <Layout>
-            <Board
-              toggle={toggle}
-              onSelection={handleSelection}
-            />
-            <Attempts count={state.attemptsLeft} />
-            <Solve onSubmit={setState} /> { /* TODO: optimize setState */ }
-        </Layout>
+      <PuzzleContext.Provider value={puzzleContext}>
+        <SolvableContext.Provider value={state.solvable}>
+          <Layout>
+              <Board
+                toggle={toggle}
+                onSelection={handleSelection}
+              />
+              <Attempts count={state.attemptsLeft} />
+              <Solve onSubmit={setState} /> { /* TODO: optimize setState */ }
+          </Layout>
+        </SolvableContext.Provider>
       </PuzzleContext.Provider>
     </ThemeProvider>
   );

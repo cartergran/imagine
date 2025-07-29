@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import axios from 'axios';
 import config from '../utils/config';
 
-import { PuzzleContext } from '../App';
+import { PuzzleContext, SolvableContext } from '../App';
 import Options from './options';
 
 const StyledSolve = styled.div`
@@ -49,7 +49,8 @@ export default function Solve({ onSubmit }) {
   const [currentOptions, setCurrentOptions] = useState([]);
   const [transitionOptions, setTransitionOptions] = useState(true);
 
-  const { correctCategory, solvable, buzzer } = useContext(PuzzleContext);
+  const { correctCategory, buzzer } = useContext(PuzzleContext);
+  const solvable = useContext(SolvableContext);
   const optionsRef = useRef(null);
 
   const toggleOptions = !solvable || buzzer;

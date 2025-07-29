@@ -2,7 +2,7 @@ import { memo, useMemo, useCallback, useContext, useEffect, useState } from 'rea
 import styled from 'styled-components';
 import config from '../utils/config';
 
-import { PuzzleContext } from '../App';
+import { SolvableContext } from '../App';
 import Tile from './tile';
 
 const StyledBoard = styled.div`
@@ -36,7 +36,7 @@ const TileWrapper = memo(({ r, c, attemptsLeft, maxSelection, onClick }) => {
 export default function Board({ toggle, onSelection }) {
   const [selectionsLeft, setSelectionsLeft] = useState(config.selectionsPerAttempt);
 
-  const { solvable } = useContext(PuzzleContext);
+  const solvable = useContext(SolvableContext);
 
   useEffect(() => {
     onSelection(selectionsLeft);
