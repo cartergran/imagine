@@ -61,7 +61,7 @@ const StyledOptions = styled.div`
 export default forwardRef(function Options({
   options,
   prevGuesses,
-  setCurrentGuess,
+  setGuesses,
   disabled
 }, ref) {
   // const { correctCategory } = useContext(PuzzleContext);
@@ -70,7 +70,9 @@ export default forwardRef(function Options({
     <StyledOptions ref={ref}>
       <Radio.Group
         className={'' /* correctCategory ? 'plus-group' : '' */}
-        onChange={(e) => setCurrentGuess(e.target.value)}
+        onChange={(e) =>
+          setGuesses((prev) => ({ ...prev, current: e.target.value }))
+        }
       >
         {
           options.map((option, idx) => {

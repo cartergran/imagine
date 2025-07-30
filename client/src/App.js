@@ -40,18 +40,19 @@ function App() {
     }
   }, []);
 
+  const handleSubmit = useCallback((updateFn) => (
+    setState(updateFn)
+  ), []);
+
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
       <PuzzleContext.Provider value={puzzleContext}>
         <SolvableContext.Provider value={state.solvable}>
           <Layout>
-              <Board
-                toggle={toggle}
-                onSelection={handleSelection}
-              />
+              <Board toggle={toggle} onSelection={handleSelection} />
               <Attempts count={state.attemptsLeft} />
-              <Solve onSubmit={setState} /> { /* TODO: optimize setState */ }
+              <Solve onSubmit={handleSubmit} />
           </Layout>
         </SolvableContext.Provider>
       </PuzzleContext.Provider>

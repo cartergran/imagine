@@ -64,14 +64,14 @@ const GlobalStyle = createGlobalStyle`
   }
   .fade-enter-active {
     opacity: 1;
-    transition: opacity ${config.duration}ms ease-in;
+    transition: opacity ${config.duration * 2}ms ease-in;
   }
   .fade-exit {
     opacity: 1;
   }
   .fade-exit-active {
     opacity: 0;
-    transition: opacity ${config.duration}ms ease-out;
+    transition: opacity ${config.duration * 2}ms ease-out;
   }
   .fade-exit-done {
     opacity: 0;

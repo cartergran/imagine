@@ -44,17 +44,19 @@ const shuffleArray = (arr) => {
 }
 
 export default function Solve({ onSubmit }) {
-  const [currentGuess, setCurrentGuess] = useState('');
-  const [prevGuesses, setPrevGuesses] = useState([]);
+  const [guesses, setGuesses] = useState({
+    current: '',
+    previous: []
+  });
   const [currentOptions, setCurrentOptions] = useState([]);
-  const [transitionOptions, setTransitionOptions] = useState(true);
+  const [transitionOptions, setTransitionOptions] = useState(false);
 
   const { correctCategory, buzzer } = useContext(PuzzleContext);
   const solvable = useContext(SolvableContext);
   const optionsRef = useRef(null);
 
   const toggleOptions = !solvable || buzzer;
-  const toggleSubmit = !solvable || !currentGuess || buzzer;
+  const toggleSubmit = !solvable || !guesses.current || buzzer;
 
   useEffect(() => {
     const getCategories = async () => {
@@ -70,12 +72,9 @@ export default function Solve({ onSubmit }) {
     const getChoices = async () => {
       let choicesRes = await axios.get('choices');
       let choices = shuffleArray(choicesRes.data);
-      setTimeout(() => {
-        setCurrentOptions(choices);
-        setTransitionOptions(true);
-      }, config.duration);
+      setCurrentOptions(choices);
+      setTransitionOptions(true);
     };
-    setTransitionOptions(false);
     getChoices();
   }, [correctCategory]);
 
@@ -93,7 +92,8 @@ export default function Solve({ onSubmit }) {
   };
 
   const handleSubmit = async () => {
-    let correctGuess  = await checkCorrect(currentGuess, correctCategory ? 'solution' : 'category');
+    let correctGuess =
+      await checkCorrect(guesses.current, correctCategory ? 'solution' : 'category');
     if (correctGuess) {
       onSubmit((prevState) => ({
         ...prevState,
@@ -101,7 +101,7 @@ export default function Solve({ onSubmit }) {
         correctSolution: correctCategory && correctGuess,
         solvable: true
       }));
-      setPrevGuesses([]);
+      setGuesses({ current: '', previous: [] });
     } else {
       onSubmit((prevState) => ({
         ...prevState,
@@ -109,10 +109,8 @@ export default function Solve({ onSubmit }) {
         solvable: false,
         maxSelection: false
       }));
-      setPrevGuesses((prevGuesses) => [...prevGuesses, currentGuess]);
+      setGuesses((prev) => ({ previous: Object.values(prev).flat(), current: '' }));
     }
-
-    setCurrentGuess('');
   };
 
   return (
@@ -121,14 +119,14 @@ export default function Solve({ onSubmit }) {
         <CSSTransition
           in={transitionOptions}
           nodeRef={optionsRef}
-          timeout={config.duration}
+          timeout={config.duration * 2}
           classNames="fade"
         >
           <Options
             ref={optionsRef}
             options={currentOptions}
-            prevGuesses={prevGuesses}
-            setCurrentGuess={setCurrentGuess}
+            prevGuesses={guesses.previous}
+            setGuesses={setGuesses}
             disabled={toggleOptions}
           />
         </CSSTransition>
