@@ -95,22 +95,20 @@ export default function Solve({ onSubmit }) {
   const handleSubmit = async () => {
     let correctGuess  = await checkCorrect(currentGuess, correctCategory ? 'solution' : 'category');
     if (correctGuess) {
-      onSubmit((prevState) => {
-        return {
-          ...prevState,
-          correctCategory: correctGuess,
-          correctSolution: correctCategory && correctGuess,
-          solvable: true
-      }});
+      onSubmit((prevState) => ({
+        ...prevState,
+        correctCategory: correctGuess,
+        correctSolution: correctCategory && correctGuess,
+        solvable: true
+      }));
       setPrevGuesses([]);
     } else {
-      onSubmit((prevState) => {
-        return {
-          ...prevState,
-          attemptsLeft: --prevState.attemptsLeft,
-          solvable: false,
-          maxSelection: false
-      }});
+      onSubmit((prevState) => ({
+        ...prevState,
+        attemptsLeft: --prevState.attemptsLeft,
+        solvable: false,
+        maxSelection: false
+      }));
       setPrevGuesses((prevGuesses) => [...prevGuesses, currentGuess]);
     }
 

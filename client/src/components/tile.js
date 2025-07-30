@@ -83,25 +83,15 @@ export default memo(function Tile({ loc, attemptsLeft, maxSelection, onClick }) 
   // }, []);
 
   const getFeedbackColor = useCallback(() => {
-    if (correctSolution) {
-      return feedbackColors.correctSolution;
-    }
-
-    if (correctCategory) {
-      return feedbackColors.correctCategory;
-    }
+    if (correctSolution) { return feedbackColors.correctSolution; }
+    if (correctCategory) { return feedbackColors.correctCategory; }
 
     return feedbackColors.incorrect;
   }, [correctCategory, correctSolution]);
 
   const getBorderColor = () => {
-    if (buzzer) {
-      return feedbackColor;
-    }
-
-    if (feedback) {
-      return getFeedbackColor();
-    }
+    if (buzzer) { return feedbackColor; }
+    if (feedback) { return getFeedbackColor(); }
 
     // clicked ||  preview || selection
     return clicked || maxSelection ? 'black' : 'white';
@@ -116,7 +106,8 @@ export default memo(function Tile({ loc, attemptsLeft, maxSelection, onClick }) 
   }, [attemptsLeft]);
 
   useEffect(() => {
-    if ((feedback || buzzer) && clicked && !feedbackColor) {
+    let needsFeedbackColor = clicked && !feedbackColor;
+    if ((feedback || buzzer) && needsFeedbackColor) {
       setFeedbackColor(getFeedbackColor());
     }
   }, [feedback, buzzer, clicked, feedbackColor, getFeedbackColor]);
