@@ -19,7 +19,8 @@ function App() {
     correctCategory: false,
     correctSolution: false,
     solvable: false,
-    maxSelection: false
+    maxSelection: false,
+    guesses: { current: '', previous: [] }
   });
 
   const puzzleContext = useMemo(() => ({
@@ -28,9 +29,10 @@ function App() {
     buzzer: state.correctSolution || !state.attemptsLeft
   }), [state.correctCategory, state.correctSolution, state.attemptsLeft]);
 
-  const toggle = useMemo(() => (
-    { attemptsLeft: state.attemptsLeft, maxSelection: state.maxSelection }
-  ), [state.attemptsLeft, state.maxSelection]);
+  const toggle = useMemo(() => ({
+    attemptsLeft: state.attemptsLeft,
+    maxSelection: state.maxSelection
+  }), [state.attemptsLeft, state.maxSelection]);
 
   const handleSelection = useCallback((selectionsLeft) => {
     if (selectionsLeft === 0) {
@@ -40,6 +42,16 @@ function App() {
         maxSelection: true
       }));
     }
+  }, []);
+
+  const handleGuessChange = useCallback((newGuess) => {
+    setState(prevState => ({
+      ...prevState,
+      guesses: {
+        ...prevState.guesses,
+        current: newGuess
+      }
+    }));
   }, []);
 
   const handleSubmit = useCallback((updateFn) => (
@@ -54,7 +66,11 @@ function App() {
           <Layout>
               <Board toggle={toggle} onSelection={handleSelection} />
               <Attempts count={state.attemptsLeft} />
-              <Solve onSubmit={handleSubmit} />
+              <Solve
+                guesses={state.guesses}
+                handleGuessChange={handleGuessChange}
+                onSubmit={handleSubmit}
+              />
           </Layout>
         </SolvableContext.Provider>
       </PuzzleContext.Provider>

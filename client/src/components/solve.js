@@ -43,11 +43,7 @@ const shuffleArray = (arr) => {
   return arr;
 }
 
-export default function Solve({ onSubmit }) {
-  const [guesses, setGuesses] = useState({
-    current: '',
-    previous: []
-  });
+export default function Solve({ guesses, handleGuessChange, onSubmit }) {
   const [currentOptions, setCurrentOptions] = useState([]);
   const [transitionOptions, setTransitionOptions] = useState(false);
 
@@ -94,22 +90,22 @@ export default function Solve({ onSubmit }) {
   const handleSubmit = async () => {
     let correctGuess =
       await checkCorrect(guesses.current, correctCategory ? 'solution' : 'category');
+
     if (correctGuess) {
       onSubmit((prevState) => ({
         ...prevState,
         correctCategory: correctGuess,
         correctSolution: correctCategory && correctGuess,
-        solvable: true
+        guesses: { current: '', previous: [] }
       }));
-      setGuesses({ current: '', previous: [] });
     } else {
       onSubmit((prevState) => ({
         ...prevState,
         attemptsLeft: --prevState.attemptsLeft,
         solvable: false,
-        maxSelection: false
+        maxSelection: false,
+        guesses: { previous: Object.values(prevState.guesses).flat(), current: '' }
       }));
-      setGuesses((prev) => ({ previous: Object.values(prev).flat(), current: '' }));
     }
   };
 
@@ -126,7 +122,7 @@ export default function Solve({ onSubmit }) {
             ref={optionsRef}
             options={currentOptions}
             prevGuesses={guesses.previous}
-            setGuesses={setGuesses}
+            handleGuessChange={handleGuessChange}
             disabled={toggleOptions}
           />
         </CSSTransition>
