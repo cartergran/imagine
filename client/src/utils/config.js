@@ -3,7 +3,7 @@ const puzzleNum = process.env.REACT_APP_PUZZLE_NUM;
 const share = `${title} #${puzzleNum}`;
 
 const totalAttempts = 5;
-const selectionsPerAttempt = 5;
+const selectionsPerAttempt = 3;
 const duration = 805;
 
 const board = {

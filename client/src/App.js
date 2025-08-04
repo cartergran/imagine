@@ -33,10 +33,12 @@ function App() {
   ), [state.attemptsLeft, state.maxSelection]);
 
   const handleSelection = useCallback((selectionsLeft) => {
-    if (selectionsLeft === config.selectionsPerAttempt - 1) {
-      setState((prevState) => { return { ...prevState, solvable: true }});
-    } else if (selectionsLeft === 0) {
-      setState((prevState) => { return { ...prevState, maxSelection: true }});
+    if (selectionsLeft === 0) {
+      setState((prevState) => ({
+        ...prevState,
+        solvable: true,
+        maxSelection: true
+      }));
     }
   }, []);
 
