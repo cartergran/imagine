@@ -27,16 +27,16 @@ const feedbackColors = {
 };
 
 export default memo(function Tile({ loc, attemptsLeft, maxSelection, onClick }) {
-  const [clicked, setClicked] = useState(false);
+  // tileState.clicked := clicked
+  // tileState.img := clicked || flipped
+  const [tileState, setTileState] = useState({ clicked: false, img: '' });
   const [feedback, setFeedback] = useState(false);
   const [feedbackColor, setFeedbackColor] = useState('');
-  const [tileImg, setTileImg] = useState('');
-  const [flipped, setFlipped] = useState(false);
 
   const { correctCategory, correctSolution, buzzer } = useContext(PuzzleContext);
   // const onMount = useRef(true);
 
-  const toggleTileClick = feedback || clicked || maxSelection || buzzer;
+  const toggleTileClick = feedback || tileState.clicked || maxSelection || buzzer;
 
   const getTileImg = async (attempt, r, c,) => {
     let tileImgRes = { data: '' };
@@ -49,20 +49,20 @@ export default memo(function Tile({ loc, attemptsLeft, maxSelection, onClick }) 
   };
 
   const remixTile = useCallback(() => {
-    setFlipped(true);
-
-    if (!buzzer) {
-      setClicked(true);
-      onClick((clicksLeft) => clicksLeft - 1);
-    }
+    if (!buzzer) { onClick((clicksLeft) => clicksLeft - 1); }
 
     // attempt [0 - 4]
     let attempt = buzzer ? config.totalAttempts - 1 : config.totalAttempts - attemptsLeft;
     let { r, c } = loc;
     getTileImg(attempt, r, c).then((tileImgRes) => {
-      if (!tileImg) { setTileImg(tileImgRes); }
+      if (!tileState.img) {
+        setTileState({
+          clicked: buzzer ? false : true,
+          img: tileImgRes
+        });
+      }
     });
-  }, [attemptsLeft, loc, onClick, buzzer, tileImg]);
+  }, [attemptsLeft, loc, onClick, buzzer, tileState.img]);
 
   const handleClick = () => {
     if (toggleTileClick) { return; }
@@ -93,8 +93,8 @@ export default memo(function Tile({ loc, attemptsLeft, maxSelection, onClick }) 
     if (buzzer) { return feedbackColor; }
     if (feedback) { return getFeedbackColor(); }
 
-    // clicked ||  preview || selection
-    return clicked || maxSelection ? 'black' : 'white';
+    // preview || selection
+    return (tileState.clicked || maxSelection) ? 'black' : 'white';
   };
 
   useEffect(() => {
@@ -106,16 +106,16 @@ export default memo(function Tile({ loc, attemptsLeft, maxSelection, onClick }) 
   }, [attemptsLeft]);
 
   useEffect(() => {
-    let needsFeedbackColor = clicked && !feedbackColor;
+    let needsFeedbackColor = tileState.clicked && !feedbackColor;
     if ((feedback || buzzer) && needsFeedbackColor) {
       setFeedbackColor(getFeedbackColor());
     }
-  }, [feedback, buzzer, clicked, feedbackColor, getFeedbackColor]);
+  }, [feedback, buzzer, tileState.clicked, feedbackColor, getFeedbackColor]);
 
   return (
     <StyledTile onClick={handleClick} data-testid="tile">
-      <Flip borderColor={getBorderColor()} isFlipped={flipped}>
-        <StyledTileImage $tileImg={tileImg} data-testid="tile-img" />
+      <Flip borderColor={getBorderColor()} isFlipped={tileState.img}>
+        <StyledTileImage $tileImg={tileState.img} data-testid="tile-img" />
       </Flip>
     </StyledTile>
   );

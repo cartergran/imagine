@@ -32,7 +32,7 @@ const StyledFlipContent = styled.div`
 
   backface-visibility: hidden;
   // -webkit-backface-visibility: hidden; // safari
-  transition: border ${config.duration * 3}ms;
+  transition: border ${config.duration * 2}ms;
 
   &.flip-content-back {
     transform: rotateY(-180deg);
