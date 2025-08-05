@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import config from '../utils/config';
@@ -26,12 +26,12 @@ const feedbackColors = {
   correctSolution: 'green'
 };
 
-export default memo(function Tile({ loc, attemptsLeft, maxSelection, onClick }) {
+function Tile({ loc, attemptsLeft, maxSelection, onClick }) {
   // tileState.clicked := clicked
   // tileState.img := clicked || flipped
   const [tileState, setTileState] = useState({ clicked: false, img: '' });
   const [feedback, setFeedback] = useState(false);
-  const [feedbackColor, setFeedbackColor] = useState('');
+  const feedbackColor = useRef('');
 
   const { correctCategory, correctSolution, buzzer } = useContext(PuzzleContext);
   // const onMount = useRef(true);
@@ -90,7 +90,7 @@ export default memo(function Tile({ loc, attemptsLeft, maxSelection, onClick }) 
   }, [correctCategory, correctSolution]);
 
   const getBorderColor = () => {
-    if (buzzer) { return feedbackColor; }
+    if (buzzer) { return feedbackColor.current; }
     if (feedback) { return getFeedbackColor(); }
 
     // preview || selection
@@ -106,11 +106,11 @@ export default memo(function Tile({ loc, attemptsLeft, maxSelection, onClick }) 
   }, [attemptsLeft]);
 
   useEffect(() => {
-    let needsFeedbackColor = tileState.clicked && !feedbackColor;
+    let needsFeedbackColor = tileState.clicked && !feedbackColor.current;
     if ((feedback || buzzer) && needsFeedbackColor) {
-      setFeedbackColor(getFeedbackColor());
+      feedbackColor.current = getFeedbackColor();
     }
-  }, [feedback, buzzer, tileState.clicked, feedbackColor, getFeedbackColor]);
+  }, [feedback, buzzer, tileState.clicked, getFeedbackColor]);
 
   return (
     <StyledTile onClick={handleClick} data-testid="tile">
@@ -119,4 +119,7 @@ export default memo(function Tile({ loc, attemptsLeft, maxSelection, onClick }) 
       </Flip>
     </StyledTile>
   );
-});
+};
+
+// Tile.whyDidYouRender = true;
+export default memo(Tile);

@@ -23,11 +23,12 @@ function App() {
     guesses: { current: '', previous: [] }
   });
 
+  const noMoreAttempts = state.attemptsLeft === 0;
   const puzzleContext = useMemo(() => ({
     correctCategory: state.correctCategory,
     correctSolution: state.correctSolution,
-    buzzer: state.correctSolution || !state.attemptsLeft
-  }), [state.correctCategory, state.correctSolution, state.attemptsLeft]);
+    buzzer: state.correctSolution || noMoreAttempts
+  }), [state.correctCategory, state.correctSolution, noMoreAttempts]);
 
   const toggle = useMemo(() => ({
     attemptsLeft: state.attemptsLeft,

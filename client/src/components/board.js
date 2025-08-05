@@ -1,4 +1,4 @@
-import { memo, useMemo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useMemo, useCallback, useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import config from '../utils/config';
 
@@ -33,24 +33,22 @@ const TileWrapper = memo(({ r, c, attemptsLeft, maxSelection, onClick }) => {
   />;
 });
 
-export default function Board({ toggle, onSelection }) {
-  const [selectionsLeft, setSelectionsLeft] = useState(config.selectionsPerAttempt);
-
+function Board({ toggle, onSelection }) {
+  const selectionsLeft = useRef(config.selectionsPerAttempt);
   const solvable = useContext(SolvableContext);
 
   useEffect(() => {
-    onSelection(selectionsLeft);
-  }, [selectionsLeft, onSelection]);
-
-  useEffect(() => {
     if (!solvable) {
-      setSelectionsLeft(config.selectionsPerAttempt);
+      selectionsLeft.current = config.selectionsPerAttempt;
     }
   }, [solvable]);
 
   const handleTileClick = useCallback(() => {
-    setSelectionsLeft((clicksLeft) => clicksLeft - 1);
-  }, []);
+    let newSelectionsLeft = --selectionsLeft.current;
+    if (newSelectionsLeft === 0) {
+      onSelection(newSelectionsLeft);
+    }
+  }, [onSelection]);
 
   return (
     <StyledBoard $rows={config.board.rows} $cols={config.board.cols}>
@@ -79,3 +77,6 @@ export default function Board({ toggle, onSelection }) {
     </StyledBoard>
   );
 }
+
+// Board.whyDidYouRender = true;
+export default memo(Board);
