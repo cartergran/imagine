@@ -1,5 +1,5 @@
-import { Button } from 'antd';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { Button, Tag } from 'antd';
+import { startTransition, useContext, useEffect, useRef, useState } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import styled from 'styled-components';
 import axios from 'axios';
@@ -34,6 +34,16 @@ const StyledSolve = styled.div`
   }
 `;
 
+const StyledWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  & > :first-child {
+    margin-bottom: var(--space-s);
+  }
+`;
+
 // fisher-yates shuffle
 const shuffleArray = (arr) => {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -41,15 +51,15 @@ const shuffleArray = (arr) => {
     [arr[i], arr[j]] = [arr[j], arr[i]]; // swap elements
   }
   return arr;
-}
+};
 
 export default function Solve({ guesses, handleGuessChange, onSubmit }) {
   const [currentOptions, setCurrentOptions] = useState([]);
-  const [transitionOptions, setTransitionOptions] = useState(false);
+  const [categoryType, setCategoryType] = useState('');
 
   const { correctCategory, buzzer } = useContext(PuzzleContext);
   const solvable = useContext(SolvableContext);
-  const optionsRef = useRef(null);
+  const wrapperRef = useRef(null);
 
   const toggleOptions = !solvable || buzzer;
   const toggleSubmit = !solvable || !guesses.current || buzzer;
@@ -65,13 +75,24 @@ export default function Solve({ guesses, handleGuessChange, onSubmit }) {
 
   useEffect(() => {
     if (!correctCategory) { return; }
-    const getChoices = async () => {
-      let choicesRes = await axios.get('choices');
-      let choices = shuffleArray(choicesRes.data);
-      setCurrentOptions(choices);
-      setTransitionOptions(true);
+    const getCategoryChoices = async () => {
+      let categoryChoicesRes = await axios.get('categoryChoices');
+      let categoryChoices = shuffleArray(categoryChoicesRes.data);
+      return categoryChoices;
     };
-    getChoices();
+    const getCategoryType = async () => {
+      let categoryTypeRes = await axios.get('categoryType');
+      return categoryTypeRes.data;
+    };
+    const onCorrectCategory = async () => {
+      let categoryChoices = await getCategoryChoices();
+      let categoryType = await getCategoryType();
+      startTransition(() => {
+        setCurrentOptions(categoryChoices);
+        setCategoryType(categoryType);
+      });
+    };
+    onCorrectCategory();
   }, [correctCategory]);
 
   const checkCorrect = async (guess, type) => {
@@ -112,18 +133,20 @@ export default function Solve({ guesses, handleGuessChange, onSubmit }) {
     <StyledSolve>
       <div id="solve">
         <CSSTransition
-          in={transitionOptions}
-          nodeRef={optionsRef}
-          timeout={config.duration * 2}
+          in={correctCategory}
+          nodeRef={wrapperRef}
+          timeout={config.duration * 3}
           classNames="fade"
         >
-          <Options
-            ref={optionsRef}
-            options={currentOptions}
-            prevGuesses={guesses.previous}
-            handleGuessChange={handleGuessChange}
-            disabled={toggleOptions}
-          />
+          <StyledWrapper ref={wrapperRef}>
+            { correctCategory && <Tag color="dodgerblue">{categoryType}</Tag> }
+            <Options
+              options={currentOptions}
+              prevGuesses={guesses.previous}
+              handleGuessChange={handleGuessChange}
+              disabled={toggleOptions}
+            />
+          </StyledWrapper>
         </CSSTransition>
         <Button
           type="primary"

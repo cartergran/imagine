@@ -30,7 +30,7 @@ const storage = new Storage({ credentials: gcsCreds });
 var totalAttempts = 5;
 var intel = {
   categories: [],
-  choices: [],
+  categoryChoices: {},
   category: '',
   solution: ''
 };
@@ -194,8 +194,12 @@ app.get('/tile', (req, res) => {
   res.send(tiles.base64Catalog[attempt][r][c]);
 });
 
-app.get('/choices', (_req, res) => {
-  res.send(intel.choices);
+app.get('/categoryType', (_req, res) => {
+  res.send(intel.categoryChoices.type);
+});
+
+app.get('/categoryChoices', (_req, res) => {
+  res.send(intel.categoryChoices.options);
 });
 
 app.get('/check/category', (req, res) => {
