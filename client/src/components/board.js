@@ -33,7 +33,7 @@ const TileWrapper = memo(({ r, c, attemptsLeft, maxSelection, onClick }) => {
   />;
 });
 
-function Board({ toggle, onSelection }) {
+function Board({ attemptsLeft, maxSelection, onSelection }) {
   const selectionsLeft = useRef(config.selectionsPerAttempt);
   const solvable = useContext(SolvableContext);
 
@@ -63,8 +63,8 @@ function Board({ toggle, onSelection }) {
                       key={`${r}${c}`}
                       r={r}
                       c={c}
-                      attemptsLeft={toggle.attemptsLeft}
-                      maxSelection={toggle.maxSelection}
+                      attemptsLeft={attemptsLeft}
+                      maxSelection={maxSelection}
                       onClick={handleTileClick}
                     />
                   );

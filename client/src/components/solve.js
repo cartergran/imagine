@@ -103,7 +103,6 @@ export default function Solve({ guesses, handleGuessChange, onSubmit }) {
         ...prevState,
         attemptsLeft: --prevState.attemptsLeft,
         solvable: false,
-        maxSelection: false,
         guesses: { previous: Object.values(prevState.guesses).flat(), current: '' }
       }));
     }

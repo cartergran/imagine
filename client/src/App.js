@@ -19,7 +19,6 @@ function App() {
     correctCategory: false,
     correctSolution: false,
     solvable: false,
-    maxSelection: false,
     guesses: { current: '', previous: [] }
   });
 
@@ -30,17 +29,11 @@ function App() {
     buzzer: state.correctSolution || noMoreAttempts
   }), [state.correctCategory, state.correctSolution, noMoreAttempts]);
 
-  const toggle = useMemo(() => ({
-    attemptsLeft: state.attemptsLeft,
-    maxSelection: state.maxSelection
-  }), [state.attemptsLeft, state.maxSelection]);
-
   const handleSelection = useCallback((selectionsLeft) => {
     if (selectionsLeft === 0) {
       setState((prevState) => ({
         ...prevState,
-        solvable: true,
-        maxSelection: true
+        solvable: true
       }));
     }
   }, []);
@@ -65,7 +58,11 @@ function App() {
       <PuzzleContext.Provider value={puzzleContext}>
         <SolvableContext.Provider value={state.solvable}>
           <Layout>
-              <Board toggle={toggle} onSelection={handleSelection} />
+              <Board
+                attemptsLeft={state.attemptsLeft}
+                maxSelection={state.solvable}
+                onSelection={handleSelection}
+              />
               <Attempts count={state.attemptsLeft} />
               <Solve
                 guesses={state.guesses}
