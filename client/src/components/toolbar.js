@@ -34,7 +34,7 @@ const renderTools = {
 };
 
 export default function Toolbar() {
-  const [activeTool, setActiveTool] = useState(tools.manual);
+  const [activeTool, setActiveTool] = useState();
   const [modalProps, setModalProps] = useState({
     header: manualConfig.header,
     handleClose: () => setActiveTool(tools.default)

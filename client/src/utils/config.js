@@ -33,9 +33,8 @@ export const manualConfig = {
     summary: `Imagine the image in ${totalAttempts} attempts.`,
     details: [
       `The ${board.rows} x ${board.cols} tile grid depicts a single image.`,
-      `Before each attempt select up to ${selectionsPerAttempt} tiles to reveal a portion of the
-      image.`,
-      `First, guess the general category of the image. Once correct, choose from specific options
+      `Before each attempt select ${selectionsPerAttempt} tiles to reveal a portion of the image.`,
+      `First, imagine the general category of the image. Once correct, choose from specific options
       within that category.`,
       `The image starts heavily pixelated and becomes clearer after each attempt.`,
       `Tiles on the scorecard change color based on your selections and results, which determine
@@ -53,7 +52,7 @@ export const manualConfig = {
   },
   example: {
     subheader: 'Example',
-    overview: '{ category: Animal, solution: Red Panda, score: 101/146 }',
+    overview: 'category: Animal | solution: Red Panda | score: 101/146',
     card: [
       ['⬛','⬛','⬛','⬛','⬛','⬛','🟥'],
       ['🟨','🟥','🟨','🟨','🟨','🟩','⬛'],
