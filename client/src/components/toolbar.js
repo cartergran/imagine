@@ -16,6 +16,10 @@ const StyledToolbar = styled.footer`
   justify-content: flex-end;
   align-items: center;
 
+  position: absolute;
+  bottom: 0;
+  @media (width > 1024px) { position: static; }
+
   align-self: center;
 
   // position: fixed;

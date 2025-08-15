@@ -9,7 +9,7 @@ const StyledOptions = styled.div`
   .ant-radio-group {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto auto;
     gap: var(--space-s);
 
     // + formation

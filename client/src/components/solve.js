@@ -13,12 +13,6 @@ const StyledSolve = styled.div`
 
   margin-top: var(--space-l);
 
-  #solve {
-    ${({ theme }) => theme.recycle.flexCenter};
-    flex-direction: column;
-    gap: var(--space-m);
-  }
-
   .ant-btn-primary {
     border-radius: var(--space-s);
     transition:
@@ -39,8 +33,14 @@ const StyledWrapper = styled.div`
   flex-direction: column;
   align-items: center;
 
-  & > :first-child {
+  // tag
+  & > span:first-child {
     margin-bottom: var(--space-s);
+  }
+
+  // options
+  & > div:has(+ button) {
+    margin-bottom: var(--space-m);
   }
 `;
 
@@ -146,15 +146,15 @@ export default function Solve({ guesses, handleGuessChange, onSubmit }) {
               handleGuessChange={handleGuessChange}
               disabled={toggleOptions}
             />
+            <Button
+              type="primary"
+              onClick={handleSubmit}
+              disabled={toggleSubmit}
+            >
+              { config.actions.submit }
+            </Button>
           </StyledWrapper>
         </CSSTransition>
-        <Button
-          type="primary"
-          onClick={handleSubmit}
-          disabled={toggleSubmit}
-        >
-          { config.actions.submit }
-        </Button>
       </div>
     </StyledSolve>
   );
