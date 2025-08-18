@@ -6,7 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Storage } from '@google-cloud/storage';
 import { scheduleJob } from 'node-schedule';
-import { updateEnvVars } from './scheduler.js';
+import { updatePuzzleAndRestart } from './scheduler.js';
 // import { fileTypeFromBuffer } from 'file-type';
 // import fs from 'fs';
 
@@ -225,4 +225,4 @@ app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
 
-scheduleJob('0 0 * * *', updateEnvVars);
+scheduleJob('0 0 * * *', updatePuzzleAndRestart);
