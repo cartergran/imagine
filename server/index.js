@@ -225,4 +225,4 @@ app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
 
-scheduleJob('0 0 * * *', updatePuzzleAndRestart);
+scheduleJob({ rule: '0 0 * * *', tz: 'America/New_York' }, updatePuzzleAndRestart);
