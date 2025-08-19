@@ -90,7 +90,7 @@ function Tile({ loc, attemptsLeft, maxSelection, onClick }) {
   }, [correctCategory, correctSolution]);
 
   const getBorderColor = () => {
-    if (buzzer) { return feedbackColor.current; }
+    if (buzzer && tileState.clicked) { return feedbackColor.current ?? getFeedbackColor(); }
     if (feedback) { return getFeedbackColor(); }
 
     // preview || selection
@@ -110,7 +110,7 @@ function Tile({ loc, attemptsLeft, maxSelection, onClick }) {
     if ((feedback || buzzer) && needsFeedbackColor) {
       feedbackColor.current = getFeedbackColor();
     }
-  }, [feedback, buzzer, tileState.clicked, getFeedbackColor]);
+  }, [buzzer, feedback, tileState.clicked, getFeedbackColor]);
 
   return (
     <StyledTile onClick={handleClick} data-testid="tile">
