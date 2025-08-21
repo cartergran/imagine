@@ -31,7 +31,7 @@ function Tile({ loc, attemptsLeft, maxSelection, onClick }) {
   // tileState.img := clicked || flipped
   const [tileState, setTileState] = useState({ clicked: false, img: '' });
   const [feedback, setFeedback] = useState(false);
-  const feedbackColor = useRef('');
+  const feedbackColor = useRef(null);
 
   const { correctCategory, correctSolution, buzzer } = useContext(PuzzleContext);
   // const onMount = useRef(true);
