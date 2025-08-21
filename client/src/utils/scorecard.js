@@ -46,7 +46,8 @@ const scorecard = {
   init() {
     signCard(this);
     calcScore(this);
-    scorecard.title = `${config.share} ${scorecard.score}/${maxScore}`;
+    // \u{1F0CF} := joker playing card emoji
+    scorecard.title = `${config.context} \u{1F0CF}${scorecard.score}/${maxScore}`;
     // TODO: calcStats(); ?
   },
   title: '',

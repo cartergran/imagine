@@ -1,6 +1,6 @@
 const title = 'imagine';
 const puzzleNum = process.env.REACT_APP_PUZZLE_NUM;
-const share = `${title} #${puzzleNum}`;
+const context = `${title} #${puzzleNum}`;
 
 const totalAttempts = 5;
 const selectionsPerAttempt = 3;
@@ -69,7 +69,7 @@ export const manualConfig = {
 
 const config = {
   title,
-  share,
+  context,
   totalAttempts,
   selectionsPerAttempt,
   duration,
