@@ -19,7 +19,9 @@ const StyledFlipBase = styled.div`
   transform-style: preserve-3d;
 
   & .flip-content {
-    border: 1px solid ${props => props.$borderColor || 'white'};
+    border-style: solid;
+    border-color: ${props => props.$borderStyle.color || 'white'};
+    border-width: ${props => props.$borderStyle.width || '1'}px;
   }
 `;
 
@@ -32,17 +34,17 @@ const StyledFlipContent = styled.div`
 
   backface-visibility: hidden;
   // -webkit-backface-visibility: hidden; // safari
-  transition: border ${config.duration * 2}ms;
+  transition: border ${config.duration}ms;
 
   &.flip-content-back {
     transform: rotateY(-180deg);
   }
 `;
 
-export default function Flip({ borderColor, isFlipped, children }) {
+export default function Flip({ borderStyle, isFlipped, children }) {
   return (
     <StyledFlip>
-      <StyledFlipBase $borderColor={borderColor} $isFlipped={isFlipped}>
+      <StyledFlipBase $borderStyle={borderStyle} $isFlipped={isFlipped}>
         <StyledFlipContent className="flip-content" /> {/* front */}
         <StyledFlipContent className="flip-content flip-content-back"> {/* back */}
           { children }
