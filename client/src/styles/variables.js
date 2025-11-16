@@ -13,7 +13,10 @@ const variables = css`
     --space-xl: 32px;
 
     // sizing
-    --tile-size: 52px;
+    @media (width <= 400px) {
+      --tile-size: 40px;
+    }
+    --tile-size: 44px;
   }
 `;
 

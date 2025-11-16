@@ -42,8 +42,8 @@ var img = {
   pixelated: [] // descending order from most pixelated
 };
 var board = {
-  rows: 7,
-  cols: 7
+  rows: 8,
+  cols: 8
 };
 var tiles = {
   width: img.width / board.rows,
