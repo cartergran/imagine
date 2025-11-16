@@ -3,17 +3,25 @@ import styled from 'styled-components';
 import axios from 'axios';
 import scorecard from '../utils/scorecard';
 import config from '../utils/config';
+import Text from 'antd/es/typography/Text';
 
 const StyledScorecard = styled.div`
-  .scorecard-title {
-    margin-bottom: var(--space-s);
-    text-align: center;
-  }
-
   .scorecard-eval {
     display: flex;
     justify-content: center;
   }
+`;
+
+const ScorecardTitle = styled(Text)`
+  width: 100%;
+
+  display: inline-block;
+
+  color: white;
+  font-size: 12px;
+  margin-bottom: var(--space-s);
+  text-align: center;
+  white-space: pre-line;
 `;
 
 const StyledCard = styled.dl`
@@ -25,20 +33,20 @@ const StyledCard = styled.dl`
     display: inline-flex;
 
     span {
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
 
       ${({ theme }) => theme.recycle.flexCenter};
 
-      font-size: 24px;
+      font-size: 20px;
     }
   }
 `;
 
 const StyledImage = styled.div`
   // see above <span /> size for calc (4x4)
-  width: calc(24px * ${props => props.$rows || 4});
-  height: calc(24px * ${props => props.$cols || 4});
+  width: calc(20px * ${props => props.$rows});
+  height: calc(20px * ${props => props.$cols});
 
   background: url("${props => props.$img || ''}");
   background-position: center;
@@ -75,7 +83,9 @@ export default function Scorecard({
 
   return (
     <StyledScorecard>
-      <h5 className="scorecard-title">{isExample ? exampleTitle : scorecard.title}</h5>
+      <ScorecardTitle copyable={!isExample}>
+        {isExample ? exampleTitle : scorecard.title}
+      </ScorecardTitle>
       <div className="scorecard-eval">
         <StyledCard>
           {

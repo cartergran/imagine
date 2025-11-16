@@ -7,8 +7,8 @@ var currentTurn = true;
 const counts = {
   incorrect: 0,
   category: 1,
-  solution: 2,
-  unselected: 3
+  solution: 3,
+  unselected: 5
 };
 const emojis = {
   [counts.incorrect]: '🟥',
@@ -17,7 +17,9 @@ const emojis = {
   [counts.unselected]: '⬛',
 };
 var numTiles = config.board.cols * config.board.rows;
-var maxScore = ((numTiles - 1) * counts.unselected) + counts.solution;
+var maxUnselectedScore =  counts.unselected * (numTiles - config.selectionsPerAttempt);
+var solutionScore = counts.solution * config.selectionsPerAttempt;
+var maxScore = maxUnselectedScore + solutionScore;
 
 const init2DArray = (r, c, content) => {
   return Array.from({ length: r }, _ => Array(c).fill(content));
