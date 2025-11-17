@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import scorecard from '../utils/scorecard';
 import config from '../utils/config';
 import Text from 'antd/es/typography/Text';
+import { PuzzleContext } from '../App';
 
 const StyledScorecard = styled.div`
   .scorecard-eval {
@@ -12,7 +13,7 @@ const StyledScorecard = styled.div`
   }
 `;
 
-const ScorecardTitle = styled(Text)`
+const ScorecardText = styled(Text)`
   width: 100%;
 
   display: inline-block;
@@ -28,6 +29,8 @@ const StyledCard = styled.dl`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  margin-bottom: var(--space-m);
 
   dt {
     display: inline-flex;
@@ -61,6 +64,8 @@ export default function Scorecard({
   img: exampleImg
 }) {
   const [img, setImg] = useState(exampleImg || '');
+  const [solution, setSolution] = useState('');
+  const { buzzer } = useContext(PuzzleContext);
 
   // TODO: conditionally require props (all or none)
   const isExample = exampleTitle && exampleCard && exampleScore && exampleImg;
@@ -75,17 +80,32 @@ export default function Scorecard({
     }
   };
 
+  const getSolution = async () => {
+    try {
+      let solutionRes = await axios.get('solution');
+      setSolution(solutionRes.data);
+    } catch (err) {
+      console.log('getSolution() Error!', err.message);
+    }
+  };
+
   useEffect(() => {
     if (!isExample) {
       getImg();
     }
   }, [isExample]);
 
+  useEffect(() => {
+    if (buzzer && !isExample) {
+      getSolution();
+    }
+  }, [buzzer, isExample]);
+
   return (
     <StyledScorecard>
-      <ScorecardTitle copyable={!isExample}>
+      <ScorecardText copyable={!isExample}>
         {isExample ? exampleTitle : scorecard.title}
-      </ScorecardTitle>
+      </ScorecardText>
       <div className="scorecard-eval">
         <StyledCard>
           {
@@ -103,6 +123,11 @@ export default function Scorecard({
         </StyledCard>
         <StyledImage $img={img} $rows={config.board.rows} $cols={config.board.cols} />
       </div>
+      {
+        buzzer && solution && (
+          <ScorecardText>Solution: {solution}</ScorecardText>
+        )
+      }
     </StyledScorecard>
   );
 }

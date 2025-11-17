@@ -6,7 +6,7 @@ import Share from './share';
 const StyledSummary = styled.div`
   display: flex;
   flex-direction: column;
-  gap: var(--space-l);
+  gap: var(--space-s);
 `;
 
 export default function Summary() {

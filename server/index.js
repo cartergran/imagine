@@ -216,6 +216,10 @@ app.get('/img', (_req, res) => {
   res.send(img.base64);
 });
 
+app.get('/solution', (_req, res) => {
+  res.send(intel.solution);
+});
+
 // catch all other requests & return to home
 app.get('*', (_req, res) => {
   res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
