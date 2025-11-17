@@ -1,8 +1,9 @@
-import { createContext, useCallback, useMemo, useState } from 'react';
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { ThemeProvider } from 'styled-components';
 import theme from './styles/theme';
 import config from './utils/config';
 import GlobalStyle from './styles/globalStyle';
+import scorecard from './utils/scorecard';
 
 // TODO: index.js in ./components
 import Layout from './components/layout';
@@ -21,6 +22,19 @@ function App() {
     solvable: false,
     guesses: { current: '', previous: [] }
   });
+
+  useEffect(() => {
+    const savedData = scorecard.load();
+    if (savedData.loaded) {
+      setState({
+        attemptsLeft: 0,
+        correctCategory: savedData.correctSolution,
+        correctSolution: savedData.correctSolution,
+        solvable: false,
+        guesses: { current: '', previous: [] }
+      });
+    }
+  }, []);
 
   const noMoreAttempts = state.attemptsLeft === 0;
   const puzzleContext = useMemo(() => ({

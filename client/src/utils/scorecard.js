@@ -44,18 +44,81 @@ const calcScore = (scorecard) => {
   scorecard.score = selectedScore + unselectedScore;
 };
 
+const getTodayKey = () => {
+  const today = new Date();
+  return `scorecard-${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+};
+
+const saveToLocalStorage = () => {
+  try {
+    const key = getTodayKey();
+
+    const { card, logs, score, title } = scorecard;
+    const correctSolution = scorecard.logs.some(log => log.correctness === counts.solution);
+
+    const data = { card, logs, score, title, buzzer, correctSolution };
+
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (err) {
+    console.log('saveToLocalStorage() Error!', err.message);
+  }
+};
+
+const loadFromLocalStorage = () => {
+  try {
+    const key = getTodayKey();
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      const data = JSON.parse(saved);
+      const { card, logs, score, title } = data;
+
+      Object.assign(scorecard, { card, logs, score, title });
+      buzzer = data.buzzer;
+
+      return {
+        correctSolution: data.correctSolution,
+        loaded: true
+        // TODO: attemptsLeft: data.attemptsLeft
+      };
+    }
+  } catch (err) {
+    console.log('loadFromLocalStorage() Error!', err.message);
+  }
+  return { loaded: false };
+};
+
+const hasSaved = () => {
+  try {
+    const key = getTodayKey();
+    return localStorage.getItem(key) !== null;
+  } catch (err) {
+    return false;
+  }
+};
+
 const scorecard = {
+  card: init2DArray(config.board.rows, config.board.cols, emojis[counts.unselected]),
+  logs: [{ tileSelection: [], correctness: null }],
+  score: 0,
+  title: '',
   init() {
     signCard(this);
     calcScore(this);
     // \u{1F0CF} := joker playing card emoji
     scorecard.title = `${config.context} \u{1F0CF}${scorecard.score}/${maxScore}`;
     // TODO: calcStats(); ?
+    saveToLocalStorage();
   },
-  title: '',
-  logs: [{ tileSelection: [], correctness: null }],
-  card: init2DArray(config.board.rows, config.board.cols, emojis[counts.unselected]),
-  score: 0
+  hasSaved,
+  load() {
+    const savedScorecard = loadFromLocalStorage();
+    // logs includes an initial empty log, subtract 1
+    if (savedScorecard.loaded) {
+      const usedAttempts = scorecard.logs.length - 1;
+      savedScorecard.attemptsLeft = config.totalAttempts - usedAttempts;
+    }
+    return savedScorecard;
+  }
 };
 
 axios.interceptors.request.use((req) => {

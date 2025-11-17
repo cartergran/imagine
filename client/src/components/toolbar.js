@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ChartNoAxesColumn as SummaryIcon, CircleHelp as ManualIcon } from 'lucide-react';
 import config, { manualConfig } from '../utils/config';
+import scorecard from '../utils/scorecard';
 
 import { PuzzleContext } from '../App';
 import Manual from './manual';
@@ -62,7 +63,8 @@ export default function Toolbar() {
 
   useEffect(() => {
     if (summary.toggle) {
-      setTimeout(handleSummaryClick, config.duration * 3);
+      const delay = scorecard.hasSaved() ? 0 : config.duration * 3;
+      setTimeout(handleSummaryClick, delay);
     }
   }, [summary.toggle, handleSummaryClick]);
 
