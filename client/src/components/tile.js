@@ -36,8 +36,12 @@ function Tile({ loc, attemptsLeft, maxSelection, onClick }) {
   // tileState.clicked := clicked
   // tileState.img := clicked || flipped
   const [tileState, setTileState] = useState({ clicked: false, img: '' });
+  const [imgReady, setImgReady] = useState(false);
   const [feedback, setFeedback] = useState(false);
+
+  const imageRef = useRef(null);
   const reviewColor = useRef(null);
+  // const preloadedImgRef = useRef(null);
 
   const { correctCategory, correctSolution, buzzer } = useContext(PuzzleContext);
   // const onMount = useRef(true);
@@ -70,12 +74,25 @@ function Tile({ loc, attemptsLeft, maxSelection, onClick }) {
     // attempt [0 - 4]
     let attempt = buzzer ? config.totalAttempts - 1 : config.totalAttempts - attemptsLeft;
     let { r, c } = loc;
+    // const tileImgPromise = preloadedImgRef.current
+    //   ? Promise.resolve(preloadedImgRef.current)
+    //   : getTileImg(attempt, r, c);
+
     getTileImg(attempt, r, c).then((tileImgRes) => {
-      if (!tileState.img) {
-        setTileState({
-          clicked: buzzer ? false : true,
-          img: tileImgRes
-        });
+      if (!tileState.img && tileImgRes) {
+          setTileState({
+            clicked: buzzer ? false : true,
+            img: tileImgRes
+          });
+          requestAnimationFrame(() => {
+            if (imageRef.current) {
+              const computedStyle = window.getComputedStyle(imageRef.current);
+              const backgroundImage = computedStyle.backgroundImage;
+              if (backgroundImage && backgroundImage !== 'none') {
+                setImgReady(true);
+              }
+            }
+          });
       }
     });
   }, [attemptsLeft, loc, onClick, buzzer, tileState.img]);
@@ -84,6 +101,18 @@ function Tile({ loc, attemptsLeft, maxSelection, onClick }) {
     if (toggleTileClick) { return; }
     remixTile();
   };
+
+  // useEffect(() => {
+  //   if (!buzzer) { return; }
+
+  //   let attempt = config.totalAttempts - 1;
+  //   let { r, c } = loc;
+  //   getTileImg(attempt, r, c).then((tileImgRes) => {
+  //     if (tileImgRes) {
+  //       preloadedImgRef.current = tileImgRes;
+  //     }
+  //   });
+  // }, [buzzer, loc]);
 
   useEffect(() => {
     if (!buzzer) { return; }
@@ -115,8 +144,11 @@ function Tile({ loc, attemptsLeft, maxSelection, onClick }) {
 
   return (
     <StyledTile onClick={handleClick} data-testid="tile">
-      <Flip borderStyle={{ color: getBorderColor(), width: borderWidth }} isFlipped={tileState.img}>
-        <StyledTileImage $tileImg={tileState.img} data-testid="tile-img" />
+      <Flip
+        borderStyle={{ color: getBorderColor(), width: borderWidth }}
+        isFlipped={imgReady && tileState.img}
+      >
+        <StyledTileImage ref={imageRef} $tileImg={tileState.img} data-testid="tile-img" />
       </Flip>
     </StyledTile>
   );

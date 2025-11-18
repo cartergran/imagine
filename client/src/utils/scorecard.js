@@ -87,15 +87,6 @@ const loadFromLocalStorage = () => {
   return { loaded: false };
 };
 
-const hasSaved = () => {
-  try {
-    const key = getTodayKey();
-    return localStorage.getItem(key) !== null;
-  } catch (err) {
-    return false;
-  }
-};
-
 const scorecard = {
   card: init2DArray(config.board.rows, config.board.cols, emojis[counts.unselected]),
   logs: [{ tileSelection: [], correctness: null }],
@@ -109,7 +100,6 @@ const scorecard = {
     // TODO: calcStats(); ?
     saveToLocalStorage();
   },
-  hasSaved,
   load() {
     const savedScorecard = loadFromLocalStorage();
     // logs includes an initial empty log, subtract 1

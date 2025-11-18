@@ -63,7 +63,7 @@ export default function Toolbar() {
 
   useEffect(() => {
     if (summary.toggle) {
-      const delay = scorecard.hasSaved() ? 0 : config.duration * 3;
+      const delay = config.duration * 3;
       setTimeout(handleSummaryClick, delay);
     }
   }, [summary.toggle, handleSummaryClick]);
