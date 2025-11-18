@@ -23,17 +23,20 @@ const StyledBoard = styled.div`
   }
 `;
 
-const TileWrapper = memo(({ r, c, attemptsLeft, maxSelection, onClick }) => {
+const TileWrapper = memo(({ r, c, attemptsLeft, clickedTiles, maxSelection, onClick }) => {
   const loc = useMemo(() => ({ r, c }), [r, c]);
+  const tileKey = `${r}:${c}`;
+  const borderColor = clickedTiles?.get(tileKey);
   return <Tile
     loc={loc}
     attemptsLeft={attemptsLeft}
     maxSelection={maxSelection}
+    restoredBorderColor={borderColor}
     onClick={onClick}
   />;
 });
 
-function Board({ attemptsLeft, maxSelection, onSelection }) {
+function Board({ attemptsLeft, clickedTiles, maxSelection, onSelection }) {
   const selectionsLeft = useRef(config.selectionsPerAttempt);
   const solvable = useContext(SolvableContext);
 
@@ -64,6 +67,7 @@ function Board({ attemptsLeft, maxSelection, onSelection }) {
                       r={r}
                       c={c}
                       attemptsLeft={attemptsLeft}
+                      clickedTiles={clickedTiles}
                       maxSelection={maxSelection}
                       onClick={handleTileClick}
                     />

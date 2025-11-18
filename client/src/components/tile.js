@@ -32,7 +32,7 @@ const getFeedbackColor = (correctCategory, correctSolution) => {
   return feedbackColors.incorrect;
 };
 
-function Tile({ loc, attemptsLeft, maxSelection, onClick }) {
+function Tile({ loc, attemptsLeft, maxSelection, restoredBorderColor, onClick }) {
   // tileState.clicked := clicked
   // tileState.img := clicked || flipped
   const [tileState, setTileState] = useState({ clicked: false, img: '' });
@@ -51,7 +51,20 @@ function Tile({ loc, attemptsLeft, maxSelection, onClick }) {
   const borderWidth = buzzer && tileState.clicked ? '2' : '1';
 
   const getBorderColor = () => {
-    if (buzzer && tileState.clicked) { return reviewColor.current ?? feedbackColor }
+    if (buzzer) {
+      // restored
+      if (tileState.clicked && reviewColor.current) {
+        return reviewColor.current;
+      }
+
+      // correct during solve (edge case)
+      if (tileState.clicked && correctSolution) {
+        return feedbackColor;
+      }
+
+      return 'white';
+    }
+
     if (feedback) { return feedbackColor }
 
     // preview || selection
@@ -80,10 +93,10 @@ function Tile({ loc, attemptsLeft, maxSelection, onClick }) {
 
     getTileImg(attempt, r, c).then((tileImgRes) => {
       if (!tileState.img && tileImgRes) {
-          setTileState({
-            clicked: buzzer ? false : true,
+          setTileState((prev) => ({
+            clicked: buzzer ? prev.clicked : true,
             img: tileImgRes
-          });
+          }));
           requestAnimationFrame(() => {
             if (imageRef.current) {
               const computedStyle = window.getComputedStyle(imageRef.current);
@@ -113,6 +126,14 @@ function Tile({ loc, attemptsLeft, maxSelection, onClick }) {
   //     }
   //   });
   // }, [buzzer, loc]);
+
+  // initialize restored state
+  useEffect(() => {
+    if (!buzzer || !restoredBorderColor) { return; }
+
+    setTileState(prev => ({ ...prev, clicked: true }));
+    reviewColor.current = restoredBorderColor;
+  }, [buzzer, restoredBorderColor]);
 
   useEffect(() => {
     if (!buzzer) { return; }

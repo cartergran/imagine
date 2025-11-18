@@ -14,6 +14,32 @@ import Solve from './components/solve';
 export const PuzzleContext = createContext();
 export const SolvableContext = createContext();
 
+const getTilesMapFromLogs = (logs) => {
+  const tilesMap = new Map();
+  for (const log of logs) {
+    if (log.tileSelection?.length > 0) {
+      const correctness = log.correctness;
+      let color;
+      switch (correctness) {
+        case 3:
+          color = 'green';
+          break;
+        case 1:
+          color = 'yellow';
+          break;
+        case 0:
+          color = 'red';
+          break;
+      }
+      for (const { r, c } of log.tileSelection) {
+        const key = `${r}:${c}`;
+        tilesMap.set(key, color);
+      }
+    }
+  }
+  return tilesMap;
+};
+
 function App() {
   const [state, setState] = useState({
     attemptsLeft: config.totalAttempts,
@@ -22,10 +48,14 @@ function App() {
     solvable: false,
     guesses: { current: '', previous: [] }
   });
+  const [clickedTiles, setClickedTiles] = useState(new Map());
 
   useEffect(() => {
     const savedData = scorecard.load();
     if (savedData.loaded) {
+      const tilesMap = getTilesMapFromLogs(scorecard.logs);
+      setClickedTiles(tilesMap);
+
       setState({
         attemptsLeft: 0,
         correctCategory: savedData.correctSolution,
@@ -74,6 +104,7 @@ function App() {
           <Layout>
               <Board
                 attemptsLeft={state.attemptsLeft}
+                clickedTiles={clickedTiles}
                 maxSelection={state.solvable}
                 onSelection={handleSelection}
               />
