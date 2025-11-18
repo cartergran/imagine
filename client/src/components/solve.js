@@ -122,7 +122,7 @@ export default function Solve({ guesses, handleGuessChange, onSubmit }) {
     } else {
       onSubmit((prevState) => ({
         ...prevState,
-        attemptsLeft: --prevState.attemptsLeft,
+        attemptsLeft: prevState.attemptsLeft - 1,
         solvable: false,
         guesses: { previous: Object.values(prevState.guesses).flat(), current: '' }
       }));
