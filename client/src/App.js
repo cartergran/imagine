@@ -46,7 +46,7 @@ function App() {
     correctCategory: false,
     correctSolution: false,
     solvable: false,
-    guesses: { current: '', previous: [] }
+    guesses: []
   });
   const [clickedTiles, setClickedTiles] = useState(new Map());
 
@@ -61,7 +61,7 @@ function App() {
         correctCategory: savedData.correctSolution,
         correctSolution: savedData.correctSolution,
         solvable: false,
-        guesses: { current: '', previous: [] }
+        guesses: []
       });
     }
   }, []);
@@ -80,16 +80,6 @@ function App() {
         solvable: true
       }));
     }
-  }, []);
-
-  const handleGuessChange = useCallback((newGuess) => {
-    setState(prevState => ({
-      ...prevState,
-      guesses: {
-        ...prevState.guesses,
-        current: newGuess
-      }
-    }));
   }, []);
 
   const handleSubmit = useCallback((updateFn) => (
@@ -111,7 +101,6 @@ function App() {
               <Attempts count={state.attemptsLeft} />
               <Solve
                 guesses={state.guesses}
-                handleGuessChange={handleGuessChange}
                 onSubmit={handleSubmit}
               />
           </Layout>

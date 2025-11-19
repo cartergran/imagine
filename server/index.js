@@ -30,7 +30,7 @@ const storage = new Storage({ credentials: gcsCreds });
 var totalAttempts = 5;
 var intel = {
   categories: [],
-  categoryChoices: {},
+  categoryType: {},
   category: '',
   solution: ''
 };
@@ -50,7 +50,7 @@ var tiles = {
   height: img.height / board.cols,
   base64Catalog: init3DArray(totalAttempts, board.rows, board.cols)
 };
-var basePixelation = 11;
+var basePixelation = 7;
 
 // hoist
 function init3DArray(i, j, k) {
@@ -195,11 +195,7 @@ app.get('/tile', (req, res) => {
 });
 
 app.get('/categoryType', (_req, res) => {
-  res.send(intel.categoryChoices.type);
-});
-
-app.get('/categoryChoices', (_req, res) => {
-  res.send(intel.categoryChoices.options);
+  res.send(intel.categoryType);
 });
 
 app.get('/check/category', (req, res) => {
@@ -209,7 +205,7 @@ app.get('/check/category', (req, res) => {
 
 app.get('/check/solution', (req, res) => {
   let { guess } = req.query;
-  res.send(guess === intel.solution);
+  res.send(guess.toLowerCase() === intel.solution.toLowerCase());
 });
 
 app.get('/img', (_req, res) => {

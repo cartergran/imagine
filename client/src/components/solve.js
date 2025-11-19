@@ -1,12 +1,13 @@
 import { Button, Tag } from 'antd';
-import { startTransition, useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import styled from 'styled-components';
 import axios from 'axios';
 import config from '../utils/config';
 
-import { PuzzleContext, SolvableContext } from '../App';
+import Guess from './guess';
 import Options from './options';
+import { PuzzleContext, SolvableContext } from '../App';
 
 const StyledSolve = styled.div`
   ${({ theme }) => theme.recycle.flexCenter};
@@ -37,11 +38,6 @@ const StyledWrapper = styled.div`
   & > span:first-child {
     margin-bottom: var(--space-s);
   }
-
-  // options
-  & > div:has(+ button) {
-    margin-bottom: var(--space-m);
-  }
 `;
 
 // fisher-yates shuffle
@@ -53,46 +49,34 @@ const shuffleArray = (arr) => {
   return arr;
 };
 
-export default function Solve({ guesses, handleGuessChange, onSubmit }) {
-  const [currentOptions, setCurrentOptions] = useState([]);
+export default function Solve({ guesses, onSubmit }) {
   const [categoryType, setCategoryType] = useState('');
+  const [currentGuess, setCurrentGuess] = useState('');
+  const [currentOptions, setCurrentOptions] = useState([]);
 
   const { correctCategory, buzzer } = useContext(PuzzleContext);
   const solvable = useContext(SolvableContext);
   const wrapperRef = useRef(null);
 
   const toggleOptions = !solvable || buzzer;
-  const toggleSubmit = !solvable || !guesses.current || buzzer;
+  const toggleSubmit = !solvable || !currentGuess || buzzer;
 
   useEffect(() => {
     const getCategories = async () => {
       let categoriesRes = await axios.get('categories');
       let categories = shuffleArray(categoriesRes.data);
-      setCurrentOptions(categories)
+      setCurrentOptions(categories);
     };
     getCategories();
   }, []);
 
   useEffect(() => {
     if (!correctCategory) { return; }
-    const getCategoryChoices = async () => {
-      let categoryChoicesRes = await axios.get('categoryChoices');
-      let categoryChoices = shuffleArray(categoryChoicesRes.data);
-      return categoryChoices;
-    };
     const getCategoryType = async () => {
       let categoryTypeRes = await axios.get('categoryType');
-      return categoryTypeRes.data;
+      setCategoryType(categoryTypeRes.data);
     };
-    const onCorrectCategory = async () => {
-      let categoryChoices = await getCategoryChoices();
-      let categoryType = await getCategoryType();
-      startTransition(() => {
-        setCurrentOptions(categoryChoices);
-        setCategoryType(categoryType);
-      });
-    };
-    onCorrectCategory();
+    getCategoryType();
   }, [correctCategory]);
 
   const checkCorrect = async (guess, type) => {
@@ -100,8 +84,6 @@ export default function Solve({ guesses, handleGuessChange, onSubmit }) {
     try {
       let correctRes = await axios.get(`check/${type}`, { params: { guess }});
       correct = correctRes.data;
-      (type === 'category' && correct) &&
-        onSubmit((prevState) => { return {...prevState, correctCategory: correct }});
     } catch (err) {
       console.log('checkCorrect() Error!', err.message);
     }
@@ -109,24 +91,28 @@ export default function Solve({ guesses, handleGuessChange, onSubmit }) {
   };
 
   const handleSubmit = async () => {
-    let correctGuess =
-      await checkCorrect(guesses.current, correctCategory ? 'solution' : 'category');
+    if (!currentGuess) { return; }
+
+    const checkMode = correctCategory ? 'solution' : 'category';
+    const correctGuess = await checkCorrect(currentGuess, checkMode);
 
     if (correctGuess) {
       onSubmit((prevState) => ({
         ...prevState,
         correctCategory: correctGuess,
         correctSolution: correctCategory && correctGuess,
-        guesses: { current: '', previous: [] }
+        guesses: []
       }));
     } else {
       onSubmit((prevState) => ({
         ...prevState,
         attemptsLeft: prevState.attemptsLeft - 1,
         solvable: false,
-        guesses: { previous: Object.values(prevState.guesses).flat(), current: '' }
+        guesses: [...prevState.guesses, currentGuess]
       }));
     }
+
+    setCurrentGuess('');
   };
 
   return (
@@ -140,12 +126,24 @@ export default function Solve({ guesses, handleGuessChange, onSubmit }) {
         >
           <StyledWrapper ref={wrapperRef}>
             { correctCategory && <Tag color="dodgerblue">{categoryType}</Tag> }
-            <Options
-              options={currentOptions}
-              prevGuesses={guesses.previous}
-              handleGuessChange={handleGuessChange}
-              disabled={toggleOptions}
-            />
+            {
+              !correctCategory ? (
+                <Options
+                  guesses={guesses}
+                  options={currentOptions}
+                  value={currentGuess}
+                  onChange={(e) => setCurrentGuess(e.target.value)}
+                  disabled={toggleOptions}
+                />
+              ) : (
+                <Guess
+                  disabled={toggleOptions}
+                  value={currentGuess}
+                  onChange={(e) => setCurrentGuess(e.target.value)}
+                  onPressEnter={handleSubmit}
+                />
+              )
+            }
             <Button
               type="primary"
               onClick={handleSubmit}

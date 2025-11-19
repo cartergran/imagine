@@ -1,11 +1,11 @@
-// import { useContext } from 'react';
 import { Radio } from 'antd';
 import styled from 'styled-components';
+
 import config from '../utils/config';
 
-// import { PuzzleContext } from '../App';
-
 const StyledOptions = styled.div`
+  margin-bottom: var(--space-m);
+
   .ant-radio-group {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -33,7 +33,7 @@ const StyledOptions = styled.div`
 
     background-color: black;
     border: 1px solid white;
-    border-radius: var(--space-s);
+    border-radius: 8px;
     color: white;
     font-size: 11px;
     padding-inline: 0;
@@ -47,29 +47,28 @@ const StyledOptions = styled.div`
 
     // increase specificity to override antd
     &.ant-radio-button-wrapper-checked {
-      border: 1px solid dodgerblue;
+      border-color: dodgerblue;
       color: dodgerblue;
     }
     &.ant-radio-button-wrapper-disabled {
-      border: 1px solid var(--disabled);
+      border-color: var(--disabled);
       color: var(--disabled);
     }
   }
 `;
 
 export default function Options({
+  guesses,
   options,
-  prevGuesses,
-  handleGuessChange,
+  value,
+  onChange,
   disabled
 }) {
-  // const { correctCategory } = useContext(PuzzleContext);
-
   return (
     <StyledOptions>
       <Radio.Group
-        className={'' /* correctCategory ? 'plus-group' : '' */}
-        onChange={(e) => handleGuessChange(e.target.value)}
+        value={value}
+        onChange={onChange}
       >
         {
           options.map((option, idx) => {
@@ -77,7 +76,7 @@ export default function Options({
               <Radio.Button
                 key={idx}
                 value={option}
-                disabled={disabled || prevGuesses.includes(option)}
+                disabled={disabled || guesses.includes(option)}
               >
                 {option}
               </Radio.Button>
