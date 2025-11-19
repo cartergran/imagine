@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import config from '../utils/config';
@@ -25,18 +25,62 @@ const feedbackColors = {
   correctCategory: 'yellow',
   correctSolution: 'green'
 };
+const getFeedbackColor = (correctCategory, correctSolution) => {
+  if (correctSolution) { return feedbackColors.correctSolution; }
+  if (correctCategory) { return feedbackColors.correctCategory; }
 
-export default function Tile({ loc, toggle, onClick }) {
-  const [clicked, setClicked] = useState(false);
+  return feedbackColors.incorrect;
+};
+
+function Tile({ loc, attemptsLeft, maxSelection, restoredBorderColor, onClick }) {
+  // tileState.clicked := clicked
+  // tileState.img := clicked || flipped
+  const [tileState, setTileState] = useState({ clicked: false, img: '' });
+  const [imgReady, setImgReady] = useState(false);
   const [feedback, setFeedback] = useState(false);
-  const [feedbackColor, setFeedbackColor] = useState('');
-  const [tileImg, setTileImg] = useState('');
-  const [flipped, setFlipped] = useState(false);
+
+  const imageRef = useRef(null);
+  const reviewColor = useRef(null);
+  const hasLoadedImgRef = useRef(false);
+  // const preloadedImgRef = useRef(null);
 
   const { correctCategory, correctSolution, buzzer } = useContext(PuzzleContext);
-  // const onMount = useRef(true);
 
-  const toggleTileClick = feedback || clicked || toggle.maxSelection || buzzer;
+  const toggleTileClick = feedback || tileState.clicked || maxSelection || buzzer;
+  const borderWidth = buzzer && tileState.clicked ? '2' : '1';
+
+  // memoize for borderColor, depends on context values that change less frequently
+  const feedbackColor = useMemo(() =>
+    getFeedbackColor(correctCategory, correctSolution),
+    [correctCategory, correctSolution]
+  );
+
+  // memoize bc for borderStyle, feedbackColor is stable
+  const borderColor = useMemo(() => {
+    if (buzzer) {
+      // restored
+      if (tileState.clicked && reviewColor.current) {
+        return reviewColor.current;
+      }
+
+      // correct during solve (edge case)
+      if (tileState.clicked && correctSolution) {
+        return feedbackColor;
+      }
+
+      return 'white';
+    }
+
+    if (feedback) { return feedbackColor }
+
+    // preview || selection
+    return (tileState.clicked || maxSelection) ? 'black' : 'white';
+  }, [buzzer, correctSolution, feedback, feedbackColor, maxSelection, tileState.clicked]);
+
+  const borderStyle = useMemo(() => ({
+    color: borderColor,
+    width: borderWidth
+  }), [borderColor, borderWidth]);
 
   const getTileImg = async (attempt, r, c,) => {
     let tileImgRes = { data: '' };
@@ -49,82 +93,97 @@ export default function Tile({ loc, toggle, onClick }) {
   };
 
   const remixTile = useCallback(() => {
-    setFlipped(true);
+    if (hasLoadedImgRef.current) { return; }
 
-    if (!buzzer) {
-      setClicked(true);
-      onClick((clicksLeft) => clicksLeft - 1);
-    }
+    if (!buzzer) { onClick((clicksLeft) => clicksLeft - 1); }
 
     // attempt [0 - 4]
-    let attempt = buzzer ? config.totalAttempts - 1 : config.totalAttempts - toggle.attemptsLeft;
-    let {r, c} = loc;
-    getTileImg(attempt, r, c).then((tileImgRes) => {
-      if (!tileImg) { setTileImg(tileImgRes); }
-    });
-  }, [toggle.attemptsLeft, loc, onClick, buzzer, tileImg]);
+    let attempt = buzzer ? config.totalAttempts - 1 : config.totalAttempts - attemptsLeft;
+    let { r, c } = loc;
+    // const tileImgPromise = preloadedImgRef.current
+    //   ? Promise.resolve(preloadedImgRef.current)
+    //   : getTileImg(attempt, r, c);
 
-  const handleClick = () => {
+    getTileImg(attempt, r, c).then((tileImgRes) => {
+      if (!hasLoadedImgRef.current && tileImgRes) {
+          hasLoadedImgRef.current = true;
+          setTileState((prev) => ({
+            clicked: buzzer ? prev.clicked : true,
+            img: tileImgRes
+          }));
+          requestAnimationFrame(() => {
+            if (imageRef.current) {
+              const computedStyle = window.getComputedStyle(imageRef.current);
+              const backgroundImage = computedStyle.backgroundImage;
+              if (backgroundImage && backgroundImage !== 'none') {
+                setImgReady(true);
+              }
+            }
+          });
+      }
+    });
+  }, [attemptsLeft, buzzer, loc, onClick]);
+
+  const handleClick = useCallback(() => {
     if (toggleTileClick) { return; }
     remixTile();
-  };
+  }, [toggleTileClick, remixTile]);
+
+  // useEffect(() => {
+  //   if (!buzzer) { return; }
+
+  //   let attempt = config.totalAttempts - 1;
+  //   let { r, c } = loc;
+  //   getTileImg(attempt, r, c).then((tileImgRes) => {
+  //     if (tileImgRes) {
+  //       preloadedImgRef.current = tileImgRes;
+  //     }
+  //   });
+  // }, [buzzer, loc]);
+
+  // initialize restored state
+  useEffect(() => {
+    if (!buzzer || !restoredBorderColor) { return; }
+
+    setTileState(prev => ({ ...prev, clicked: true }));
+    reviewColor.current = restoredBorderColor;
+  }, [buzzer, restoredBorderColor]);
 
   useEffect(() => {
     if (!buzzer) { return; }
 
-    let time = ((loc.r * config.board.cols) + loc.c) * process.env.REACT_APP_MAGIC_NUM;
+    let { r, c } = loc;
+    let time = ((r * config.board.cols) + c) * process.env.REACT_APP_MAGIC_NUM;
     let timer = setTimeout(remixTile, time);
     return () => clearTimeout(timer);
   }, [buzzer, loc, remixTile]);
 
-  // useEffect(() => {
-  //   if (onMount.current) { onMount.current = false; }
-  // }, []);
-
-  const getFeedbackColor = useCallback(() => {
-    if (correctSolution) {
-      return feedbackColors.correctSolution;
-    }
-
-    if (correctCategory) {
-      return feedbackColors.correctCategory;
-    }
-
-    return feedbackColors.incorrect;
-  }, [correctCategory, correctSolution]);
-
-  const getBorderColor = () => {
-    if (buzzer) {
-      return feedbackColor;
-    }
-
-    if (feedback) {
-      return getFeedbackColor();
-    }
-
-    // clicked ||  preview || selection
-    return clicked || toggle.maxSelection ? 'black' : 'white';
-  };
-
   useEffect(() => {
-    if (toggle.attemptsLeft === config.totalAttempts) { return; }
+    if (attemptsLeft === config.totalAttempts) { return; }
 
     setFeedback(true);
     let timer = setTimeout(() => setFeedback(false), feedbackDuration);
     return () => clearTimeout(timer);
-  }, [toggle.attemptsLeft]);
+  }, [attemptsLeft]);
 
   useEffect(() => {
-    if ((feedback || buzzer) && clicked && !feedbackColor) {
-      setFeedbackColor(getFeedbackColor());
+    let needsReviewColor = tileState.clicked && !reviewColor.current;
+    if ((feedback || buzzer) && needsReviewColor) {
+      reviewColor.current = feedbackColor;
     }
-  }, [feedback, buzzer, clicked, feedbackColor, getFeedbackColor]);
+  }, [buzzer, feedback, feedbackColor, tileState.clicked]);
 
   return (
     <StyledTile onClick={handleClick} data-testid="tile">
-      <Flip borderColor={getBorderColor()} isFlipped={flipped}>
-        <StyledTileImage $tileImg={tileImg} data-testid="tile-img" />
+      <Flip
+        borderStyle={borderStyle}
+        isFlipped={imgReady && tileState.img}
+      >
+        <StyledTileImage ref={imageRef} $tileImg={tileState.img} data-testid="tile-img" />
       </Flip>
     </StyledTile>
   );
-}
+};
+
+// Tile.whyDidYouRender = true;
+export default memo(Tile);

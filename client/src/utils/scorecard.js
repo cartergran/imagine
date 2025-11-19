@@ -7,8 +7,8 @@ var currentTurn = true;
 const counts = {
   incorrect: 0,
   category: 1,
-  solution: 2,
-  unselected: 3
+  solution: 3,
+  unselected: 5
 };
 const emojis = {
   [counts.incorrect]: '🟥',
@@ -17,7 +17,9 @@ const emojis = {
   [counts.unselected]: '⬛',
 };
 var numTiles = config.board.cols * config.board.rows;
-var maxScore = ((numTiles - 1) * counts.unselected) + counts.solution;
+var maxUnselectedScore =  counts.unselected * (numTiles - config.selectionsPerAttempt);
+var solutionScore = counts.solution * config.selectionsPerAttempt;
+var maxScore = maxUnselectedScore + solutionScore;
 
 const init2DArray = (r, c, content) => {
   return Array.from({ length: r }, _ => Array(c).fill(content));
@@ -42,17 +44,71 @@ const calcScore = (scorecard) => {
   scorecard.score = selectedScore + unselectedScore;
 };
 
+const getTodayKey = () => {
+  const today = new Date();
+  return `scorecard-${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+};
+
+const saveToLocalStorage = () => {
+  try {
+    const key = getTodayKey();
+
+    const { card, logs, score, title } = scorecard;
+    const correctSolution = scorecard.logs.some(log => log.correctness === counts.solution);
+
+    const data = { card, logs, score, title, buzzer, correctSolution };
+
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (err) {
+    console.log('saveToLocalStorage() Error!', err.message);
+  }
+};
+
+const loadFromLocalStorage = () => {
+  try {
+    const key = getTodayKey();
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      const data = JSON.parse(saved);
+      const { card, logs, score, title } = data;
+
+      Object.assign(scorecard, { card, logs, score, title });
+      buzzer = data.buzzer;
+
+      return {
+        correctSolution: data.correctSolution,
+        loaded: true
+        // TODO: attemptsLeft: data.attemptsLeft
+      };
+    }
+  } catch (err) {
+    console.log('loadFromLocalStorage() Error!', err.message);
+  }
+  return { loaded: false };
+};
+
 const scorecard = {
+  card: init2DArray(config.board.rows, config.board.cols, emojis[counts.unselected]),
+  logs: [{ tileSelection: [], correctness: null }],
+  score: 0,
+  title: '',
   init() {
     signCard(this);
     calcScore(this);
-    scorecard.title = `${config.share} ${scorecard.score}/${maxScore}`;
+    // \u{1F0CF} := joker playing card emoji
+    scorecard.title = `${config.context} \u{1F0CF}${scorecard.score}/${maxScore}`;
     // TODO: calcStats(); ?
+    saveToLocalStorage();
   },
-  title: '',
-  logs: [{ tileSelection: [], correctness: null }],
-  card: init2DArray(config.board.rows, config.board.cols, emojis[counts.unselected]),
-  score: 0
+  load() {
+    const savedScorecard = loadFromLocalStorage();
+    // logs includes an initial empty log, subtract 1
+    if (savedScorecard.loaded) {
+      const usedAttempts = scorecard.logs.length - 1;
+      savedScorecard.attemptsLeft = config.totalAttempts - usedAttempts;
+    }
+    return savedScorecard;
+  }
 };
 
 axios.interceptors.request.use((req) => {

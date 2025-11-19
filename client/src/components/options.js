@@ -1,5 +1,4 @@
 // import { useContext } from 'react';
-import { forwardRef } from 'react';
 import { Radio } from 'antd';
 import styled from 'styled-components';
 import config from '../utils/config';
@@ -10,7 +9,7 @@ const StyledOptions = styled.div`
   .ant-radio-group {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto auto;
     gap: var(--space-s);
 
     // + formation
@@ -58,19 +57,19 @@ const StyledOptions = styled.div`
   }
 `;
 
-export default forwardRef(function Options({
+export default function Options({
   options,
   prevGuesses,
-  setCurrentGuess,
+  handleGuessChange,
   disabled
-}, ref) {
+}) {
   // const { correctCategory } = useContext(PuzzleContext);
 
   return (
-    <StyledOptions ref={ref}>
+    <StyledOptions>
       <Radio.Group
         className={'' /* correctCategory ? 'plus-group' : '' */}
-        onChange={(e) => setCurrentGuess(e.target.value)}
+        onChange={(e) => handleGuessChange(e.target.value)}
       >
         {
           options.map((option, idx) => {
@@ -88,4 +87,4 @@ export default forwardRef(function Options({
       </Radio.Group>
     </StyledOptions>
   );
-});
+}

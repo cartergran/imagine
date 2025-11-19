@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ChartNoAxesColumn as SummaryIcon, CircleHelp as ManualIcon } from 'lucide-react';
 import config, { manualConfig } from '../utils/config';
+import scorecard from '../utils/scorecard';
 
 import { PuzzleContext } from '../App';
 import Manual from './manual';
@@ -15,6 +16,10 @@ const StyledToolbar = styled.footer`
   display: flex;
   justify-content: flex-end;
   align-items: center;
+
+  position: absolute;
+  bottom: 0;
+  @media (width > 1024px) { position: static; }
 
   align-self: center;
 
@@ -34,7 +39,7 @@ const renderTools = {
 };
 
 export default function Toolbar() {
-  const [activeTool, setActiveTool] = useState(tools.manual);
+  const [activeTool, setActiveTool] = useState();
   const [modalProps, setModalProps] = useState({
     header: manualConfig.header,
     handleClose: () => setActiveTool(tools.default)
@@ -58,7 +63,8 @@ export default function Toolbar() {
 
   useEffect(() => {
     if (summary.toggle) {
-      setTimeout(handleSummaryClick, config.duration * 3);
+      const delay = config.duration * 3;
+      setTimeout(handleSummaryClick, delay);
     }
   }, [summary.toggle, handleSummaryClick]);
 

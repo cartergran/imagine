@@ -1,19 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import scorecard from '../utils/scorecard';
 import config from '../utils/config';
+import Text from 'antd/es/typography/Text';
+import { PuzzleContext } from '../App';
 
 const StyledScorecard = styled.div`
-  .scorecard-title {
-    margin-bottom: var(--space-s);
-    text-align: center;
-  }
-
   .scorecard-eval {
     display: flex;
     justify-content: center;
   }
+`;
+
+const ScorecardText = styled(Text)`
+  width: 100%;
+
+  display: inline-block;
+
+  color: white;
+  font-size: 12px;
+  margin-bottom: var(--space-s);
+  text-align: center;
+  white-space: pre-line;
 `;
 
 const StyledCard = styled.dl`
@@ -21,24 +30,26 @@ const StyledCard = styled.dl`
   flex-direction: column;
   align-items: center;
 
+  margin-bottom: var(--space-m);
+
   dt {
     display: inline-flex;
 
     span {
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
 
       ${({ theme }) => theme.recycle.flexCenter};
 
-      font-size: 24px;
+      font-size: 20px;
     }
   }
 `;
 
 const StyledImage = styled.div`
   // see above <span /> size for calc (4x4)
-  width: calc(24px * ${props => props.$rows || 4});
-  height: calc(24px * ${props => props.$cols || 4});
+  width: calc(20px * ${props => props.$rows});
+  height: calc(20px * ${props => props.$cols});
 
   background: url("${props => props.$img || ''}");
   background-position: center;
@@ -53,6 +64,8 @@ export default function Scorecard({
   img: exampleImg
 }) {
   const [img, setImg] = useState(exampleImg || '');
+  const [solution, setSolution] = useState('');
+  const { buzzer } = useContext(PuzzleContext);
 
   // TODO: conditionally require props (all or none)
   const isExample = exampleTitle && exampleCard && exampleScore && exampleImg;
@@ -67,15 +80,32 @@ export default function Scorecard({
     }
   };
 
+  const getSolution = async () => {
+    try {
+      let solutionRes = await axios.get('solution');
+      setSolution(solutionRes.data);
+    } catch (err) {
+      console.log('getSolution() Error!', err.message);
+    }
+  };
+
   useEffect(() => {
     if (!isExample) {
       getImg();
     }
   }, [isExample]);
 
+  useEffect(() => {
+    if (buzzer && !isExample) {
+      getSolution();
+    }
+  }, [buzzer, isExample]);
+
   return (
     <StyledScorecard>
-      <h5 className="scorecard-title">{isExample ? exampleTitle : scorecard.title}</h5>
+      <ScorecardText copyable={!isExample}>
+        {isExample ? exampleTitle : scorecard.title}
+      </ScorecardText>
       <div className="scorecard-eval">
         <StyledCard>
           {
@@ -93,6 +123,11 @@ export default function Scorecard({
         </StyledCard>
         <StyledImage $img={img} $rows={config.board.rows} $cols={config.board.cols} />
       </div>
+      {
+        buzzer && solution && (
+          <ScorecardText>Solution: {solution}</ScorecardText>
+        )
+      }
     </StyledScorecard>
   );
 }

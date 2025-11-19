@@ -1,8 +1,9 @@
-import { createContext, useState } from 'react';
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { ThemeProvider } from 'styled-components';
 import theme from './styles/theme';
 import config from './utils/config';
 import GlobalStyle from './styles/globalStyle';
+import scorecard from './utils/scorecard';
 
 // TODO: index.js in ./components
 import Layout from './components/layout';
@@ -11,6 +12,33 @@ import Board from './components/board';
 import Solve from './components/solve';
 
 export const PuzzleContext = createContext();
+export const SolvableContext = createContext();
+
+const getTilesMapFromLogs = (logs) => {
+  const tilesMap = new Map();
+  for (const log of logs) {
+    if (log.tileSelection?.length > 0) {
+      const correctness = log.correctness;
+      let color;
+      switch (correctness) {
+        case 3:
+          color = 'green';
+          break;
+        case 1:
+          color = 'yellow';
+          break;
+        case 0:
+          color = 'red';
+          break;
+      }
+      for (const { r, c } of log.tileSelection) {
+        const key = `${r}:${c}`;
+        tilesMap.set(key, color);
+      }
+    }
+  }
+  return tilesMap;
+};
 
 function App() {
   const [state, setState] = useState({
@@ -18,28 +46,76 @@ function App() {
     correctCategory: false,
     correctSolution: false,
     solvable: false,
-    maxSelection: false
+    guesses: { current: '', previous: [] }
   });
+  const [clickedTiles, setClickedTiles] = useState(new Map());
 
-  const context = {
+  useEffect(() => {
+    const savedData = scorecard.load();
+    if (savedData.loaded) {
+      const tilesMap = getTilesMapFromLogs(scorecard.logs);
+      setClickedTiles(tilesMap);
+
+      setState({
+        attemptsLeft: 0,
+        correctCategory: savedData.correctSolution,
+        correctSolution: savedData.correctSolution,
+        solvable: false,
+        guesses: { current: '', previous: [] }
+      });
+    }
+  }, []);
+
+  const noMoreAttempts = state.attemptsLeft === 0;
+  const puzzleContext = useMemo(() => ({
     correctCategory: state.correctCategory,
     correctSolution: state.correctSolution,
-    solvable: state.solvable,
-    buzzer: state.correctSolution || !state.attemptsLeft
-  };
+    buzzer: state.correctSolution || noMoreAttempts
+  }), [state.correctCategory, state.correctSolution, noMoreAttempts]);
+
+  const handleSelection = useCallback((selectionsLeft) => {
+    if (selectionsLeft === 0) {
+      setState((prevState) => ({
+        ...prevState,
+        solvable: true
+      }));
+    }
+  }, []);
+
+  const handleGuessChange = useCallback((newGuess) => {
+    setState(prevState => ({
+      ...prevState,
+      guesses: {
+        ...prevState.guesses,
+        current: newGuess
+      }
+    }));
+  }, []);
+
+  const handleSubmit = useCallback((updateFn) => (
+    setState(updateFn)
+  ), []);
 
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      <PuzzleContext.Provider value={context}>
-        <Layout>
-            <Board
-              toggle={{ attemptsLeft: state.attemptsLeft, maxSelection: state.maxSelection }}
-              onSelection={setState}
-            />
-            <Attempts count={state.attemptsLeft} />
-            <Solve onSubmit={setState} />
-        </Layout>
+      <PuzzleContext.Provider value={puzzleContext}>
+        <SolvableContext.Provider value={state.solvable}>
+          <Layout>
+              <Board
+                attemptsLeft={state.attemptsLeft}
+                clickedTiles={clickedTiles}
+                maxSelection={state.solvable}
+                onSelection={handleSelection}
+              />
+              <Attempts count={state.attemptsLeft} />
+              <Solve
+                guesses={state.guesses}
+                handleGuessChange={handleGuessChange}
+                onSubmit={handleSubmit}
+              />
+          </Layout>
+        </SolvableContext.Provider>
       </PuzzleContext.Provider>
     </ThemeProvider>
   );

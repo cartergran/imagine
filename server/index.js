@@ -5,6 +5,8 @@ import 'dotenv/config';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { Storage } from '@google-cloud/storage';
+import { scheduleJob } from 'node-schedule';
+import { updatePuzzleAndRestart } from './scheduler.js';
 // import { fileTypeFromBuffer } from 'file-type';
 // import fs from 'fs';
 
@@ -28,7 +30,7 @@ const storage = new Storage({ credentials: gcsCreds });
 var totalAttempts = 5;
 var intel = {
   categories: [],
-  choices: [],
+  categoryChoices: {},
   category: '',
   solution: ''
 };
@@ -40,8 +42,8 @@ var img = {
   pixelated: [] // descending order from most pixelated
 };
 var board = {
-  rows: 7,
-  cols: 7
+  rows: 8,
+  cols: 8
 };
 var tiles = {
   width: img.width / board.rows,
@@ -192,8 +194,12 @@ app.get('/tile', (req, res) => {
   res.send(tiles.base64Catalog[attempt][r][c]);
 });
 
-app.get('/choices', (_req, res) => {
-  res.send(intel.choices);
+app.get('/categoryType', (_req, res) => {
+  res.send(intel.categoryChoices.type);
+});
+
+app.get('/categoryChoices', (_req, res) => {
+  res.send(intel.categoryChoices.options);
 });
 
 app.get('/check/category', (req, res) => {
@@ -210,6 +216,10 @@ app.get('/img', (_req, res) => {
   res.send(img.base64);
 });
 
+app.get('/solution', (_req, res) => {
+  res.send(intel.solution);
+});
+
 // catch all other requests & return to home
 app.get('*', (_req, res) => {
   res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
@@ -218,3 +228,5 @@ app.get('*', (_req, res) => {
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
+
+scheduleJob({ rule: '0 0 * * *', tz: 'America/New_York' }, updatePuzzleAndRestart);

@@ -1,14 +1,14 @@
 const title = 'imagine';
 const puzzleNum = process.env.REACT_APP_PUZZLE_NUM;
-const share = `${title} #${puzzleNum}`;
+const context = `${title} #${puzzleNum}`;
 
 const totalAttempts = 5;
-const selectionsPerAttempt = 5;
+const selectionsPerAttempt = 3;
 const duration = 805;
 
 const board = {
-  rows: 7,
-  cols: 7
+  rows: 8,
+  cols: 8
 };
 
 const actions = {
@@ -30,47 +30,47 @@ const tools = {
 export const manualConfig = {
   header: 'How To Play',
   description: {
-    summary: `Imagine the class and species of an animal in ${totalAttempts} attempts.`,
+    summary: `Imagine the image in ${totalAttempts} attempts.`,
     details: [
-      `The ${board.rows} x ${board.cols} tile grid depicts one image of an animal.`,
-      `The image starts pixelated and becomes clearer with each attempt.`,
-      `Before each attempt select anywhere from 1 to ${selectionsPerAttempt} tiles to reveal a
-      portion of the image.`,
-      `After choosing the class of animal correctly, the options will narrow to species of that
-      class.`,
-      `The tiles on the scorecard change color based on your selections and results, which
-      determine your final score.`
+      `The ${board.rows} x ${board.cols} tile grid depicts a single image.`,
+      `Before each attempt select ${selectionsPerAttempt} tiles to reveal a portion of the image.`,
+      `First, imagine the general category of the image. Once correct, choose from specific options
+      within that category.`,
+      `The image starts heavily pixelated and becomes clearer after each attempt.`,
+      `Tiles on the scorecard change color based on your selections and results, which determine
+      your final score.`
     ]
   },
   scoring: {
     subheader: 'Scoring',
     counts: {
-      '🟥': '+0. Incorrect choice of class.',
-      '🟨': '+1. Correct class, incorrect choice of species.',
-      '🟩': '+2. Puzzle solved.',
-      '⬛': '+3. Unselected.'
+      '🟥': '+0. Incorrect category.',
+      '🟨': '+1. Correct category, incorrect solution.',
+      '🟩': '+3. Puzzle solved.',
+      '⬛': '+5. Unselected.'
     }
   },
   example: {
     subheader: 'Example',
-    overview: '{ class: Mammal, species: Red Panda, score: 101/146 }',
+    overview: 'category: Animal | type: Species | solution: Red Panda \n score: 265/314',
     card: [
-      ['⬛','⬛','⬛','⬛','⬛','⬛','🟥'],
-      ['🟨','🟥','🟨','🟨','🟨','🟩','⬛'],
-      ['🟨','🟨','🟨','🟥','🟨','🟩','🟩'],
-      ['⬛','⬛','🟥','⬛','⬛','🟥','🟨'],
-      ['⬛','⬛','⬛','⬛','⬛','⬛','🟨'],
-      ['⬛','⬛','⬛','⬛','⬛','🟨','🟨'],
-      ['⬛','⬛','⬛','⬛','⬛','🟨','🟨']
+      ['⬛','⬛','⬛','⬛','⬛','⬛','🟥', '⬛'],
+      ['🟨','🟥','⬛','⬛','⬛','🟩','⬛', '⬛'],
+      ['🟨','🟨','⬛','🟥','⬛','🟩','🟩', '⬛'],
+      ['⬛','⬛','🟥','⬛','⬛','🟥','⬛', '⬛'],
+      ['⬛','⬛','⬛','⬛','⬛','⬛','⬛', '⬛'],
+      ['⬛','⬛','⬛','⬛','⬛','🟨','🟨', '⬛'],
+      ['⬛','🟥','⬛','⬛','⬛','⬛','🟨', '⬛'],
+      ['⬛','⬛','⬛','⬛','⬛','⬛','⬛', '⬛']
     ],
-    score: 101,
+    score: 265,
     img: process.env.REACT_APP_EXAMPLE_IMG
   }
 };
 
 const config = {
   title,
-  share,
+  context,
   totalAttempts,
   selectionsPerAttempt,
   duration,

@@ -1,23 +1,17 @@
-import { Button } from 'antd';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { Button, Tag } from 'antd';
+import { startTransition, useContext, useEffect, useRef, useState } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import styled from 'styled-components';
 import axios from 'axios';
 import config from '../utils/config';
 
-import { PuzzleContext } from '../App';
+import { PuzzleContext, SolvableContext } from '../App';
 import Options from './options';
 
 const StyledSolve = styled.div`
   ${({ theme }) => theme.recycle.flexCenter};
 
   margin-top: var(--space-l);
-
-  #solve {
-    ${({ theme }) => theme.recycle.flexCenter};
-    flex-direction: column;
-    gap: var(--space-m);
-  }
 
   .ant-btn-primary {
     border-radius: var(--space-s);
@@ -34,6 +28,22 @@ const StyledSolve = styled.div`
   }
 `;
 
+const StyledWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  // tag
+  & > span:first-child {
+    margin-bottom: var(--space-s);
+  }
+
+  // options
+  & > div:has(+ button) {
+    margin-bottom: var(--space-m);
+  }
+`;
+
 // fisher-yates shuffle
 const shuffleArray = (arr) => {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -41,19 +51,18 @@ const shuffleArray = (arr) => {
     [arr[i], arr[j]] = [arr[j], arr[i]]; // swap elements
   }
   return arr;
-}
+};
 
-export default function Solve({ onSubmit }) {
-  const [currentGuess, setCurrentGuess] = useState('');
-  const [prevGuesses, setPrevGuesses] = useState([]);
+export default function Solve({ guesses, handleGuessChange, onSubmit }) {
   const [currentOptions, setCurrentOptions] = useState([]);
-  const [transitionOptions, setTransitionOptions] = useState(true);
+  const [categoryType, setCategoryType] = useState('');
 
-  const { correctCategory, solvable, buzzer } = useContext(PuzzleContext);
-  const optionsRef = useRef(null);
+  const { correctCategory, buzzer } = useContext(PuzzleContext);
+  const solvable = useContext(SolvableContext);
+  const wrapperRef = useRef(null);
 
   const toggleOptions = !solvable || buzzer;
-  const toggleSubmit = !solvable || !currentGuess || buzzer;
+  const toggleSubmit = !solvable || !guesses.current || buzzer;
 
   useEffect(() => {
     const getCategories = async () => {
@@ -66,16 +75,24 @@ export default function Solve({ onSubmit }) {
 
   useEffect(() => {
     if (!correctCategory) { return; }
-    const getChoices = async () => {
-      let choicesRes = await axios.get('choices');
-      let choices = shuffleArray(choicesRes.data);
-      setTimeout(() => {
-        setCurrentOptions(choices);
-        setTransitionOptions(true);
-      }, config.duration);
+    const getCategoryChoices = async () => {
+      let categoryChoicesRes = await axios.get('categoryChoices');
+      let categoryChoices = shuffleArray(categoryChoicesRes.data);
+      return categoryChoices;
     };
-    setTransitionOptions(false);
-    getChoices();
+    const getCategoryType = async () => {
+      let categoryTypeRes = await axios.get('categoryType');
+      return categoryTypeRes.data;
+    };
+    const onCorrectCategory = async () => {
+      let categoryChoices = await getCategoryChoices();
+      let categoryType = await getCategoryType();
+      startTransition(() => {
+        setCurrentOptions(categoryChoices);
+        setCategoryType(categoryType);
+      });
+    };
+    onCorrectCategory();
   }, [correctCategory]);
 
   const checkCorrect = async (guess, type) => {
@@ -92,54 +109,52 @@ export default function Solve({ onSubmit }) {
   };
 
   const handleSubmit = async () => {
-    let correctGuess  = await checkCorrect(currentGuess, correctCategory ? 'solution' : 'category');
-    if (correctGuess) {
-      onSubmit((prevState) => {
-        return {
-          ...prevState,
-          correctCategory: correctGuess,
-          correctSolution: correctCategory && correctGuess,
-          solvable: true
-      }});
-      setPrevGuesses([]);
-    } else {
-      onSubmit((prevState) => {
-        return {
-          ...prevState,
-          attemptsLeft: --prevState.attemptsLeft,
-          solvable: false,
-          maxSelection: false
-      }});
-      setPrevGuesses((prevGuesses) => [...prevGuesses, currentGuess]);
-    }
+    let correctGuess =
+      await checkCorrect(guesses.current, correctCategory ? 'solution' : 'category');
 
-    setCurrentGuess('');
+    if (correctGuess) {
+      onSubmit((prevState) => ({
+        ...prevState,
+        correctCategory: correctGuess,
+        correctSolution: correctCategory && correctGuess,
+        guesses: { current: '', previous: [] }
+      }));
+    } else {
+      onSubmit((prevState) => ({
+        ...prevState,
+        attemptsLeft: prevState.attemptsLeft - 1,
+        solvable: false,
+        guesses: { previous: Object.values(prevState.guesses).flat(), current: '' }
+      }));
+    }
   };
 
   return (
     <StyledSolve>
       <div id="solve">
         <CSSTransition
-          in={transitionOptions}
-          nodeRef={optionsRef}
-          timeout={config.duration}
+          in={correctCategory}
+          nodeRef={wrapperRef}
+          timeout={config.duration * 3}
           classNames="fade"
         >
-          <Options
-            ref={optionsRef}
-            options={currentOptions}
-            prevGuesses={prevGuesses}
-            setCurrentGuess={setCurrentGuess}
-            disabled={toggleOptions}
-          />
+          <StyledWrapper ref={wrapperRef}>
+            { correctCategory && <Tag color="dodgerblue">{categoryType}</Tag> }
+            <Options
+              options={currentOptions}
+              prevGuesses={guesses.previous}
+              handleGuessChange={handleGuessChange}
+              disabled={toggleOptions}
+            />
+            <Button
+              type="primary"
+              onClick={handleSubmit}
+              disabled={toggleSubmit}
+            >
+              { config.actions.submit }
+            </Button>
+          </StyledWrapper>
         </CSSTransition>
-        <Button
-          type="primary"
-          onClick={handleSubmit}
-          disabled={toggleSubmit}
-        >
-          { config.actions.submit }
-        </Button>
       </div>
     </StyledSolve>
   );
