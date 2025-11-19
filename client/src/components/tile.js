@@ -45,7 +45,6 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredBorderColor, onClick })
   // const preloadedImgRef = useRef(null);
 
   const { correctCategory, correctSolution, buzzer } = useContext(PuzzleContext);
-  // const onMount = useRef(true);
 
   const toggleTileClick = feedback || tileState.clicked || maxSelection || buzzer;
   const borderWidth = buzzer && tileState.clicked ? '2' : '1';
@@ -158,10 +157,6 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredBorderColor, onClick })
     let timer = setTimeout(remixTile, time);
     return () => clearTimeout(timer);
   }, [buzzer, loc, remixTile]);
-
-  // useEffect(() => {
-  //   if (onMount.current) { onMount.current = false; }
-  // }, []);
 
   useEffect(() => {
     if (attemptsLeft === config.totalAttempts) { return; }
