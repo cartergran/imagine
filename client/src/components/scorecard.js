@@ -7,6 +7,10 @@ import Text from 'antd/es/typography/Text';
 import { PuzzleContext } from '../App';
 
 const StyledScorecard = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
   .scorecard-eval {
     display: flex;
     justify-content: center;
@@ -14,9 +18,7 @@ const StyledScorecard = styled.div`
 `;
 
 const ScorecardText = styled(Text)`
-  width: 100%;
-
-  display: inline-block;
+  display: inline-flex;
 
   color: white;
   font-size: 12px;
