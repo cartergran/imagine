@@ -50,7 +50,7 @@ var tiles = {
   height: img.height / board.cols,
   base64Catalog: init3DArray(totalAttempts, board.rows, board.cols)
 };
-var basePixelation = 7;
+var basePixelation = 4;
 
 // hoist
 function init3DArray(i, j, k) {
