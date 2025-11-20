@@ -32,7 +32,7 @@ const getFeedbackColor = (correctCategory, correctSolution) => {
   return feedbackColors.incorrect;
 };
 
-function Tile({ loc, attemptsLeft, maxSelection, restoredBorderColor, onClick }) {
+function Tile({ loc, attemptsLeft, maxSelection, restoredAttempt, restoredBorderColor, onClick }) {
   // tileState.clicked := clicked
   // tileState.img := clicked || flipped
   const [tileState, setTileState] = useState({ clicked: false, img: '' });
@@ -98,7 +98,12 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredBorderColor, onClick })
     if (!buzzer) { onClick((clicksLeft) => clicksLeft - 1); }
 
     // attempt [0 - 4]
-    let attempt = buzzer ? config.totalAttempts - 1 : config.totalAttempts - attemptsLeft;
+    let attempt;
+    if (buzzer) {
+      attempt = restoredAttempt !== undefined ? restoredAttempt : config.totalAttempts - 1;
+    } else {
+      attempt = config.totalAttempts - attemptsLeft;
+    }
     let { r, c } = loc;
     // const tileImgPromise = preloadedImgRef.current
     //   ? Promise.resolve(preloadedImgRef.current)
@@ -122,7 +127,7 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredBorderColor, onClick })
           });
       }
     });
-  }, [attemptsLeft, buzzer, loc, onClick]);
+  }, [attemptsLeft, buzzer, loc, onClick, restoredAttempt]);
 
   const handleClick = useCallback(() => {
     if (toggleTileClick) { return; }

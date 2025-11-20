@@ -26,12 +26,15 @@ const StyledBoard = styled.div`
 const TileWrapper = memo(({ r, c, attemptsLeft, clickedTiles, maxSelection, onClick }) => {
   const loc = useMemo(() => ({ r, c }), [r, c]);
   const tileKey = `${r}:${c}`;
-  const borderColor = clickedTiles?.get(tileKey);
+  const tileData = clickedTiles?.get(tileKey);
+  const restoredAttempt = tileData?.attempt;
+  const restoredBorderColor = tileData?.color;
   return <Tile
     loc={loc}
     attemptsLeft={attemptsLeft}
     maxSelection={maxSelection}
-    restoredBorderColor={borderColor}
+    restoredAttempt={restoredAttempt}
+    restoredBorderColor={restoredBorderColor}
     onClick={onClick}
   />;
 });
