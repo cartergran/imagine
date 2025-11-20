@@ -14,6 +14,7 @@ import { updatePuzzleAndRestart } from './scheduler.js';
 const PORT = process.env.PORT || 3001;
 const nodeEnv = process.env.NODE_ENV || '';
 const accessURL = process.env.ACCESS_URL || '';
+const basePixelation = process.env.BASE_PIXELATION || 7;
 const bucketName = process.env.BUCKET_NAME || '';
 const folderName = process.env.REACT_APP_PUZZLE_NUM || '';
 const imgPath = `${folderName}/${process.env.IMG_FILE_NAME || ''}`;
@@ -50,7 +51,6 @@ var tiles = {
   height: img.height / board.cols,
   base64Catalog: init3DArray(totalAttempts, board.rows, board.cols)
 };
-var basePixelation = 7;
 
 // hoist
 function init3DArray(i, j, k) {
