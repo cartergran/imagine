@@ -85,9 +85,9 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredAttempt, restoredBorder
   const getTileImg = async (attempt, r, c,) => {
     let tileImgRes = { data: '' };
     try {
-      tileImgRes = await axios.get('tile', { params: { attempt, r, c }});
+      tileImgRes = await axios.get('/puzzle/tile', { params: { attempt, r, c }});
     } catch (err) {
-      console.log('getTileImg() Error!', err.message);
+      console.error('getTileImg() Error!', err.message);
     }
     return tileImgRes.data;
   };

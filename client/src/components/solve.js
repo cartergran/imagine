@@ -63,29 +63,37 @@ export default function Solve({ guesses, onSubmit }) {
 
   useEffect(() => {
     const getCategories = async () => {
-      let categoriesRes = await axios.get('categories');
-      let categories = shuffleArray(categoriesRes.data);
-      setCurrentOptions(categories);
+      try {
+        const categoriesRes = await axios.get('/puzzle/categories');
+        const categories = shuffleArray(categoriesRes.data);
+        setCurrentOptions(categories);
+      } catch (err) {
+        console.error('getCategories() Error!', err.message);
+      }
     };
     getCategories();
   }, []);
 
   useEffect(() => {
     if (!correctCategory) { return; }
-    const getCategoryType = async () => {
-      let categoryTypeRes = await axios.get('categoryType');
-      setCategoryType(categoryTypeRes.data);
+    const getSubcategory = async () => {
+      try {
+        const categoryTypeRes = await axios.get('/puzzle/subcategory');
+        setCategoryType(categoryTypeRes.data);
+      } catch (err) {
+        console.error('getSubcategory() Error!', err.message);
+      }
     };
-    getCategoryType();
+    getSubcategory();
   }, [correctCategory]);
 
   const checkCorrect = async (guess, type) => {
     let correct = false;
     try {
-      let correctRes = await axios.get(`check/${type}`, { params: { guess }});
+      const correctRes = await axios.get(`/check/${type}`, { params: { guess }});
       correct = correctRes.data;
     } catch (err) {
-      console.log('checkCorrect() Error!', err.message);
+      console.error('checkCorrect() Error!', err.message);
     }
     return correct;
   };

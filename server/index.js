@@ -16,9 +16,9 @@ const nodeEnv = process.env.NODE_ENV || '';
 const accessURL = process.env.ACCESS_URL || '';
 const basePixelation = process.env.BASE_PIXELATION || 7;
 const bucketName = process.env.BUCKET_NAME || '';
-const folderName = process.env.REACT_APP_PUZZLE_NUM || '';
-const imgPath = `${folderName}/${process.env.IMG_FILE_NAME || ''}`;
-const intelPath = `${folderName}/${process.env.INTEL_FILE_NAME || ''}`;
+const puzzleNum = process.env.PUZZLE_NUM || '';
+const imgPath = `${puzzleNum}/${process.env.IMG_FILE_NAME || ''}`;
+const intelPath = `${puzzleNum}/${process.env.INTEL_FILE_NAME || ''}`;
 const gcsCredsBase64 = process.env.GCS_KEY_BASE64 || '';
 const gcsCreds = JSON.parse(Buffer.from(gcsCredsBase64, 'base64').toString('utf8'));
 
@@ -31,8 +31,8 @@ const storage = new Storage({ credentials: gcsCreds });
 var totalAttempts = 5;
 var intel = {
   categories: [],
-  categoryType: {},
   category: '',
+  subcategory: '',
   solution: ''
 };
 var img = {
@@ -185,36 +185,38 @@ app.use(cors({
 // serve static files from CRA
 app.use(express.static(path.resolve(__dirname, '../client/build')));
 
-app.get('/categories', (_req, res) => {
+const puzzleRouter = express.Router();
+puzzleRouter.get('/categories', (_req, res) => {
   res.send(intel.categories);
 });
-
-app.get('/tile', (req, res) => {
+puzzleRouter.get('/subcategory', (_req, res) => {
+  res.send(intel.subcategory);
+});
+puzzleRouter.get('/tile', (req, res) => {
   let { attempt, r, c } = req.query;
   res.send(tiles.base64Catalog[attempt][r][c]);
 });
-
-app.get('/categoryType', (_req, res) => {
-  res.send(intel.categoryType);
+puzzleRouter.get('/img', (_req, res) => {
+  res.send(img.base64);
 });
+puzzleRouter.get('/solution', (_req, res) => {
+  res.send(intel.solution);
+});
+puzzleRouter.get('/number', (_req, res) => {
+  res.send(puzzleNum);
+});
+app.use('/puzzle', puzzleRouter);
 
-app.get('/check/category', (req, res) => {
+const checkRouter = express.Router();
+checkRouter.get('/category', (req, res) => {
   let { guess } = req.query;
-  res.send(guess === intel.category)
+  res.send(guess === intel.category);
 });
-
-app.get('/check/solution', (req, res) => {
+checkRouter.get('/solution', (req, res) => {
   let { guess } = req.query;
   res.send(guess.toLowerCase() === intel.solution.toLowerCase());
 });
-
-app.get('/img', (_req, res) => {
-  res.send(img.base64);
-});
-
-app.get('/solution', (_req, res) => {
-  res.send(intel.solution);
-});
+app.use('/check', checkRouter);
 
 // catch all other requests & return to home
 app.get('*', (_req, res) => {

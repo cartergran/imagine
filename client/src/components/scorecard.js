@@ -75,19 +75,19 @@ export default function Scorecard({
 
   const getImg = async () => {
     try {
-      let imgRes = await axios.get('img');
+      const imgRes = await axios.get('/puzzle/img');
       setImg(imgRes.data);
     } catch (err) {
-      console.log('getImg() Error!', err.message);
+      console.error('getImg() Error!', err.message);
     }
   };
 
   const getSolution = async () => {
     try {
-      let solutionRes = await axios.get('solution');
+      const solutionRes = await axios.get('/puzzle/solution');
       setSolution(solutionRes.data);
     } catch (err) {
-      console.log('getSolution() Error!', err.message);
+      console.error('getSolution() Error!', err.message);
     }
   };
 
