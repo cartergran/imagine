@@ -1,30 +1,19 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-/client/node_modules
+# universal
+.DS_Store
+.env
+node_modules/
+
+# client
 /client/.pnp
 /client/.pnp.js
-/client/package-lock.json
+/client/coverage #testing
 
-# testing
-/client/coverage
+# server
 
 # misc
 .DS_Store
-/client/.DS_Store
-/client/.env
-/client/.env.local
-/client/.env.development.local
-/client/.env.test.local
-/client/.env.production.local
-
-# server
-/node_modules
-package-lock.json
-/server/imgs
-.DS_Store
-.env
-/server/gcs-key.json
 
 # other
 npm-debug.log*
