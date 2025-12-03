@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react';
+
 import config from '../utils/config';
-import { PuzzleContext } from '../App';
 import Board from '../components/board';
+import { PuzzleContext } from '../App';
 
 test('renders all tiles on mount', () => {
   const testToggle = {

@@ -1,11 +1,12 @@
-import React from 'react';
+// import React from 'react';
 
-if (process.env.REACT_APP_NODE_ENV === 'dev') {
-  try {
-    const whyDidYouRender = require('@welldone-software/why-did-you-render');
-    whyDidYouRender(React, {
-      trackAllPureComponents: true,
-      logOnDifferentValues: true
-    });
-  } catch (err) { /* silently ignore */ }
-}
+// if (import.meta.env.VITE_NODE_ENV === 'dev') {
+//   import('@welldone-software/why-did-you-render')
+//     .then((whyDidYouRender) => {
+//       whyDidYouRender.default(React, {
+//         trackAllPureComponents: true,
+//         logOnDifferentValues: true
+//       });
+//     })
+//     .catch(() => { /* silently ignore */ });
+// }
