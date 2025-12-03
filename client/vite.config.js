@@ -8,6 +8,11 @@ export default defineConfig({
     include: /src\/.*\.jsx?$/,
     exclude: []
   },
+  build: {
+    rollupOptions: {
+      external: ['@welldone-software/why-did-you-render']
+    }
+  },
   server: {
     proxy: {
       '/puzzle': {
