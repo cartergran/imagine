@@ -214,7 +214,7 @@ checkRouter.get('/category', (req, res) => {
 });
 checkRouter.get('/solution', (req, res) => {
   let { guess } = req.query;
-  res.send(guess.toLowerCase() === intel.solution.toLowerCase());
+  res.send(guess.trim().toLowerCase() === intel.solution.toLowerCase());
 });
 app.use('/check', checkRouter);
 
