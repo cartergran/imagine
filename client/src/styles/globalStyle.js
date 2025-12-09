@@ -8,6 +8,7 @@ const GlobalStyle = createGlobalStyle`
   // start elements
   html {
     box-sizing: border-box;
+    touch-action: pan-y;
   }
 
   *, *:before, *:after {
