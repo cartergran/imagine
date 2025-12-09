@@ -133,7 +133,7 @@ export default function Solve({ guesses, onSubmit }) {
           classNames="fade"
         >
           <StyledWrapper ref={wrapperRef}>
-            { correctCategory && <Tag color="dodgerblue">{categoryType}</Tag> }
+            { correctCategory && <Tag>{categoryType}</Tag> }
             {
               !correctCategory ? (
                 <Options
