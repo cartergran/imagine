@@ -182,8 +182,8 @@ app.use(cors({
   methods: ['GET']
 }));
 
-// serve static files from CRA
-app.use(express.static(path.resolve(__dirname, '../client/build')));
+// serve static files from Vite
+app.use(express.static(path.resolve(__dirname, '../client/dist')));
 
 const puzzleRouter = express.Router();
 puzzleRouter.get('/categories', (_req, res) => {
@@ -220,7 +220,7 @@ app.use('/check', checkRouter);
 
 // catch all other requests & return to home
 app.get('*', (_req, res) => {
-  res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+  res.sendFile(path.resolve(__dirname, '../client/dist', 'index.html'));
 });
 
 app.listen(PORT, () => {

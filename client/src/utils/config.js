@@ -75,7 +75,7 @@ export const manualConfig = {
       ['⬛','⬛','⬛','⬛','⬛','⬛','⬛', '⬛']
     ],
     score: 265,
-    img: process.env.REACT_APP_EXAMPLE_IMG
+    img: import.meta.env.VITE_EXAMPLE_IMG
   }
 };
 

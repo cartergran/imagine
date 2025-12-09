@@ -19,7 +19,7 @@ const StyledTileImage = styled.div`
   background-size: contain;
 `;
 
-const feedbackDuration = config.duration * (process.env.REACT_APP_MAGIC_NUM / 10);
+const feedbackDuration = config.duration * (import.meta.env.VITE_MAGIC_NUM / 10);
 const feedbackColors = {
   incorrect: 'red',
   correctCategory: 'yellow',
@@ -158,7 +158,7 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredAttempt, restoredBorder
     if (!buzzer) { return; }
 
     let { r, c } = loc;
-    let time = ((r * config.board.cols) + c) * process.env.REACT_APP_MAGIC_NUM;
+    let time = ((r * config.board.cols) + c) * import.meta.env.VITE_MAGIC_NUM;
     let timer = setTimeout(remixTile, time);
     return () => clearTimeout(timer);
   }, [buzzer, loc, remixTile]);

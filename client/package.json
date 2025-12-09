@@ -1,53 +1,37 @@
 {
   "name": "client",
   "version": "0.5",
+  "license": "UNLICENSED",
+  "type": "module",
   "private": true,
-  "proxy": "http://localhost:3001/",
   "dependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "antd": "^5.22.4",
-    "axios": "^1.6.2",
-    "lucide-react": "^0.475.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "^5.0.1",
+    "@vitejs/plugin-react": "^5.1.1",
+    "antd": "^5.29.1",
+    "axios": "^1.13.2",
+    "lucide-react": "^0.555.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
     "react-transition-group": "^4.4.5",
     "styled-components": "^6.1.2",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^5.1.0",
+    "vite": "^7.2.6"
   },
   "devDependencies": {
-    "@welldone-software/why-did-you-render": "^8.0.3"
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@vitest/ui": "^4.0.15",
+    "@welldone-software/why-did-you-render": "^10.0.1",
+    "jsdom": "^27.2.0",
+    "vitest": "^4.0.15"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "jest": {
-    "transformIgnorePatterns": [
-      "/node_modules/(?!(axios|lucide-react)/)"
-    ]
+    "dev": "vite",
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run"
   }
 }

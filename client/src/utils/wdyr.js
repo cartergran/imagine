@@ -1,11 +1,11 @@
 import React from 'react';
 
-if (process.env.REACT_APP_NODE_ENV === 'dev') {
-  try {
-    const whyDidYouRender = require('@welldone-software/why-did-you-render');
-    whyDidYouRender(React, {
-      trackAllPureComponents: true,
-      logOnDifferentValues: true
-    });
-  } catch (err) { /* silently ignore */ }
+if (import.meta.env.VITE_NODE_ENV === 'dev' && import.meta.env.VITE_WHY_DID_YOU_RENDER === 'true') {
+  const { default: wdyr } = await import('@welldone-software/why-did-you-render');
+
+  wdyr(React, {
+    include: [/.*/],
+    trackAllPureComponents: true,
+    trackHooks: true,
+  });
 }
