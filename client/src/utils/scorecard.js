@@ -113,7 +113,7 @@ const scorecard = {
 
 axios.interceptors.request.use((req) => {
   // check for buzzer - 'flip all' requests happen after buzzer
-  if (req.url.includes('tile') && !buzzer) {
+  if (req.url.includes('/puzzle/tile') && !buzzer) {
     let currentLog = scorecard.logs.at(-1);
     let currentTileSelection = currentLog.tileSelection;
 

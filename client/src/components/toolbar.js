@@ -2,7 +2,6 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ChartNoAxesColumn as SummaryIcon, CircleHelp as ManualIcon } from 'lucide-react';
 import config, { manualConfig } from '../utils/config';
-import scorecard from '../utils/scorecard';
 
 import { PuzzleContext } from '../App';
 import Manual from './manual';

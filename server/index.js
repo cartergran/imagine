@@ -14,10 +14,11 @@ import { updatePuzzleAndRestart } from './scheduler.js';
 const PORT = process.env.PORT || 3001;
 const nodeEnv = process.env.NODE_ENV || '';
 const accessURL = process.env.ACCESS_URL || '';
+const basePixelation = process.env.BASE_PIXELATION || 7;
 const bucketName = process.env.BUCKET_NAME || '';
-const folderName = process.env.REACT_APP_PUZZLE_NUM || '';
-const imgPath = `${folderName}/${process.env.IMG_FILE_NAME || ''}`;
-const intelPath = `${folderName}/${process.env.INTEL_FILE_NAME || ''}`;
+const puzzleNum = process.env.PUZZLE_NUM || '';
+const imgPath = `${puzzleNum}/${process.env.IMG_FILE_NAME || ''}`;
+const intelPath = `${puzzleNum}/${process.env.INTEL_FILE_NAME || ''}`;
 const gcsCredsBase64 = process.env.GCS_KEY_BASE64 || '';
 const gcsCreds = JSON.parse(Buffer.from(gcsCredsBase64, 'base64').toString('utf8'));
 
@@ -30,8 +31,8 @@ const storage = new Storage({ credentials: gcsCreds });
 var totalAttempts = 5;
 var intel = {
   categories: [],
-  categoryChoices: {},
   category: '',
+  subcategory: '',
   solution: ''
 };
 var img = {
@@ -50,7 +51,6 @@ var tiles = {
   height: img.height / board.cols,
   base64Catalog: init3DArray(totalAttempts, board.rows, board.cols)
 };
-var basePixelation = 11;
 
 // hoist
 function init3DArray(i, j, k) {
@@ -182,47 +182,45 @@ app.use(cors({
   methods: ['GET']
 }));
 
-// serve static files from CRA
-app.use(express.static(path.resolve(__dirname, '../client/build')));
+// serve static files from Vite
+app.use(express.static(path.resolve(__dirname, '../client/dist')));
 
-app.get('/categories', (_req, res) => {
+const puzzleRouter = express.Router();
+puzzleRouter.get('/categories', (_req, res) => {
   res.send(intel.categories);
 });
-
-app.get('/tile', (req, res) => {
+puzzleRouter.get('/subcategory', (_req, res) => {
+  res.send(intel.subcategory);
+});
+puzzleRouter.get('/tile', (req, res) => {
   let { attempt, r, c } = req.query;
   res.send(tiles.base64Catalog[attempt][r][c]);
 });
-
-app.get('/categoryType', (_req, res) => {
-  res.send(intel.categoryChoices.type);
-});
-
-app.get('/categoryChoices', (_req, res) => {
-  res.send(intel.categoryChoices.options);
-});
-
-app.get('/check/category', (req, res) => {
-  let { guess } = req.query;
-  res.send(guess === intel.category)
-});
-
-app.get('/check/solution', (req, res) => {
-  let { guess } = req.query;
-  res.send(guess === intel.solution);
-});
-
-app.get('/img', (_req, res) => {
+puzzleRouter.get('/img', (_req, res) => {
   res.send(img.base64);
 });
-
-app.get('/solution', (_req, res) => {
+puzzleRouter.get('/solution', (_req, res) => {
   res.send(intel.solution);
 });
+puzzleRouter.get('/number', (_req, res) => {
+  res.send(puzzleNum);
+});
+app.use('/puzzle', puzzleRouter);
+
+const checkRouter = express.Router();
+checkRouter.get('/category', (req, res) => {
+  let { guess } = req.query;
+  res.send(guess === intel.category);
+});
+checkRouter.get('/solution', (req, res) => {
+  let { guess } = req.query;
+  res.send(guess.trim().toLowerCase() === intel.solution.toLowerCase());
+});
+app.use('/check', checkRouter);
 
 // catch all other requests & return to home
 app.get('*', (_req, res) => {
-  res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+  res.sendFile(path.resolve(__dirname, '../client/dist', 'index.html'));
 });
 
 app.listen(PORT, () => {

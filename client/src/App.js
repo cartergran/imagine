@@ -16,7 +16,8 @@ export const SolvableContext = createContext();
 
 const getTilesMapFromLogs = (logs) => {
   const tilesMap = new Map();
-  for (const log of logs) {
+  for (let i = 0; i < logs.length; i++) {
+    const log = logs[i];
     if (log.tileSelection?.length > 0) {
       const correctness = log.correctness;
       let color;
@@ -33,7 +34,7 @@ const getTilesMapFromLogs = (logs) => {
       }
       for (const { r, c } of log.tileSelection) {
         const key = `${r}:${c}`;
-        tilesMap.set(key, color);
+        tilesMap.set(key, { color, attempt: i });
       }
     }
   }
@@ -46,7 +47,7 @@ function App() {
     correctCategory: false,
     correctSolution: false,
     solvable: false,
-    guesses: { current: '', previous: [] }
+    guesses: []
   });
   const [clickedTiles, setClickedTiles] = useState(new Map());
 
@@ -61,7 +62,7 @@ function App() {
         correctCategory: savedData.correctSolution,
         correctSolution: savedData.correctSolution,
         solvable: false,
-        guesses: { current: '', previous: [] }
+        guesses: []
       });
     }
   }, []);
@@ -80,16 +81,6 @@ function App() {
         solvable: true
       }));
     }
-  }, []);
-
-  const handleGuessChange = useCallback((newGuess) => {
-    setState(prevState => ({
-      ...prevState,
-      guesses: {
-        ...prevState.guesses,
-        current: newGuess
-      }
-    }));
   }, []);
 
   const handleSubmit = useCallback((updateFn) => (
@@ -111,7 +102,6 @@ function App() {
               <Attempts count={state.attemptsLeft} />
               <Solve
                 guesses={state.guesses}
-                handleGuessChange={handleGuessChange}
                 onSubmit={handleSubmit}
               />
           </Layout>

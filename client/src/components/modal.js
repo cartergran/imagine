@@ -15,7 +15,7 @@ const StyledModal = styled.dialog`
   background-color: black;
   border: none;
   padding: 0;
-  z-index: ${process.env.REACT_APP_MAGIC_NUM};
+  z-index: ${import.meta.env.VITE_MAGIC_NUM};
 
   .modal {
     // max width = board width

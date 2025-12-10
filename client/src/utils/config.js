@@ -1,6 +1,17 @@
+import axios from 'axios';
+
 const title = 'imagine';
-const puzzleNum = process.env.REACT_APP_PUZZLE_NUM;
-const context = `${title} #${puzzleNum}`;
+let puzzleNum = '';
+const getPuzzleNum = async () => {
+  try {
+    const puzzleNumRes = await axios.get('/puzzle/number');
+    puzzleNum = puzzleNumRes.data;
+  } catch (err) {
+    console.error('getPuzzleNum() Error!', err.message);
+  }
+};
+getPuzzleNum();
+const getContext = () => `${title} #${puzzleNum || ''}`;
 
 const totalAttempts = 5;
 const selectionsPerAttempt = 3;
@@ -64,13 +75,14 @@ export const manualConfig = {
       ['⬛','⬛','⬛','⬛','⬛','⬛','⬛', '⬛']
     ],
     score: 265,
-    img: process.env.REACT_APP_EXAMPLE_IMG
+    img: import.meta.env.VITE_EXAMPLE_IMG
   }
 };
 
 const config = {
   title,
-  context,
+  // called as config.context but dynamically computes value
+  get context() { return getContext(); },
   totalAttempts,
   selectionsPerAttempt,
   duration,

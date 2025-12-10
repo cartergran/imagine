@@ -1,24 +1,22 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
+
+import Board from '../components/board';
+import { PuzzleContext } from '../App';
+
 import axios from 'axios';
 import config from '../utils/config';
-import { PuzzleContext } from '../App';
-import Board from '../components/board';
 
-jest.mock('axios');
+vi.mock('axios');
 
 test('tile background updates after click when not solvable', async () => {
-  (axios.get).mockResolvedValue({
+  vi.mocked(axios.get).mockResolvedValue({
     data: 'data:image/jpeg;base64,AAA' // fake base64 img
   });
 
-  const testToggle = {
-    attemptsLeft: config.totalAttempts,
-    maxSelection: false
-  };
-
   render(
     <PuzzleContext.Provider value={{ solvable: false }}>
-      <Board toggle={testToggle} onSelection={() => {}} />
+      <Board attemptsLeft={config.totalAttempts} maxSelection={false} onSelection={() => {}} />
     </PuzzleContext.Provider>
   );
 
@@ -29,12 +27,12 @@ test('tile background updates after click when not solvable', async () => {
   const randomTileImg = tileImages[randomTileNum];
 
   const styleBefore = getComputedStyle(randomTileImg);
-  expect(styleBefore.backgroundImage).toBe('url()');
+  expect(styleBefore.backgroundImage).toBe('url("")');
 
   fireEvent.click(randomTile);
 
   await waitFor(() => {
     const styleAfter = getComputedStyle(randomTileImg);
     expect(styleAfter.backgroundImage).toContain('data:image/jpeg;base64');
-  });
+  }, { timeout: config.duration });
 });

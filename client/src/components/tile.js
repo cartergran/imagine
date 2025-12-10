@@ -19,7 +19,7 @@ const StyledTileImage = styled.div`
   background-size: contain;
 `;
 
-const feedbackDuration = config.duration * (process.env.REACT_APP_MAGIC_NUM / 10);
+const feedbackDuration = config.duration * (import.meta.env.VITE_MAGIC_NUM / 10);
 const feedbackColors = {
   incorrect: 'red',
   correctCategory: 'yellow',
@@ -32,7 +32,7 @@ const getFeedbackColor = (correctCategory, correctSolution) => {
   return feedbackColors.incorrect;
 };
 
-function Tile({ loc, attemptsLeft, maxSelection, restoredBorderColor, onClick }) {
+function Tile({ loc, attemptsLeft, maxSelection, restoredAttempt, restoredBorderColor, onClick }) {
   // tileState.clicked := clicked
   // tileState.img := clicked || flipped
   const [tileState, setTileState] = useState({ clicked: false, img: '' });
@@ -85,9 +85,9 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredBorderColor, onClick })
   const getTileImg = async (attempt, r, c,) => {
     let tileImgRes = { data: '' };
     try {
-      tileImgRes = await axios.get('tile', { params: { attempt, r, c }});
+      tileImgRes = await axios.get('/puzzle/tile', { params: { attempt, r, c }});
     } catch (err) {
-      console.log('getTileImg() Error!', err.message);
+      console.error('getTileImg() Error!', err.message);
     }
     return tileImgRes.data;
   };
@@ -98,7 +98,12 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredBorderColor, onClick })
     if (!buzzer) { onClick((clicksLeft) => clicksLeft - 1); }
 
     // attempt [0 - 4]
-    let attempt = buzzer ? config.totalAttempts - 1 : config.totalAttempts - attemptsLeft;
+    let attempt;
+    if (buzzer) {
+      attempt = restoredAttempt !== undefined ? restoredAttempt : config.totalAttempts - 1;
+    } else {
+      attempt = config.totalAttempts - attemptsLeft;
+    }
     let { r, c } = loc;
     // const tileImgPromise = preloadedImgRef.current
     //   ? Promise.resolve(preloadedImgRef.current)
@@ -122,7 +127,7 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredBorderColor, onClick })
           });
       }
     });
-  }, [attemptsLeft, buzzer, loc, onClick]);
+  }, [attemptsLeft, buzzer, loc, onClick, restoredAttempt]);
 
   const handleClick = useCallback(() => {
     if (toggleTileClick) { return; }
@@ -153,7 +158,7 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredBorderColor, onClick })
     if (!buzzer) { return; }
 
     let { r, c } = loc;
-    let time = ((r * config.board.cols) + c) * process.env.REACT_APP_MAGIC_NUM;
+    let time = ((r * config.board.cols) + c) * import.meta.env.VITE_MAGIC_NUM;
     let timer = setTimeout(remixTile, time);
     return () => clearTimeout(timer);
   }, [buzzer, loc, remixTile]);
