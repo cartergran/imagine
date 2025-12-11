@@ -1,0 +1,36 @@
+import styled from 'styled-components';
+
+interface AttemptsProps {
+  count: number;
+}
+
+const StyledAttempts = styled.div`
+  ${({ theme }) => theme.recycle.flexCenter};
+
+  margin-top: var(--space-l);
+
+  #attempts {
+    ${({ theme }) => theme.recycle.flexCenter};
+    gap: var(--space-s);
+
+    & .dash {
+      width: 12px;
+      height: 4px;
+
+      display: inline-block;
+
+      border-radius: 25%;
+      background-color: white;
+    }
+  }
+`;
+
+export default function Attempts({ count }: AttemptsProps) {
+  return (
+    <StyledAttempts>
+      <div id="attempts">
+        { Array(count).fill(0).map((_, i) => <span className="dash" key={i} />) }
+      </div>
+    </StyledAttempts>
+  );
+}
