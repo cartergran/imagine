@@ -17,7 +17,7 @@ test('renders all tiles on mount', () => {
       <SolvableContext.Provider value={false}>
         <Board 
           attemptsLeft={config.totalAttempts}
-          clickedTiles={new Map()}
+          restoredTiles={new Map()}
           maxSelection={false}
           onSelection={() => {}}
         />

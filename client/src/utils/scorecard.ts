@@ -2,32 +2,32 @@ import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 import config from './config';
 
-export interface TileSelection {
+type TileSelection ={
   r: number;
   c: number;
-}
+};
 
 export interface Log {
   tileSelection: TileSelection[];
   correctness: number | null;
 }
 
-export interface Scorecard {
+type RestoredScorecardInfo = {
+  attemptsLeft?: number;
+  correctSolution?: boolean;
+  loaded: boolean;
+};
+
+interface Scorecard {
   card: string[][];
   logs: Log[];
   score: number;
   title: string;
   init: () => void;
-  load: () => LoadedScorecard;
+  load: () => RestoredScorecardInfo;
 }
 
-export interface LoadedScorecard {
-  correctSolution?: boolean;
-  loaded: boolean;
-  attemptsLeft?: number;
-}
-
-interface SavedScorecardData {
+interface SavedScorecard {
   card: string[][];
   logs: Log[];
   score: number;
@@ -100,7 +100,7 @@ const saveToLocalStorage = (): void => {
     const { card, logs, score, title } = scorecard;
     const correctSolution = scorecard.logs.some(log => log.correctness === counts.solution);
 
-    const data: SavedScorecardData = { card, logs, score, title, buzzer, correctSolution };
+    const data: SavedScorecard = { card, logs, score, title, buzzer, correctSolution };
 
     localStorage.setItem(key, JSON.stringify(data));
   } catch (err) {
@@ -109,12 +109,12 @@ const saveToLocalStorage = (): void => {
   }
 };
 
-const loadFromLocalStorage = (): LoadedScorecard => {
+const loadFromLocalStorage = (): RestoredScorecardInfo => {
   try {
     const key = getTodayKey();
     const saved = localStorage.getItem(key);
     if (saved) {
-      const data = JSON.parse(saved) as SavedScorecardData;
+      const data = JSON.parse(saved) as SavedScorecard;
       const { card, logs, score, title } = data;
 
       Object.assign(scorecard, { card, logs, score, title });
@@ -150,6 +150,7 @@ const scorecard: Scorecard = {
     const savedScorecard = loadFromLocalStorage();
     // logs includes an initial empty log, subtract 1
     if (savedScorecard.loaded) {
+      // TODO: calc & set property in loadFromLocalStorage()
       const usedAttempts = scorecard.logs.length - 1;
       savedScorecard.attemptsLeft = config.totalAttempts - usedAttempts;
     }

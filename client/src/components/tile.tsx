@@ -2,7 +2,7 @@ import axios from 'axios';
 import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-import Flip from './flip';
+import Flip, { BorderStyle } from './flip';
 
 import config from '../utils/config';
 import { PuzzleContext } from '../App';
@@ -62,7 +62,7 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredAttempt, restoredBorder
   const { correctCategory, correctSolution, buzzer } = useContext(PuzzleContext);
 
   const toggleTileClick = feedback || tileState.clicked || maxSelection || buzzer;
-  const borderWidth = buzzer && tileState.clicked ? '2' : '1';
+  const borderWidth = buzzer && tileState.clicked ? 2 : 1;
 
   // memoize for borderColor, depends on context values that change less frequently
   const feedbackColor = useMemo(() =>
@@ -92,7 +92,7 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredAttempt, restoredBorder
     return (tileState.clicked || maxSelection) ? 'black' : 'white';
   }, [buzzer, correctSolution, feedback, feedbackColor, maxSelection, tileState.clicked]);
 
-  const borderStyle = useMemo(() => ({
+  const borderStyle = useMemo<BorderStyle>(() => ({
     color: borderColor,
     width: borderWidth
   }), [borderColor, borderWidth]);

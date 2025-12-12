@@ -3,12 +3,14 @@ import styled from 'styled-components';
 
 import config from '../utils/config';
 
+export type BorderStyle = {
+  color: string;
+  width: number;
+};
+
 interface FlipProps {
-  borderStyle: {
-    color: string;
-    width: string;
-  };
-  isFlipped: boolean | string;
+  borderStyle: BorderStyle;
+  isFlipped: boolean;
   children: ReactNode;
 }
 
@@ -19,7 +21,7 @@ const StyledFlip = styled.div`
   perspective: 1000px;
 `;
 
-const StyledFlipBase = styled.div<{ $isFlipped: boolean | string; $borderStyle: { color: string; width: string } }>`
+const StyledFlipBase = styled.div<{ $isFlipped: boolean; $borderStyle: BorderStyle }>`
   width: 100%;
   height: 100%;
 
@@ -32,7 +34,7 @@ const StyledFlipBase = styled.div<{ $isFlipped: boolean | string; $borderStyle: 
   & .flip-content {
     border-style: solid;
     border-color: ${props => props.$borderStyle.color || 'white'};
-    border-width: ${props => props.$borderStyle.width || '1'}px;
+    border-width: ${props => props.$borderStyle.width || 1}px;
   }
 `;
 

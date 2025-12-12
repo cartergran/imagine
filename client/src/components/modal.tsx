@@ -2,10 +2,10 @@ import { ReactNode } from 'react';
 import styled from 'styled-components';
 import { X as CloseIcon } from 'lucide-react';
 
-interface ModalProps {
+export interface ModalProps {
   header: string;
   children: ReactNode;
-  handleClose?: () => void;
+  handleClose?: () => void; // TODO: not optional
 }
 
 const StyledModal = styled.dialog`

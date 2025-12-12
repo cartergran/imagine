@@ -4,11 +4,11 @@ import styled from 'styled-components';
 import Tile from './tile';
 
 import config from '../utils/config';
-import { SolvableContext } from '../App';
+import { SolvableContext, TilesPropsMap } from '../App';
 
 interface BoardProps {
   attemptsLeft: number;
-  clickedTiles: Map<string, { color: string; attempt: number }>;
+  restoredTiles: TilesPropsMap;
   maxSelection: boolean;
   onSelection: (selectionsLeft: number) => void;
 }
@@ -17,7 +17,7 @@ interface TileWrapperProps {
   r: number;
   c: number;
   attemptsLeft: number;
-  clickedTiles: Map<string, { color: string; attempt: number }>;
+  restoredTiles: TilesPropsMap;
   maxSelection: boolean;
   onClick: () => void;
 }
@@ -40,12 +40,19 @@ const StyledBoard = styled.div<{ $rows: number; $cols: number }>`
   }
 `;
 
-const TileWrapper = memo(({ r, c, attemptsLeft, clickedTiles, maxSelection, onClick }: TileWrapperProps) => {
+const TileWrapper = memo(({
+  r,
+  c,
+  attemptsLeft,
+  maxSelection,
+  restoredTiles,
+  onClick,
+}: TileWrapperProps) => {
   const loc = useMemo(() => ({ r, c }), [r, c]);
   const tileKey = `${r}:${c}`;
-  const tileData = clickedTiles?.get(tileKey);
-  const restoredAttempt = tileData?.attempt;
-  const restoredBorderColor = tileData?.color;
+  const restoredTileState = restoredTiles?.get(tileKey);
+  const restoredAttempt = restoredTileState?.attempt;
+  const restoredBorderColor = restoredTileState?.color;
   return <Tile
     loc={loc}
     attemptsLeft={attemptsLeft}
@@ -55,10 +62,9 @@ const TileWrapper = memo(({ r, c, attemptsLeft, clickedTiles, maxSelection, onCl
     onClick={onClick}
   />;
 });
-
 TileWrapper.displayName = 'TileWrapper';
 
-function Board({ attemptsLeft, clickedTiles, maxSelection, onSelection }: BoardProps) {
+function Board({ attemptsLeft, restoredTiles, maxSelection, onSelection }: BoardProps) {
   const selectionsLeft = useRef(config.selectionsPerAttempt);
   const solvable = useContext(SolvableContext);
 
@@ -89,7 +95,7 @@ function Board({ attemptsLeft, clickedTiles, maxSelection, onSelection }: BoardP
                       r={r}
                       c={c}
                       attemptsLeft={attemptsLeft}
-                      clickedTiles={clickedTiles}
+                      restoredTiles={restoredTiles}
                       maxSelection={maxSelection}
                       onClick={handleTileClick}
                     />

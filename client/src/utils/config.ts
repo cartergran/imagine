@@ -1,59 +1,59 @@
 import axios from 'axios';
 
-export interface BoardConfig {
+type BoardConfig = {
   rows: number;
   cols: number;
-}
+};
 
-export interface ActionsConfig {
+type ActionsConfig = {
   submit: string;
   share: string;
-}
+};
 
-export interface MessagesConfig {
+type MessagesConfig = {
   correct: string;
   incorrect: string;
-}
+};
 
-export interface ToolsConfig {
+type ToolsConfig = {
   summary: string;
   manual: string;
   default: string;
-}
+};
 
-export interface ManualScoringCounts {
+type ManualScoringCounts = {
   '🟥': string;
   '🟨': string;
   '🟩': string;
   '⬛': string;
-}
+};
 
-export interface ManualExample {
+export type ManualExample = {
   subheader: string;
   overview: string;
   card: string[][];
   score: number;
   img: string;
-}
+};
 
-export interface ManualDescription {
+type ManualDescription = {
   summary: string;
   details: string[];
-}
+}; 
 
-export interface ManualScoring {
+type ManualScoring = {
   subheader: string;
   counts: ManualScoringCounts;
-}
+};
 
-export interface ManualConfig {
+interface ManualConfig {
   header: string;
   description: ManualDescription;
   scoring: ManualScoring;
   example: ManualExample;
 }
 
-export interface Config {
+interface Config {
   title: string;
   context: string;
   totalAttempts: number;
@@ -61,7 +61,7 @@ export interface Config {
   duration: number;
   board: BoardConfig;
   actions: ActionsConfig;
-  msgs: MessagesConfig;
+  messages: MessagesConfig;
   tools: ToolsConfig;
 }
 
@@ -96,7 +96,7 @@ const actions: ActionsConfig = {
   share: 'Share'
 };
 
-const msgs: MessagesConfig = {
+const messages: MessagesConfig = {
   correct: 'Ball IQ.',
   incorrect: 'Tuff.'
 };
@@ -157,7 +157,7 @@ const config: Config = {
   duration,
   board,
   actions,
-  msgs,
+  messages,
   tools
 };
 

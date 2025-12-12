@@ -3,16 +3,13 @@ import { ReactElement, useCallback, useContext, useEffect, useState } from 'reac
 import styled from 'styled-components';
 
 import Manual from './manual';
-import Modal from './modal';
+import Modal, { ModalProps } from './modal';
 import Summary from './summary';
 
 import { PuzzleContext } from '../App';
 import config, { manualConfig } from '../utils/config';
 
-interface ModalProps {
-  header: string;
-  handleClose: () => void;
-}
+type ModalState = Pick<ModalProps, 'header' | 'handleClose'>;
 
 const StyledToolbar = styled.footer`
   width: 100%;
@@ -46,7 +43,7 @@ const renderTools: Record<string, ReactElement> = {
 
 export default function Toolbar() {
   const [activeTool, setActiveTool] = useState<string>();
-  const [modalProps, setModalProps] = useState<ModalProps>({
+  const [modalProps, setModalProps] = useState<ModalState>({
     header: manualConfig.header,
     handleClose: () => setActiveTool(tools.default)
   });
@@ -56,9 +53,10 @@ export default function Toolbar() {
   // summary updates once @ end --> buzzer = true, correctSolution = true || false
   const summary = {
     toggle: buzzer,
-    header: correctSolution ? config.msgs.correct : config.msgs.incorrect
+    header: correctSolution ? config.messages.correct : config.messages.incorrect
   };
 
+  // useCallback for useEffect dep
   const handleSummaryClick = useCallback(() => {
     setModalProps({
       header: summary.header,
@@ -67,13 +65,6 @@ export default function Toolbar() {
     setActiveTool(tools.summary);
   }, [summary.header]);
 
-  useEffect(() => {
-    if (summary.toggle) {
-      const delay = config.duration * 3;
-      setTimeout(handleSummaryClick, delay);
-    }
-  }, [summary.toggle, handleSummaryClick]);
-
   const handleManualClick = () => {
     setModalProps({
       header: manualConfig.header,
@@ -81,6 +72,13 @@ export default function Toolbar() {
     });
     setActiveTool(tools.manual);
   };
+
+  useEffect(() => {
+    if (summary.toggle) {
+      const delay = config.duration * 3;
+      setTimeout(handleSummaryClick, delay);
+    }
+  }, [summary.toggle, handleSummaryClick]);
 
   return (
     <>

@@ -36,7 +36,7 @@ interface GuessProps {
   placeholder?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onPressEnter: () => void;
+  onPressEnter: () => Promise<void>;
 }
 
 export default function Guess({ disabled, placeholder, value, onChange, onPressEnter }: GuessProps) {
