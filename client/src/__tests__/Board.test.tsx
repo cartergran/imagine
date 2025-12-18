@@ -2,8 +2,7 @@ import { render, screen } from '@testing-library/react';
 
 import config from '../utils/config';
 import Board from '../components/board';
-import { PuzzleContext, PuzzleContextValue } from '../App';
-import { SolvableContext } from '../App';
+import { PuzzleContext, PuzzleContextValue, SolvableContext } from '../App';
 
 test('renders all tiles on mount', () => {
   const testPuzzleContext: PuzzleContextValue = {
@@ -17,7 +16,7 @@ test('renders all tiles on mount', () => {
       <SolvableContext.Provider value={false}>
         <Board 
           attemptsLeft={config.totalAttempts}
-          clickedTiles={new Map()}
+          restoredTiles={new Map()}
           maxSelection={false}
           onSelection={() => {}}
         />

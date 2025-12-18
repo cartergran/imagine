@@ -1,59 +1,59 @@
 import axios from 'axios';
 
-export interface BoardConfig {
+type BoardConfig = {
   rows: number;
   cols: number;
-}
+};
 
-export interface ActionsConfig {
-  submit: string;
+type ActionsConfig = {
   share: string;
-}
+  submit: string;
+};
 
-export interface MessagesConfig {
+type MessagesConfig = {
   correct: string;
   incorrect: string;
-}
+};
 
-export interface ToolsConfig {
-  summary: string;
-  manual: string;
+type ToolsConfig = {
   default: string;
-}
+  manual: string;
+  summary: string;
+};
 
-export interface ManualScoringCounts {
+type ManualScoringCounts = {
   '🟥': string;
   '🟨': string;
   '🟩': string;
   '⬛': string;
-}
+};
 
-export interface ManualExample {
+type ManualExample = {
   subheader: string;
   overview: string;
   card: string[][];
   score: number;
   img: string;
-}
+};
 
-export interface ManualDescription {
+type ManualDescription = {
   summary: string;
   details: string[];
-}
+}; 
 
-export interface ManualScoring {
+type ManualScoring = {
   subheader: string;
   counts: ManualScoringCounts;
-}
+};
 
-export interface ManualConfig {
+interface ManualConfig {
   header: string;
   description: ManualDescription;
   scoring: ManualScoring;
   example: ManualExample;
 }
 
-export interface Config {
+interface Config {
   title: string;
   context: string;
   totalAttempts: number;
@@ -61,7 +61,7 @@ export interface Config {
   duration: number;
   board: BoardConfig;
   actions: ActionsConfig;
-  msgs: MessagesConfig;
+  messages: MessagesConfig;
   tools: ToolsConfig;
 }
 
@@ -92,19 +92,19 @@ const board: BoardConfig = {
 };
 
 const actions: ActionsConfig = {
-  submit: 'Submit',
-  share: 'Share'
+  share: 'Share',
+  submit: 'Submit'
 };
 
-const msgs: MessagesConfig = {
+const messages: MessagesConfig = {
   correct: 'Ball IQ.',
   incorrect: 'Tuff.'
 };
 
 const tools: ToolsConfig = {
-  summary: 'summary',
+  default: '',
   manual: 'manual',
-  default: ''
+  summary: 'summary'
 };
 
 export const manualConfig: ManualConfig = {
@@ -157,7 +157,7 @@ const config: Config = {
   duration,
   board,
   actions,
-  msgs,
+  messages,
   tools
 };
 

@@ -2,8 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 
 import Board from '../components/board';
-import { PuzzleContext, PuzzleContextValue } from '../App';
-import { SolvableContext } from '../App';
+import { PuzzleContext, PuzzleContextValue, SolvableContext } from '../App';
 
 import axios from 'axios';
 import config from '../utils/config';
@@ -30,7 +29,7 @@ test('tile background updates after click when not solvable', async () => {
       <SolvableContext.Provider value={false}>
         <Board 
           attemptsLeft={config.totalAttempts}
-          clickedTiles={new Map()}
+          restoredTiles={new Map()}
           maxSelection={false}
           onSelection={() => {}}
         />

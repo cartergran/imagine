@@ -9,19 +9,11 @@ import Guess from './guess';
 import Options from './options';
 
 import config from '../utils/config';
-import { PuzzleContext, SolvableContext } from '../App';
+import { AppState, PuzzleContext, SolvableContext } from '../App';
 
 interface SolveProps {
   guesses: string[];
   onSubmit: (updateFn: (prevState: AppState) => AppState) => void;
-}
-
-interface AppState {
-  attemptsLeft: number;
-  correctCategory: boolean;
-  correctSolution: boolean;
-  solvable: boolean;
-  guesses: string[];
 }
 
 const StyledSolve = styled.div`

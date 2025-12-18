@@ -26,6 +26,8 @@ export interface PuzzleContextValue {
   buzzer: boolean;
 }
 
+export type TilesPropsMap = Map<string, { color: string; attempt: number }>;
+
 export const PuzzleContext = createContext<PuzzleContextValue>({
   correctCategory: false,
   correctSolution: false,
@@ -34,8 +36,8 @@ export const PuzzleContext = createContext<PuzzleContextValue>({
 
 export const SolvableContext = createContext<boolean>(false);
 
-const getTilesMapFromLogs = (logs: Log[]): Map<string, { color: string; attempt: number }> => {
-  const tilesMap = new Map<string, { color: string; attempt: number }>();
+const getRestoredTiles = (logs: Log[]): TilesPropsMap => {
+  const restoredTiles: TilesPropsMap = new Map();
   for (let i = 0; i < logs.length; i++) {
     const log = logs[i];
     if (log && log.tileSelection?.length > 0) {
@@ -56,11 +58,11 @@ const getTilesMapFromLogs = (logs: Log[]): Map<string, { color: string; attempt:
       }
       for (const { r, c } of log.tileSelection) {
         const key = `${r}:${c}`;
-        tilesMap.set(key, { color, attempt: i });
+        restoredTiles.set(key, { color, attempt: i });
       }
     }
   }
-  return tilesMap;
+  return restoredTiles;
 };
 
 function App() {
@@ -71,13 +73,13 @@ function App() {
     solvable: false,
     guesses: []
   });
-  const [clickedTiles, setClickedTiles] = useState<Map<string, { color: string; attempt: number }>>(new Map());
+  const [restoredTiles, setRestoredTiles] = useState<TilesPropsMap>(new Map());
 
   useEffect(() => {
     const savedData = scorecard.load();
     if (savedData.loaded) {
-      const tilesMap = getTilesMapFromLogs(scorecard.logs);
-      setClickedTiles(tilesMap);
+      const restoredTiles = getRestoredTiles(scorecard.logs);
+      setRestoredTiles(restoredTiles);
 
       setState({
         attemptsLeft: 0,
@@ -117,7 +119,7 @@ function App() {
           <Layout>
               <Board
                 attemptsLeft={state.attemptsLeft}
-                clickedTiles={clickedTiles}
+                restoredTiles={restoredTiles}
                 maxSelection={state.solvable}
                 onSelection={handleSelection}
               />
