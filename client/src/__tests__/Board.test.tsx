@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 
 import config from '../utils/config';
 import Board from '../components/board';
-import { PuzzleContext, PuzzleContextValue, SolvableContext } from '../App';
+import { PuzzleContext, PuzzleContextValue, SolvableContext } from '../lib/contexts';
 
 test('renders all tiles on mount', () => {
   const testPuzzleContext: PuzzleContextValue = {

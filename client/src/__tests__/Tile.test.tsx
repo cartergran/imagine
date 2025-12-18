@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 
 import Board from '../components/board';
-import { PuzzleContext, PuzzleContextValue, SolvableContext } from '../App';
+import { PuzzleContext, PuzzleContextValue, SolvableContext } from '../lib/contexts';
 
 import axios from 'axios';
 import config from '../utils/config';

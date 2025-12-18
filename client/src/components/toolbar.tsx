@@ -6,8 +6,8 @@ import Manual from './manual';
 import Modal, { ModalProps } from './modal';
 import Summary from './summary';
 
-import { PuzzleContext } from '../App';
 import config, { manualConfig } from '../utils/config';
+import { PuzzleContext } from '../lib/contexts';
 
 type ModalState = Pick<ModalProps, 'header' | 'handleClose'>;
 

@@ -4,7 +4,8 @@ import styled from 'styled-components';
 import Tile from './tile';
 
 import config from '../utils/config';
-import { SolvableContext, TilesPropsMap } from '../App';
+import { SolvableContext } from '../lib/contexts';
+import { TilesPropsMap } from '../lib/types';
 
 interface BoardProps {
   attemptsLeft: number;

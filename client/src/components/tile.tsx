@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import Flip, { BorderStyle } from './flip';
 
 import config from '../utils/config';
-import { PuzzleContext } from '../App';
+import { PuzzleContext } from '../lib/contexts';
 
 interface TileProps {
   loc: { r: number; c: number };

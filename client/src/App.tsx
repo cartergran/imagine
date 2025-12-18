@@ -1,4 +1,4 @@
-import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ThemeProvider } from 'styled-components';
 
 // TODO: index.ts in ./components
@@ -7,34 +7,12 @@ import Board from './components/board';
 import Layout from './components/layout';
 import Solve from './components/solve';
 
+import { AppState, TilesPropsMap } from './lib/types';
 import config from './utils/config';
 import GlobalStyle from './styles/globalStyle';
+import { PuzzleContext, PuzzleContextValue, SolvableContext } from './lib/contexts';
 import scorecard, { Log } from './utils/scorecard';
 import theme from './styles/theme';
-
-export interface AppState {
-  attemptsLeft: number;
-  correctCategory: boolean;
-  correctSolution: boolean;
-  solvable: boolean;
-  guesses: string[];
-}
-
-export interface PuzzleContextValue {
-  correctCategory: boolean;
-  correctSolution: boolean;
-  buzzer: boolean;
-}
-
-export type TilesPropsMap = Map<string, { color: string; attempt: number }>;
-
-export const PuzzleContext = createContext<PuzzleContextValue>({
-  correctCategory: false,
-  correctSolution: false,
-  buzzer: false
-});
-
-export const SolvableContext = createContext<boolean>(false);
 
 const getRestoredTiles = (logs: Log[]): TilesPropsMap => {
   const restoredTiles: TilesPropsMap = new Map();

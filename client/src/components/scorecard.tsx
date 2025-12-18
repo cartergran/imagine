@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import Text from 'antd/es/typography/Text';
 
 import config from '../utils/config';
-import { PuzzleContext } from '../App';
+import { PuzzleContext } from '../lib/contexts';
 import scorecard from '../utils/scorecard';
 
 interface ScorecardProps {

@@ -8,8 +8,9 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import Guess from './guess';
 import Options from './options';
 
+import { AppState } from '../lib/types';
 import config from '../utils/config';
-import { AppState, PuzzleContext, SolvableContext } from '../App';
+import { PuzzleContext, SolvableContext } from '../lib/contexts';
 
 interface SolveProps {
   guesses: string[];
