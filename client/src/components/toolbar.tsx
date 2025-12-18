@@ -1,12 +1,18 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { ChartNoAxesColumn as SummaryIcon, CircleHelp as ManualIcon } from 'lucide-react';
-import config, { manualConfig } from '../utils/config';
+import { ReactElement, useCallback, useContext, useEffect, useState } from 'react';
+import styled from 'styled-components';
 
-import { PuzzleContext } from '../App';
 import Manual from './manual';
 import Modal from './modal';
 import Summary from './summary';
+
+import { PuzzleContext } from '../App';
+import config, { manualConfig } from '../utils/config';
+
+interface ModalProps {
+  header: string;
+  handleClose: () => void;
+}
 
 const StyledToolbar = styled.footer`
   width: 100%;
@@ -31,15 +37,16 @@ const StyledToolbar = styled.footer`
 
 const iconSize = 32;
 const { tools } = config;
-const renderTools = {
+
+const renderTools: Record<string, ReactElement> = {
   [tools.summary]: <Summary />,
   [tools.manual]: <Manual />,
   [tools.default]: <></>
 };
 
 export default function Toolbar() {
-  const [activeTool, setActiveTool] = useState();
-  const [modalProps, setModalProps] = useState({
+  const [activeTool, setActiveTool] = useState<string>();
+  const [modalProps, setModalProps] = useState<ModalProps>({
     header: manualConfig.header,
     handleClose: () => setActiveTool(tools.default)
   });
@@ -71,7 +78,7 @@ export default function Toolbar() {
     setModalProps({
       header: manualConfig.header,
       handleClose: () => setActiveTool(tools.default)
-    })
+    });
     setActiveTool(tools.manual);
   };
 
@@ -86,7 +93,7 @@ export default function Toolbar() {
         </button>
       </StyledToolbar>
       {
-        activeTool &&
+        activeTool && renderTools[activeTool] &&
           <Modal header={modalProps.header} handleClose={modalProps.handleClose}>
             { renderTools[activeTool] }
           </Modal>

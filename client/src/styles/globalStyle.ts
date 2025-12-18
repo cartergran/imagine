@@ -1,6 +1,7 @@
 import { createGlobalStyle } from 'styled-components';
-import variables from './variables';
+
 import config from '../utils/config';
+import variables from './variables';
 
 const GlobalStyle = createGlobalStyle`
   ${variables};

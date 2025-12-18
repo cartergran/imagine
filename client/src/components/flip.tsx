@@ -1,5 +1,16 @@
+import { ReactNode } from 'react';
 import styled from 'styled-components';
+
 import config from '../utils/config';
+
+interface FlipProps {
+  borderStyle: {
+    color: string;
+    width: string;
+  };
+  isFlipped: boolean | string;
+  children: ReactNode;
+}
 
 const StyledFlip = styled.div`
   width: 100%;
@@ -8,7 +19,7 @@ const StyledFlip = styled.div`
   perspective: 1000px;
 `;
 
-const StyledFlipBase = styled.div`
+const StyledFlipBase = styled.div<{ $isFlipped: boolean | string; $borderStyle: { color: string; width: string } }>`
   width: 100%;
   height: 100%;
 
@@ -41,7 +52,7 @@ const StyledFlipContent = styled.div`
   }
 `;
 
-export default function Flip({ borderStyle, isFlipped, children }) {
+export default function Flip({ borderStyle, isFlipped, children }: FlipProps) {
   return (
     <StyledFlip>
       <StyledFlipBase $borderStyle={borderStyle} $isFlipped={isFlipped}>

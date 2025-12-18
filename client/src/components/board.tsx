@@ -1,11 +1,28 @@
 import { memo, useMemo, useCallback, useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import config from '../utils/config';
 
-import { SolvableContext } from '../App';
 import Tile from './tile';
 
-const StyledBoard = styled.div`
+import config from '../utils/config';
+import { SolvableContext } from '../App';
+
+interface BoardProps {
+  attemptsLeft: number;
+  clickedTiles: Map<string, { color: string; attempt: number }>;
+  maxSelection: boolean;
+  onSelection: (selectionsLeft: number) => void;
+}
+
+interface TileWrapperProps {
+  r: number;
+  c: number;
+  attemptsLeft: number;
+  clickedTiles: Map<string, { color: string; attempt: number }>;
+  maxSelection: boolean;
+  onClick: () => void;
+}
+
+const StyledBoard = styled.div<{ $rows: number; $cols: number }>`
   ${({ theme }) => theme?.recycle?.flexCenter};
 
   margin-top: var(--space-l);
@@ -23,7 +40,7 @@ const StyledBoard = styled.div`
   }
 `;
 
-const TileWrapper = memo(({ r, c, attemptsLeft, clickedTiles, maxSelection, onClick }) => {
+const TileWrapper = memo(({ r, c, attemptsLeft, clickedTiles, maxSelection, onClick }: TileWrapperProps) => {
   const loc = useMemo(() => ({ r, c }), [r, c]);
   const tileKey = `${r}:${c}`;
   const tileData = clickedTiles?.get(tileKey);
@@ -39,7 +56,9 @@ const TileWrapper = memo(({ r, c, attemptsLeft, clickedTiles, maxSelection, onCl
   />;
 });
 
-function Board({ attemptsLeft, clickedTiles, maxSelection, onSelection }) {
+TileWrapper.displayName = 'TileWrapper';
+
+function Board({ attemptsLeft, clickedTiles, maxSelection, onSelection }: BoardProps) {
   const selectionsLeft = useRef(config.selectionsPerAttempt);
   const solvable = useContext(SolvableContext);
 
@@ -50,7 +69,7 @@ function Board({ attemptsLeft, clickedTiles, maxSelection, onSelection }) {
   }, [solvable]);
 
   const handleTileClick = useCallback(() => {
-    let newSelectionsLeft = --selectionsLeft.current;
+    const newSelectionsLeft = --selectionsLeft.current;
     if (newSelectionsLeft === 0) {
       onSelection(newSelectionsLeft);
     }

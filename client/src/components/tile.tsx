@@ -1,17 +1,32 @@
+import axios from 'axios';
 import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
-import config from '../utils/config';
 
-import { PuzzleContext } from '../App';
 import Flip from './flip';
+
+import config from '../utils/config';
+import { PuzzleContext } from '../App';
+
+interface TileProps {
+  loc: { r: number; c: number };
+  attemptsLeft: number;
+  maxSelection: boolean;
+  restoredAttempt?: number;
+  restoredBorderColor?: string;
+  onClick: (callback: (clicksLeft: number) => number) => void;
+}
+
+interface TileState {
+  clicked: boolean;
+  img: string;
+}
 
 const StyledTile = styled.div`
   width: var(--tile-size);
   height: var(--tile-size);
 `;
 
-const StyledTileImage = styled.div`
+const StyledTileImage = styled.div<{ $tileImg: string }>`
   width: 100%;
   height: 100%;
 
@@ -19,30 +34,30 @@ const StyledTileImage = styled.div`
   background-size: contain;
 `;
 
-const feedbackDuration = config.duration * (import.meta.env.VITE_MAGIC_NUM / 10);
+const feedbackDuration = config.duration * (Number(import.meta.env.VITE_MAGIC_NUM) / 10);
 const feedbackColors = {
   incorrect: 'red',
   correctCategory: 'yellow',
   correctSolution: 'green'
 };
-const getFeedbackColor = (correctCategory, correctSolution) => {
+
+const getFeedbackColor = (correctCategory: boolean, correctSolution: boolean): string => {
   if (correctSolution) { return feedbackColors.correctSolution; }
   if (correctCategory) { return feedbackColors.correctCategory; }
 
   return feedbackColors.incorrect;
 };
 
-function Tile({ loc, attemptsLeft, maxSelection, restoredAttempt, restoredBorderColor, onClick }) {
+function Tile({ loc, attemptsLeft, maxSelection, restoredAttempt, restoredBorderColor, onClick }: TileProps) {
   // tileState.clicked := clicked
   // tileState.img := clicked || flipped
-  const [tileState, setTileState] = useState({ clicked: false, img: '' });
+  const [tileState, setTileState] = useState<TileState>({ clicked: false, img: '' });
   const [imgReady, setImgReady] = useState(false);
   const [feedback, setFeedback] = useState(false);
 
-  const imageRef = useRef(null);
-  const reviewColor = useRef(null);
+  const imageRef = useRef<HTMLDivElement>(null);
+  const reviewColor = useRef<string | null>(null);
   const hasLoadedImgRef = useRef(false);
-  // const preloadedImgRef = useRef(null);
 
   const { correctCategory, correctSolution, buzzer } = useContext(PuzzleContext);
 
@@ -82,12 +97,13 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredAttempt, restoredBorder
     width: borderWidth
   }), [borderColor, borderWidth]);
 
-  const getTileImg = async (attempt, r, c,) => {
+  const getTileImg = async (attempt: number, r: number, c: number): Promise<string> => {
     let tileImgRes = { data: '' };
     try {
-      tileImgRes = await axios.get('/puzzle/tile', { params: { attempt, r, c }});
+      tileImgRes = await axios.get<string>('/puzzle/tile', { params: { attempt, r, c }});
     } catch (err) {
-      console.error('getTileImg() Error!', err.message);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.error('getTileImg() Error!', errorMessage);
     }
     return tileImgRes.data;
   };
@@ -98,16 +114,13 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredAttempt, restoredBorder
     if (!buzzer) { onClick((clicksLeft) => clicksLeft - 1); }
 
     // attempt [0 - 4]
-    let attempt;
+    let attempt: number;
     if (buzzer) {
       attempt = restoredAttempt !== undefined ? restoredAttempt : config.totalAttempts - 1;
     } else {
       attempt = config.totalAttempts - attemptsLeft;
     }
-    let { r, c } = loc;
-    // const tileImgPromise = preloadedImgRef.current
-    //   ? Promise.resolve(preloadedImgRef.current)
-    //   : getTileImg(attempt, r, c);
+    const { r, c } = loc;
 
     getTileImg(attempt, r, c).then((tileImgRes) => {
       if (!hasLoadedImgRef.current && tileImgRes) {
@@ -134,18 +147,6 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredAttempt, restoredBorder
     remixTile();
   }, [toggleTileClick, remixTile]);
 
-  // useEffect(() => {
-  //   if (!buzzer) { return; }
-
-  //   let attempt = config.totalAttempts - 1;
-  //   let { r, c } = loc;
-  //   getTileImg(attempt, r, c).then((tileImgRes) => {
-  //     if (tileImgRes) {
-  //       preloadedImgRef.current = tileImgRes;
-  //     }
-  //   });
-  // }, [buzzer, loc]);
-
   // initialize restored state
   useEffect(() => {
     if (!buzzer || !restoredBorderColor) { return; }
@@ -157,9 +158,9 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredAttempt, restoredBorder
   useEffect(() => {
     if (!buzzer) { return; }
 
-    let { r, c } = loc;
-    let time = ((r * config.board.cols) + c) * import.meta.env.VITE_MAGIC_NUM;
-    let timer = setTimeout(remixTile, time);
+    const { r, c } = loc;
+    const time = ((r * config.board.cols) + c) * Number(import.meta.env.VITE_MAGIC_NUM);
+    const timer = setTimeout(remixTile, time);
     return () => clearTimeout(timer);
   }, [buzzer, loc, remixTile]);
 
@@ -167,12 +168,12 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredAttempt, restoredBorder
     if (attemptsLeft === config.totalAttempts) { return; }
 
     setFeedback(true);
-    let timer = setTimeout(() => setFeedback(false), feedbackDuration);
+    const timer = setTimeout(() => setFeedback(false), feedbackDuration);
     return () => clearTimeout(timer);
   }, [attemptsLeft]);
 
   useEffect(() => {
-    let needsReviewColor = tileState.clicked && !reviewColor.current;
+    const needsReviewColor = tileState.clicked && !reviewColor.current;
     if ((feedback || buzzer) && needsReviewColor) {
       reviewColor.current = feedbackColor;
     }
@@ -182,13 +183,13 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredAttempt, restoredBorder
     <StyledTile onClick={handleClick} data-testid="tile">
       <Flip
         borderStyle={borderStyle}
-        isFlipped={imgReady && tileState.img}
+        isFlipped={imgReady && Boolean(tileState.img)}
       >
         <StyledTileImage ref={imageRef} $tileImg={tileState.img} data-testid="tile-img" />
       </Flip>
     </StyledTile>
   );
-};
+}
 
 // Tile.whyDidYouRender = true;
 export default memo(Tile);

@@ -8,7 +8,8 @@ node_modules/
 # client
 /client/.pnp
 /client/.pnp.js
-/client/coverage #testing
+/client/coverage
+/client/dist
 
 # server
 

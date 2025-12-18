@@ -1,5 +1,9 @@
 import styled from 'styled-components';
 
+interface AttemptsProps {
+  count: number;
+}
+
 const StyledAttempts = styled.div`
   ${({ theme }) => theme.recycle.flexCenter};
 
@@ -21,7 +25,7 @@ const StyledAttempts = styled.div`
   }
 `;
 
-export default function Attempts({ count }) {
+export default function Attempts({ count }: AttemptsProps) {
   return (
     <StyledAttempts>
       <div id="attempts">

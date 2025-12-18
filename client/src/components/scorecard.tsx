@@ -1,10 +1,18 @@
+import axios from 'axios';
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
-import scorecard from '../utils/scorecard';
-import config from '../utils/config';
 import Text from 'antd/es/typography/Text';
+
+import config from '../utils/config';
 import { PuzzleContext } from '../App';
+import scorecard from '../utils/scorecard';
+
+interface ScorecardProps {
+  title?: string;
+  card?: string[][];
+  score?: number;
+  img?: string;
+}
 
 const StyledScorecard = styled.div`
   display: flex;
@@ -48,7 +56,7 @@ const StyledCard = styled.dl`
   }
 `;
 
-const StyledImage = styled.div`
+const StyledImage = styled.div<{ $img: string; $rows: number; $cols: number }>`
   // see above <span /> size for calc (4x4)
   width: calc(20px * ${props => props.$rows});
   height: calc(20px * ${props => props.$cols});
@@ -64,30 +72,32 @@ export default function Scorecard({
   card: exampleCard,
   score: exampleScore,
   img: exampleImg
-}) {
+}: ScorecardProps) {
   const [img, setImg] = useState(exampleImg || '');
   const [solution, setSolution] = useState('');
   const { buzzer } = useContext(PuzzleContext);
 
   // TODO: conditionally require props (all or none)
-  const isExample = exampleTitle && exampleCard && exampleScore && exampleImg;
+  const isExample = Boolean(exampleTitle && exampleCard && exampleScore && exampleImg);
   const card = isExample ? exampleCard : scorecard.card;
 
-  const getImg = async () => {
+  const getImg = async (): Promise<void> => {
     try {
-      const imgRes = await axios.get('/puzzle/img');
+      const imgRes = await axios.get<string>('/puzzle/img');
       setImg(imgRes.data);
     } catch (err) {
-      console.error('getImg() Error!', err.message);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.error('getImg() Error!', errorMessage);
     }
   };
 
-  const getSolution = async () => {
+  const getSolution = async (): Promise<void> => {
     try {
-      const solutionRes = await axios.get('/puzzle/solution');
+      const solutionRes = await axios.get<string>('/puzzle/solution');
       setSolution(solutionRes.data);
     } catch (err) {
-      console.error('getSolution() Error!', err.message);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.error('getSolution() Error!', errorMessage);
     }
   };
 
@@ -111,7 +121,7 @@ export default function Scorecard({
       <div className="scorecard-eval">
         <StyledCard>
           {
-            card.map((row, i) => {
+            card?.map((row, i) => {
               return (
                 <div key={i}>
                   <dd aria-label={`row ${i} intel`} />

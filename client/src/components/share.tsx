@@ -1,5 +1,6 @@
 import { Button } from 'antd';
 import styled from 'styled-components';
+
 import config from '../utils/config';
 import scorecard from '../utils/scorecard';
 
@@ -11,9 +12,9 @@ const StyledShare = styled.div`
 export default function Share() {
   const isMobile = /iPhone/.test(navigator.userAgent);
 
-  const initShareData = () => {
-    let title = scorecard.title;
-    let text = scorecard.card.map((row) => row.join('')).join('\n');
+  const initShareData = (): ShareData => {
+    const title = scorecard.title;
+    const text = scorecard.card.map((row) => row.join('')).join('\n');
 
     if (isMobile) {
       // ignores title field
@@ -23,14 +24,15 @@ export default function Share() {
     return { title, text };
   };
 
-  const shareData = initShareData(isMobile);
+  const shareData = initShareData();
 
-  const handleShare = async () => {
+  const handleShare = async (): Promise<void> => {
     if (navigator.share) {
       try {
         await navigator.share(shareData);
       } catch (err) {
-        console.log('handleShare() error!', err.message);
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        console.log('handleShare() error!', errorMessage);
       }
     }
   };

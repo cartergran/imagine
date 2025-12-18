@@ -1,6 +1,12 @@
+import { ReactNode } from 'react';
 import styled from 'styled-components';
-
 import { X as CloseIcon } from 'lucide-react';
+
+interface ModalProps {
+  header: string;
+  children: ReactNode;
+  handleClose?: () => void;
+}
 
 const StyledModal = styled.dialog`
   width: 100%;
@@ -50,7 +56,7 @@ const StyledModal = styled.dialog`
   }
 `;
 
-export default function Modal({ header, children, handleClose }) {
+export default function Modal({ header, children, handleClose }: ModalProps) {
   return (
     <StyledModal>
       <div className="modal">

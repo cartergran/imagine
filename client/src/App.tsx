@@ -1,26 +1,46 @@
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { ThemeProvider } from 'styled-components';
-import theme from './styles/theme';
-import config from './utils/config';
-import GlobalStyle from './styles/globalStyle';
-import scorecard from './utils/scorecard';
 
-// TODO: index.js in ./components
-import Layout from './components/layout';
+// TODO: index.ts in ./components
 import Attempts from './components/attempts';
 import Board from './components/board';
+import Layout from './components/layout';
 import Solve from './components/solve';
 
-export const PuzzleContext = createContext();
-export const SolvableContext = createContext();
+import config from './utils/config';
+import GlobalStyle from './styles/globalStyle';
+import scorecard, { Log } from './utils/scorecard';
+import theme from './styles/theme';
 
-const getTilesMapFromLogs = (logs) => {
-  const tilesMap = new Map();
+export interface AppState {
+  attemptsLeft: number;
+  correctCategory: boolean;
+  correctSolution: boolean;
+  solvable: boolean;
+  guesses: string[];
+}
+
+export interface PuzzleContextValue {
+  correctCategory: boolean;
+  correctSolution: boolean;
+  buzzer: boolean;
+}
+
+export const PuzzleContext = createContext<PuzzleContextValue>({
+  correctCategory: false,
+  correctSolution: false,
+  buzzer: false
+});
+
+export const SolvableContext = createContext<boolean>(false);
+
+const getTilesMapFromLogs = (logs: Log[]): Map<string, { color: string; attempt: number }> => {
+  const tilesMap = new Map<string, { color: string; attempt: number }>();
   for (let i = 0; i < logs.length; i++) {
     const log = logs[i];
-    if (log.tileSelection?.length > 0) {
+    if (log && log.tileSelection?.length > 0) {
       const correctness = log.correctness;
-      let color;
+      let color: string;
       switch (correctness) {
         case 3:
           color = 'green';
@@ -31,6 +51,8 @@ const getTilesMapFromLogs = (logs) => {
         case 0:
           color = 'red';
           break;
+        default:
+          continue;
       }
       for (const { r, c } of log.tileSelection) {
         const key = `${r}:${c}`;
@@ -42,14 +64,14 @@ const getTilesMapFromLogs = (logs) => {
 };
 
 function App() {
-  const [state, setState] = useState({
+  const [state, setState] = useState<AppState>({
     attemptsLeft: config.totalAttempts,
     correctCategory: false,
     correctSolution: false,
     solvable: false,
     guesses: []
   });
-  const [clickedTiles, setClickedTiles] = useState(new Map());
+  const [clickedTiles, setClickedTiles] = useState<Map<string, { color: string; attempt: number }>>(new Map());
 
   useEffect(() => {
     const savedData = scorecard.load();
@@ -59,8 +81,8 @@ function App() {
 
       setState({
         attemptsLeft: 0,
-        correctCategory: savedData.correctSolution,
-        correctSolution: savedData.correctSolution,
+        correctCategory: savedData.correctSolution ?? false,
+        correctSolution: savedData.correctSolution ?? false,
         solvable: false,
         guesses: []
       });
@@ -68,13 +90,13 @@ function App() {
   }, []);
 
   const noMoreAttempts = state.attemptsLeft === 0;
-  const puzzleContext = useMemo(() => ({
+  const puzzleContext = useMemo<PuzzleContextValue>(() => ({
     correctCategory: state.correctCategory,
     correctSolution: state.correctSolution,
     buzzer: state.correctSolution || noMoreAttempts
   }), [state.correctCategory, state.correctSolution, noMoreAttempts]);
 
-  const handleSelection = useCallback((selectionsLeft) => {
+  const handleSelection = useCallback((selectionsLeft: number) => {
     if (selectionsLeft === 0) {
       setState((prevState) => ({
         ...prevState,
@@ -83,9 +105,9 @@ function App() {
     }
   }, []);
 
-  const handleSubmit = useCallback((updateFn) => (
-    setState(updateFn)
-  ), []);
+  const handleSubmit = useCallback((updateFn: (prevState: AppState) => AppState) => {
+    setState(updateFn);
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>

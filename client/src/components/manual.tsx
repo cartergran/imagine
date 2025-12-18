@@ -1,7 +1,8 @@
 import styled from 'styled-components';
-import { manualConfig } from '../utils/config';
 
 import Scorecard from './scorecard';
+
+import { manualConfig } from '../utils/config';
 
 const StyledManual = styled.div`
   display: flex;

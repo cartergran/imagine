@@ -1,44 +1,113 @@
 import axios from 'axios';
 
+export interface BoardConfig {
+  rows: number;
+  cols: number;
+}
+
+export interface ActionsConfig {
+  submit: string;
+  share: string;
+}
+
+export interface MessagesConfig {
+  correct: string;
+  incorrect: string;
+}
+
+export interface ToolsConfig {
+  summary: string;
+  manual: string;
+  default: string;
+}
+
+export interface ManualScoringCounts {
+  '🟥': string;
+  '🟨': string;
+  '🟩': string;
+  '⬛': string;
+}
+
+export interface ManualExample {
+  subheader: string;
+  overview: string;
+  card: string[][];
+  score: number;
+  img: string;
+}
+
+export interface ManualDescription {
+  summary: string;
+  details: string[];
+}
+
+export interface ManualScoring {
+  subheader: string;
+  counts: ManualScoringCounts;
+}
+
+export interface ManualConfig {
+  header: string;
+  description: ManualDescription;
+  scoring: ManualScoring;
+  example: ManualExample;
+}
+
+export interface Config {
+  title: string;
+  context: string;
+  totalAttempts: number;
+  selectionsPerAttempt: number;
+  duration: number;
+  board: BoardConfig;
+  actions: ActionsConfig;
+  msgs: MessagesConfig;
+  tools: ToolsConfig;
+}
+
 const title = 'imagine';
 let puzzleNum = '';
-const getPuzzleNum = async () => {
+
+const getPuzzleNum = async (): Promise<void> => {
   try {
-    const puzzleNumRes = await axios.get('/puzzle/number');
+    const puzzleNumRes = await axios.get<string>('/puzzle/number');
     puzzleNum = puzzleNumRes.data;
   } catch (err) {
-    console.error('getPuzzleNum() Error!', err.message);
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    console.error('getPuzzleNum() Error!', errorMessage);
   }
 };
+
 getPuzzleNum();
-const getContext = () => `${title} #${puzzleNum || ''}`;
+
+const getContext = (): string => `${title} #${puzzleNum || ''}`;
 
 const totalAttempts = 5;
 const selectionsPerAttempt = 3;
 const duration = 805;
 
-const board = {
+const board: BoardConfig = {
   rows: 8,
   cols: 8
 };
 
-const actions = {
+const actions: ActionsConfig = {
   submit: 'Submit',
   share: 'Share'
 };
 
-const msgs = {
+const msgs: MessagesConfig = {
   correct: 'Ball IQ.',
   incorrect: 'Tuff.'
 };
 
-const tools = {
+const tools: ToolsConfig = {
   summary: 'summary',
   manual: 'manual',
   default: ''
 };
 
-export const manualConfig = {
+export const manualConfig: ManualConfig = {
   header: 'How To Play',
   description: {
     summary: `Imagine the image in ${totalAttempts} attempts.`,
@@ -75,11 +144,11 @@ export const manualConfig = {
       ['⬛','⬛','⬛','⬛','⬛','⬛','⬛', '⬛']
     ],
     score: 265,
-    img: import.meta.env.VITE_EXAMPLE_IMG
+    img: import.meta.env.VITE_EXAMPLE_IMG as string
   }
 };
 
-const config = {
+const config: Config = {
   title,
   // called as config.context but dynamically computes value
   get context() { return getContext(); },

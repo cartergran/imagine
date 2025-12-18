@@ -1,6 +1,11 @@
+import { ReactNode } from 'react';
 import styled from 'styled-components';
 
 import Toolbar from './toolbar';
+
+interface LayoutProps {
+  children: ReactNode;
+}
 
 const StyledLayout = styled.div`
   width: 100%;
@@ -11,7 +16,7 @@ const StyledLayout = styled.div`
   flex-direction: column;
 `;
 
-export default function Layout({ children }) {
+export default function Layout({ children }: LayoutProps) {
   return (
     <StyledLayout>
       <main>

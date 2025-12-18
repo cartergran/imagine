@@ -1,7 +1,16 @@
 import { Radio } from 'antd';
+import { RadioChangeEvent } from 'antd/es/radio';
 import styled from 'styled-components';
 
 import config from '../utils/config';
+
+interface OptionsProps {
+  guesses: string[];
+  options: string[];
+  value: string;
+  onChange: (e: RadioChangeEvent) => void;
+  disabled: boolean;
+}
 
 const StyledOptions = styled.div`
   margin-bottom: var(--space-m);
@@ -63,7 +72,7 @@ export default function Options({
   value,
   onChange,
   disabled
-}) {
+}: OptionsProps) {
   return (
     <StyledOptions>
       <Radio.Group

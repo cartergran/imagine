@@ -1,8 +1,6 @@
 import { Input } from 'antd';
 import styled from 'styled-components';
 
-import config from '../utils/config';
-
 const StyledGuess = styled(Input)`
   width: 244px;
 
@@ -13,10 +11,6 @@ const StyledGuess = styled(Input)`
   font-size: 11px;
   margin-bottom: var(--space-m);
   padding: var(--space-s);
-
-  // transition:
-  //   border-color ${config.duration}ms,
-  //   color ${config.duration}ms;
 
   &::placeholder {
     color: var(--disabled);
@@ -37,7 +31,15 @@ const StyledGuess = styled(Input)`
 
 const defaultPlaceholder = 'Your guess...';
 
-export default function Guess({ disabled, placeholder, value, onChange, onPressEnter }) {
+interface GuessProps {
+  disabled: boolean;
+  placeholder?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onPressEnter: () => void;
+}
+
+export default function Guess({ disabled, placeholder, value, onChange, onPressEnter }: GuessProps) {
   return (
     <StyledGuess
       disabled={disabled}
