@@ -9,9 +9,12 @@ node_modules/
 /client/.pnp
 /client/.pnp.js
 /client/coverage
-/client/dist
+# vite build output
+/client/dist 
 
 # server
+# compiled js output
+/server/dist
 
 # misc
 .DS_Store
