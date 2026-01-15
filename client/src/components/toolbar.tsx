@@ -53,7 +53,7 @@ export default function Toolbar() {
   // summary updates once @ end --> buzzer = true, correctSolution = true || false
   const summary = {
     toggle: buzzer,
-    header: correctSolution ? config.messages.correct : config.messages.incorrect
+    header: correctSolution ? config.labels.correct : config.labels.incorrect
   };
 
   // useCallback for useEffect dep

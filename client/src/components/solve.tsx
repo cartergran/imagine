@@ -168,7 +168,7 @@ export default function Solve({ guesses, onSubmit }: SolveProps) {
               onClick={handleSubmit}
               disabled={toggleSubmit}
             >
-              { config.actions.submit }
+              { config.labels.submit }
             </Button>
           </StyledWrapper>
         </CSSTransition>

@@ -40,7 +40,7 @@ export default function Share() {
   return (
     <StyledShare>
       <Button type="primary" onClick={handleShare}>
-        { config.actions.share }
+        { config.labels.share }
       </Button>
     </StyledShare>
   );

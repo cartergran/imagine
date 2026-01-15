@@ -25,7 +25,7 @@ const StyledScorecard = styled.div`
   }
 `;
 
-const ScorecardText = styled(Text)`
+const ScorecardLabel = styled(Text)`
   display: inline-flex;
 
   color: white;
@@ -115,9 +115,9 @@ export default function Scorecard({
 
   return (
     <StyledScorecard>
-      <ScorecardText copyable={!isExample}>
+      <ScorecardLabel copyable={!isExample}>
         {isExample ? exampleTitle : scorecard.title}
-      </ScorecardText>
+      </ScorecardLabel>
       <div className="scorecard-eval">
         <StyledCard>
           {
@@ -137,7 +137,7 @@ export default function Scorecard({
       </div>
       {
         buzzer && solution && (
-          <ScorecardText>Solution: {solution}</ScorecardText>
+          <ScorecardLabel>{config.labels.solution}: {solution}</ScorecardLabel>
         )
       }
     </StyledScorecard>

@@ -5,14 +5,13 @@ type BoardConfig = {
   cols: number;
 };
 
-type ActionsConfig = {
-  share: string;
-  submit: string;
-};
-
-type MessagesConfig = {
+type LabelsConfig = {
+  attemptsLeft: string;
   correct: string;
   incorrect: string;
+  share: string;
+  solution: string;
+  submit: string;
 };
 
 type ToolsConfig = {
@@ -60,8 +59,7 @@ interface Config {
   selectionsPerAttempt: number;
   duration: number;
   board: BoardConfig;
-  actions: ActionsConfig;
-  messages: MessagesConfig;
+  labels: LabelsConfig;
   tools: ToolsConfig;
 }
 
@@ -91,20 +89,19 @@ const board: BoardConfig = {
   cols: 8
 };
 
-const actions: ActionsConfig = {
-  share: 'Share',
-  submit: 'Submit'
-};
-
-const messages: MessagesConfig = {
-  correct: 'Ball IQ.',
-  incorrect: 'Tuff.'
-};
-
 const tools: ToolsConfig = {
   default: '',
   manual: 'manual',
   summary: 'summary'
+};
+
+const labels: LabelsConfig = {
+  attemptsLeft: 'Blunders Left:',
+  share: 'Share',
+  solution: 'Solution',
+  submit: 'Submit',
+  correct: 'Ball IQ',
+  incorrect: 'Tough'
 };
 
 export const manualConfig: ManualConfig = {
@@ -156,8 +153,7 @@ const config: Config = {
   selectionsPerAttempt,
   duration,
   board,
-  actions,
-  messages,
+  labels,
   tools
 };
 
