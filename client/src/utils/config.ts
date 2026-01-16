@@ -110,12 +110,13 @@ export const manualConfig: ManualConfig = {
     summary: `Imagine the image in ${totalAttempts} attempts.`,
     details: [
       `The ${board.rows} x ${board.cols} tile grid depicts a single image.`,
-      `Before each attempt select ${selectionsPerAttempt} tiles to reveal a portion of the image.`,
-      `First, imagine the general category of the image. Once correct, choose from specific options
-      within that category.`,
+      `Select ${selectionsPerAttempt} tiles per attempt to reveal a portion of the image.`,
+      `First, guess the general category of the image.`,
+      `Once correct, enter your specific guess within that category to guess the solution.`,
+      `A hint is provided after selecting the correct category.`,
       `The image starts heavily pixelated and becomes clearer after each attempt.`,
-      `Tiles on the scorecard change color based on your selections and results, which determine
-      your final score.`
+      `Tiles on the scorecard change color based on your selections, which determine your final
+      score.`
     ]
   },
   scoring: {

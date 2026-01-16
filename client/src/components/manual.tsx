@@ -9,7 +9,7 @@ const StyledManual = styled.div`
   flex-direction: column;
   gap: var(--space-s);
 
-  font-size: 14px;
+  font-size: 12px;
   text-align: left;
 
   .manual-subheader {
@@ -21,10 +21,6 @@ const StyledManual = styled.div`
     ul {
       padding-left: var(--space-m);
     }
-  }
-
-  .manual-scoring {
-    font-size: 12px;
   }
 `;
 
