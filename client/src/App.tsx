@@ -101,11 +101,16 @@ function App() {
                 maxSelection={state.solvable}
                 onSelection={handleSelection}
               />
-              <Attempts count={state.attemptsLeft} />
-              <Solve
-                guesses={state.guesses}
-                onSubmit={handleSubmit}
-              />
+              {
+                !puzzleContext.buzzer &&
+                  <>
+                    <Attempts count={state.attemptsLeft} />
+                    <Solve
+                      guesses={state.guesses}
+                      onSubmit={handleSubmit}
+                    />
+                  </>
+              }
           </Layout>
         </SolvableContext.Provider>
       </PuzzleContext.Provider>
