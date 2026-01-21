@@ -3,14 +3,19 @@
 # universal
 .DS_Store
 .env
+.npm-cache/
 node_modules/
 
 # client
 /client/.pnp
 /client/.pnp.js
-/client/coverage #testing
+/client/coverage
+# vite build output
+/client/dist 
 
 # server
+# compiled js output
+/server/dist
 
 # misc
 .DS_Store
