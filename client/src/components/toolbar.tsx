@@ -38,14 +38,14 @@ const { tools } = config;
 const renderTools: Record<string, ReactElement> = {
   [tools.summary]: <Summary />,
   [tools.manual]: <Manual />,
-  [tools.default]: <></>
+  [tools.closed]: <></>
 };
 
 export default function Toolbar() {
-  const [activeTool, setActiveTool] = useState<string>();
+  const [activeTool, setActiveTool] = useState<string>(tools.closed);
   const [modalProps, setModalProps] = useState<ModalState>({
-    header: manualConfig.header,
-    handleClose: () => setActiveTool(tools.default)
+    header: '',
+    handleClose: () => { /* no-op */ }
   });
 
   const { correctSolution, buzzer } = useContext(PuzzleContext);
@@ -60,7 +60,7 @@ export default function Toolbar() {
   const handleSummaryClick = useCallback(() => {
     setModalProps({
       header: summary.header,
-      handleClose: () => setActiveTool(tools.default)
+      handleClose: () => setActiveTool(tools.closed)
     });
     setActiveTool(tools.summary);
   }, [summary.header]);
@@ -68,7 +68,7 @@ export default function Toolbar() {
   const handleManualClick = () => {
     setModalProps({
       header: manualConfig.header,
-      handleClose: () => setActiveTool(tools.default)
+      handleClose: () => setActiveTool(tools.closed)
     });
     setActiveTool(tools.manual);
   };

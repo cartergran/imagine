@@ -16,7 +16,7 @@ type LabelsConfig = {
 };
 
 type ToolsConfig = {
-  default: string;
+  closed: string;
   manual: string;
   summary: string;
 };
@@ -91,7 +91,7 @@ const board: BoardConfig = {
 };
 
 const tools: ToolsConfig = {
-  default: '',
+  closed: '',
   manual: 'manual',
   summary: 'summary'
 };
