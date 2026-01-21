@@ -5,7 +5,7 @@ import { X as CloseIcon } from 'lucide-react';
 export interface ModalProps {
   header: string;
   children: ReactNode;
-  handleClose?: () => void; // TODO: not optional
+  handleClose: () => void;
 }
 
 const StyledModal = styled.dialog`
