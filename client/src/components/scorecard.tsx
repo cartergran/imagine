@@ -74,12 +74,14 @@ export default function Scorecard({
   img: exampleImg
 }: ScorecardProps) {
   const [img, setImg] = useState(exampleImg || '');
+  const [category, setCategory] = useState('');
   const [solution, setSolution] = useState('');
   const { buzzer } = useContext(PuzzleContext);
 
   // TODO: conditionally require props (all or none)
   const isExample = Boolean(exampleTitle && exampleCard && exampleScore && exampleImg);
   const card = isExample ? exampleCard : scorecard.card;
+  const showResults = buzzer && category && solution;
 
   const getImg = async (): Promise<void> => {
     try {
@@ -91,13 +93,17 @@ export default function Scorecard({
     }
   };
 
-  const getSolution = async (): Promise<void> => {
+  const getCategoryAndSolution = async (): Promise<void> => {
     try {
-      const solutionRes = await axios.get<string>('/puzzle/solution');
+      const [categoryRes, solutionRes] = await Promise.all([
+        axios.get<string>('/puzzle/category'),
+        axios.get<string>('/puzzle/solution')
+      ]);
+      setCategory(categoryRes.data);
       setSolution(solutionRes.data);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      console.error('getSolution() Error!', errorMessage);
+      console.error('getCategoryAndSolution() Error!', errorMessage);
     }
   };
 
@@ -109,7 +115,7 @@ export default function Scorecard({
 
   useEffect(() => {
     if (buzzer && !isExample) {
-      getSolution();
+      getCategoryAndSolution();
     }
   }, [buzzer, isExample]);
 
@@ -136,9 +142,11 @@ export default function Scorecard({
         <StyledImage $img={img} $rows={config.board.rows} $cols={config.board.cols} />
       </div>
       {
-        buzzer && solution && (
-          <ScorecardLabel>{config.labels.solution}: {solution}</ScorecardLabel>
-        )
+        showResults &&
+          <>
+            <ScorecardLabel>{config.labels.category}: {category}</ScorecardLabel>
+            <ScorecardLabel>{config.labels.solution}: {solution}</ScorecardLabel>
+          </>
       }
     </StyledScorecard>
   );

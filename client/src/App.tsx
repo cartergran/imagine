@@ -105,10 +105,7 @@ function App() {
                 !puzzleContext.buzzer &&
                   <>
                     <Attempts count={state.attemptsLeft} />
-                    <Solve
-                      guesses={state.guesses}
-                      onSubmit={handleSubmit}
-                    />
+                    <Solve guesses={state.guesses} onSubmit={handleSubmit} />
                   </>
               }
           </Layout>

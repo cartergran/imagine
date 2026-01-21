@@ -7,6 +7,7 @@ type BoardConfig = {
 
 type LabelsConfig = {
   attemptsLeft: string;
+  category: string;
   correct: string;
   incorrect: string;
   share: string;
@@ -97,6 +98,7 @@ const tools: ToolsConfig = {
 
 const labels: LabelsConfig = {
   attemptsLeft: 'Blunders Left:',
+  category: 'Category',
   share: 'Share',
   solution: 'Solution',
   submit: 'Submit',

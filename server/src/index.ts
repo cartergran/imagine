@@ -270,6 +270,14 @@ puzzleRouter.get('/categories', (_req: Request, res: Response<string[]>): void =
 );
 
 /**
+  - GET /puzzle/category
+  - returns the correct category for the current puzzle
+*/
+puzzleRouter.get('/category', (_req: Request, res: Response<string>): void => {
+  res.send(intel.category);
+});
+
+/**
   - GET /puzzle/subcategory
   - returns the subcategory for the current puzzle
 */
