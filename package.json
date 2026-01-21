@@ -5,9 +5,32 @@
   "private": true,
   "author": "Carter Gran",
   "scripts": {
-    "install": "npm install --prefix client && npm install --prefix server",
-    "build": "npm run build --prefix client && npm run build --prefix server",
-    "start": "node server/dist/index.js"
+    "clean": "rimraf client/dist server/dist",
+    "clean:deps": "rimraf node_modules client/node_modules server/node_modules",
+
+    "wait:server": "wait-on tcp:127.0.0.1:3001 -t 60000",
+
+    "client:start": "npm start --prefix client",
+    "client:build": "npm run build --prefix client",
+    "client:typecheck": "npm run typecheck --prefix client",
+    "client:start:ready": "npm run wait:server && npm run client:start",
+
+    "server:dev": "npm run dev --prefix server",
+    "server:start": "npm start --prefix server",
+    "server:build": "npm run build --prefix server",
+    "server:typecheck": "npm run typecheck --prefix server",
+
+    "predev": "npm run server:build",
+    "dev": "concurrently -k -n server,client -c blue,magentaBright \"npm run server:start\" \"npm run client:start:ready\"",
+    "dev:watch": "concurrently -k -n server,client -c blue,magentaBright \"npm run server:dev\" \"npm run client:start:ready\"",
+
+    "build": "npm run client:build && npm run server:build",
+    "heroku-postbuild": "npm ci --prefix client && npm ci --prefix server && npm run build",
+    "start": "npm run server:start",
+    "typecheck": "npm run client:typecheck && npm run server:typecheck",
+
+    "bootstrap": "npm install && npm install --prefix client && npm install --prefix server",
+    "ci": "npm ci && npm ci --prefix client && npm ci --prefix server"
   },
   "repository": {
     "type": "git",
@@ -16,5 +39,10 @@
   "engines": {
     "node": "22.14.0",
     "npm": "10.9.2"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "rimraf": "^6.0.1",
+    "wait-on": "^8.0.5"
   }
 }

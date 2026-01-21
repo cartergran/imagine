@@ -3,6 +3,7 @@
 # universal
 .DS_Store
 .env
+.npm-cache/
 node_modules/
 
 # client
