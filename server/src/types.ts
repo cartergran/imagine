@@ -107,3 +107,117 @@ export interface Config {
   herokuApiToken: string;
   herokuAppName: string;
 }
+
+
+
+// leaderboard types
+
+/**
+  - tile selection coordinates for a single tile
+*/
+export interface TileSelection {
+  r: number;
+  c: number;
+}
+
+/**
+  - game log entry for a single attempt
+  - correctness: 0 = incorrect, 1 = correct category, 3 = correct solution, null = not yet evaluated
+*/
+export interface GameLog {
+  tileSelection: TileSelection[];
+  correctness: number | null;
+}
+
+/**
+  - individual score entry on the daily leaderboard
+*/
+export interface DailyScore {
+  initials: string;
+  score: number;
+  fingerprint: string;
+  timestamp: string;
+}
+
+/**
+  - metadata for the scores file
+*/
+export interface ScoresMetadata {
+  totalSubmissions: number;
+  lastUpdated: string;
+}
+
+/**
+  - complete scores file structure stored in GCS
+*/
+export interface ScoresFile {
+  puzzleNum: string;
+  date: string;
+  scores: DailyScore[];
+  metadata: ScoresMetadata;
+}
+
+/**
+  - request body for submitting a score
+*/
+export interface SubmitScoreRequest {
+  initials: string;
+  logs: GameLog[];
+  fingerprint: string;
+}
+
+/**
+  - successful response after submitting a score
+*/
+export interface SubmitScoreResponse {
+  success: true;
+  score: number;
+  rank: number;
+  totalPlayers: number;
+}
+
+/**
+  - error codes for score submission failures
+*/
+export type SubmitScoreErrorCode =
+  | 'ALREADY_SUBMITTED'
+  | 'INVALID_INITIALS'
+  | 'INVALID_LOG'
+  | 'RATE_LIMITED';
+
+/**
+  - error response for score submission
+*/
+export interface SubmitScoreError {
+  success: false;
+  error: SubmitScoreErrorCode;
+  message: string;
+}
+
+/**
+  - single entry in the leaderboard response
+*/
+export interface LeaderboardEntry {
+  rank: number;
+  initials: string;
+  score: number;
+  timestamp: string;
+}
+
+/**
+  - response for fetching the daily leaderboard
+*/
+export interface LeaderboardResponse {
+  puzzleNum: string;
+  date: string;
+  entries: LeaderboardEntry[];
+  totalPlayers: number;
+}
+
+/**
+  - query parameters for leaderboard endpoint
+*/
+export interface LeaderboardQuery {
+  puzzleNum?: string;
+  limit?: string;
+}
