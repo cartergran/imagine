@@ -16,6 +16,7 @@ import {
   validateLogs,
 } from './scores.js';
 import { config, getGCSCredentials, validateConfig } from './config.js';
+import { dailyRateLimiter, submitRateLimiter } from './rate-limit.js';
 import { isBlockedInitials } from './blocklist.js';
 import { updatePuzzleAndRestart } from './scheduler.js';
 
@@ -408,6 +409,7 @@ const LEADERBOARD_MAX_LIMIT = 100;
 */
 leaderboardRouter.post(
   '/submit',
+  submitRateLimiter,
   async (
     req: Request<object, SubmitScoreResponse | SubmitScoreError, SubmitScoreRequest>,
     res: Response<SubmitScoreResponse | SubmitScoreError>
@@ -522,6 +524,7 @@ leaderboardRouter.post(
 */
 leaderboardRouter.get(
   '/daily',
+  dailyRateLimiter,
   async (
     req: Request<object, LeaderboardResponse, object, LeaderboardQuery>,
     res: Response<LeaderboardResponse>
