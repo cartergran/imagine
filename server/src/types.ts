@@ -113,6 +113,44 @@ export interface Config {
 // leaderboard types
 
 /**
+  - individual score entry on the daily leaderboard
+*/
+export interface DailyScore {
+  initials: string;
+  score: number;
+  fingerprint: string;
+  timestamp: string;
+}
+
+/**
+  - single entry in the leaderboard response
+*/
+export interface LeaderboardEntry {
+  rank: number;
+  initials: string;
+  score: number;
+  timestamp: string;
+}
+
+/**
+  - response for fetching the daily leaderboard
+*/
+export interface LeaderboardResponse {
+  puzzleNum: string;
+  date: string;
+  entries: LeaderboardEntry[];
+  totalPlayers: number;
+}
+
+/**
+  - query parameters for leaderboard endpoint
+*/
+export interface LeaderboardQuery {
+  puzzleNum?: string;
+  limit?: string;
+}
+
+/**
   - tile selection coordinates for a single tile
 */
 export interface TileSelection {
@@ -127,16 +165,6 @@ export interface TileSelection {
 export interface GameLog {
   tileSelection: TileSelection[];
   correctness: number | null;
-}
-
-/**
-  - individual score entry on the daily leaderboard
-*/
-export interface DailyScore {
-  initials: string;
-  score: number;
-  fingerprint: string;
-  timestamp: string;
 }
 
 /**
@@ -192,32 +220,4 @@ export interface SubmitScoreError {
   success: false;
   error: SubmitScoreErrorCode;
   message: string;
-}
-
-/**
-  - single entry in the leaderboard response
-*/
-export interface LeaderboardEntry {
-  rank: number;
-  initials: string;
-  score: number;
-  timestamp: string;
-}
-
-/**
-  - response for fetching the daily leaderboard
-*/
-export interface LeaderboardResponse {
-  puzzleNum: string;
-  date: string;
-  entries: LeaderboardEntry[];
-  totalPlayers: number;
-}
-
-/**
-  - query parameters for leaderboard endpoint
-*/
-export interface LeaderboardQuery {
-  puzzleNum?: string;
-  limit?: string;
 }

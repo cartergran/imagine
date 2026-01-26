@@ -1,12 +1,11 @@
-import express, { type Request, type Response, type NextFunction } from 'express';
 import cors from 'cors';
+import express, { type Request, type Response, type NextFunction } from 'express';
+import { fileURLToPath } from 'url';
 import Jimp from 'jimp';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { Storage } from '@google-cloud/storage';
 import { scheduleJob } from 'node-schedule';
-import { config, getGCSCredentials, validateConfig } from './config.js';
-import { updatePuzzleAndRestart } from './scheduler.js';
+
 import {
   addScore,
   calculateScoreFromLogs,
@@ -16,21 +15,24 @@ import {
   normalizeInitials,
   validateLogs,
 } from './scores.js';
+import { config, getGCSCredentials, validateConfig } from './config.js';
+import { updatePuzzleAndRestart } from './scheduler.js';
+
 import type {
-  Intel,
-  ImgData,
   BoardConfig,
-  Tiles,
-  TileQuery,
   CheckQuery,
-  TileLocation,
-  SubmitScoreRequest,
-  SubmitScoreResponse,
-  SubmitScoreError,
+  DailyScore,
+  ImgData,
+  Intel,
+  LeaderboardEntry,
   LeaderboardQuery,
   LeaderboardResponse,
-  LeaderboardEntry,
-  DailyScore,
+  SubmitScoreError,
+  SubmitScoreRequest,
+  SubmitScoreResponse,
+  TileLocation,
+  TileQuery,
+  Tiles,
 } from './types.js';
 
 // validate config at startup
