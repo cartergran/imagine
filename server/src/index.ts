@@ -7,6 +7,15 @@ import { Storage } from '@google-cloud/storage';
 import { scheduleJob } from 'node-schedule';
 import { config, getGCSCredentials, validateConfig } from './config.js';
 import { updatePuzzleAndRestart } from './scheduler.js';
+import {
+  addScore,
+  calculateScoreFromLogs,
+  getScoresFile,
+  hashFingerprint,
+  isValidInitials,
+  normalizeInitials,
+  validateLogs,
+} from './scores.js';
 import type {
   Intel,
   ImgData,
@@ -15,6 +24,13 @@ import type {
   TileQuery,
   CheckQuery,
   TileLocation,
+  SubmitScoreRequest,
+  SubmitScoreResponse,
+  SubmitScoreError,
+  LeaderboardQuery,
+  LeaderboardResponse,
+  LeaderboardEntry,
+  DailyScore,
 } from './types.js';
 
 // validate config at startup
@@ -246,7 +262,12 @@ app.use((req: Request, res: Response, next: NextFunction): void => {
 /**
   - middleware: CORS configuration
 */
-app.use(cors({origin: config.accessURL, methods: ['GET']}));
+app.use(cors({ origin: config.accessURL, methods: ['GET', 'POST'] }));
+
+/**
+  - middleware: parse JSON request bodies
+*/
+app.use(express.json());
 
 /**
   - middleware: serve static files from Vite build
@@ -363,6 +384,184 @@ checkRouter.get(
 );
 
 app.use('/check', checkRouter);
+
+
+
+/**
+  - leaderboard router: handles daily leaderboard endpoints
+*/
+const leaderboardRouter = express.Router();
+
+/**
+  - leaderboard constants
+*/
+const LEADERBOARD_DEFAULT_LIMIT = 25;
+const LEADERBOARD_MAX_LIMIT = 100;
+
+/**
+  - POST /leaderboard/submit
+  - submits a score to the daily leaderboard
+  - body: { initials, logs, fingerprint }
+*/
+leaderboardRouter.post(
+  '/submit',
+  async (
+    req: Request<object, SubmitScoreResponse | SubmitScoreError, SubmitScoreRequest>,
+    res: Response<SubmitScoreResponse | SubmitScoreError>
+  ): Promise<void> => {
+    try {
+      const { initials, logs, fingerprint } = req.body;
+
+      // validate initials format
+      if (!initials || !isValidInitials(initials)) {
+        res.status(400).json({
+          success: false,
+          error: 'INVALID_INITIALS',
+          message: 'Initials must be 2-4 alphanumeric characters',
+        });
+        return;
+      }
+
+      // validate logs structure
+      if (!logs || !validateLogs(logs)) {
+        res.status(400).json({
+          success: false,
+          error: 'INVALID_LOG',
+          message: 'Invalid game log structure',
+        });
+        return;
+      }
+
+      // validate fingerprint
+      if (!fingerprint || typeof fingerprint !== 'string' || fingerprint.length === 0) {
+        res.status(400).json({
+          success: false,
+          error: 'INVALID_LOG',
+          message: 'Missing or invalid fingerprint',
+        });
+        return;
+      }
+
+      // calculate score server-side (don't trust client)
+      const score = calculateScoreFromLogs(logs);
+
+      // hash the fingerprint for storage
+      const hashedFingerprint = hashFingerprint(fingerprint);
+
+      // create the score entry
+      const scoreEntry: DailyScore = {
+        initials: normalizeInitials(initials),
+        score,
+        fingerprint: hashedFingerprint,
+        timestamp: new Date().toISOString(),
+      };
+
+      // add score to leaderboard
+      const result = await addScore(
+        storage,
+        config.bucketName,
+        config.puzzleNum,
+        scoreEntry
+      );
+
+      if (!result.success) {
+        if (result.error === 'ALREADY_SUBMITTED') {
+          res.status(400).json({
+            success: false,
+            error: 'ALREADY_SUBMITTED',
+            message: 'You have already submitted a score today',
+          });
+          return;
+        }
+
+        // CONFLICT or SAVE_FAILED - return 500
+        res.status(500).json({
+          success: false,
+          error: 'INVALID_LOG',
+          message: 'Failed to save score. Please try again.',
+        });
+        return;
+      }
+
+      // success
+      res.status(201).json({
+        success: true,
+        score,
+        rank: result.rank,
+        totalPlayers: result.totalPlayers,
+      });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.error('POST /leaderboard/submit error!', errorMessage);
+      res.status(500).json({
+        success: false,
+        error: 'INVALID_LOG',
+        message: 'Internal server error',
+      });
+    }
+  }
+);
+
+/**
+  - GET /leaderboard/daily
+  - returns the daily leaderboard
+  - query params: puzzleNum (optional), limit (optional, default 25, max 100)
+*/
+leaderboardRouter.get(
+  '/daily',
+  async (
+    req: Request<object, LeaderboardResponse, object, LeaderboardQuery>,
+    res: Response<LeaderboardResponse>
+  ): Promise<void> => {
+    try {
+      // use current puzzle if not specified
+      const puzzleNum = req.query.puzzleNum || config.puzzleNum;
+
+      // parse and clamp limit
+      let limit = LEADERBOARD_DEFAULT_LIMIT;
+      if (req.query.limit) {
+        const parsedLimit = parseInt(req.query.limit, 10);
+        if (!isNaN(parsedLimit) && parsedLimit > 0) {
+          limit = Math.min(parsedLimit, LEADERBOARD_MAX_LIMIT);
+        }
+      }
+
+      // fetch scores from GCS
+      const { data } = await getScoresFile(storage, config.bucketName, puzzleNum);
+
+      // scores are already sorted by score descending in addScore()
+      // slice to limit and add ranks
+      const entries: LeaderboardEntry[] = data.scores
+        .slice(0, limit)
+        .map((score, index) => ({
+          rank: index + 1,
+          initials: score.initials,
+          score: score.score,
+          timestamp: score.timestamp,
+        }));
+
+      res.json({
+        puzzleNum: data.puzzleNum,
+        date: data.date,
+        entries,
+        totalPlayers: data.scores.length,
+      });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.error('GET /leaderboard/daily error!', errorMessage);
+
+      // return empty leaderboard on error
+      res.json({
+        puzzleNum: config.puzzleNum,
+        date: new Date().toISOString().split('T')[0] ?? '',
+        entries: [],
+        totalPlayers: 0,
+      });
+    }
+  }
+);
+
+app.use('/leaderboard', leaderboardRouter);
 
 
 
