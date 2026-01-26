@@ -16,6 +16,7 @@ import {
   validateLogs,
 } from './scores.js';
 import { config, getGCSCredentials, validateConfig } from './config.js';
+import { isBlockedInitials } from './blocklist.js';
 import { updatePuzzleAndRestart } from './scheduler.js';
 
 import type {
@@ -420,6 +421,16 @@ leaderboardRouter.post(
           success: false,
           error: 'INVALID_INITIALS',
           message: 'Initials must be 2-4 alphanumeric characters',
+        });
+        return;
+      }
+
+      // check initials against blocklist
+      if (isBlockedInitials(initials)) {
+        res.status(400).json({
+          success: false,
+          error: 'INVALID_INITIALS',
+          message: 'Please choose different initials',
         });
         return;
       }
