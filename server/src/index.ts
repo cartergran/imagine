@@ -15,6 +15,7 @@ import {
   normalizeInitials,
   validateLogs,
 } from './scores.js';
+import * as cache from './cache.js';
 import { config, getGCSCredentials, validateConfig } from './config.js';
 import { dailyRateLimiter, submitRateLimiter } from './rate-limit.js';
 import { isBlockedInitials } from './blocklist.js';
@@ -501,6 +502,9 @@ leaderboardRouter.post(
         return;
       }
 
+      // invalidate leaderboard cache on successful submission
+      cache.invalidate(cache.leaderboardKey(config.puzzleNum));
+
       // success
       res.status(201).json({
         success: true,
@@ -545,25 +549,37 @@ leaderboardRouter.get(
         }
       }
 
-      // fetch scores from GCS
-      const { data } = await getScoresFile(storage, config.bucketName, puzzleNum);
+      // check cache first
+      const cacheKey = cache.leaderboardKey(puzzleNum);
+      let data = cache.get(cacheKey);
 
-      // scores are already sorted by score descending in addScore()
-      // slice to limit and add ranks
-      const entries: LeaderboardEntry[] = data.scores
-        .slice(0, limit)
-        .map((score, index) => ({
+      if (!data) {
+        // cache miss - fetch from GCS
+        const { data: scoresFile } = await getScoresFile(storage, config.bucketName, puzzleNum);
+
+        // build full leaderboard response (cache the full list)
+        const allEntries: LeaderboardEntry[] = scoresFile.scores.map((score, index) => ({
           rank: index + 1,
           initials: score.initials,
           score: score.score,
           timestamp: score.timestamp,
         }));
 
+        data = {
+          puzzleNum: scoresFile.puzzleNum,
+          date: scoresFile.date,
+          entries: allEntries,
+          totalPlayers: scoresFile.scores.length,
+        };
+
+        // cache for 30 seconds (default TTL)
+        cache.set(cacheKey, data);
+      }
+
+      // apply limit to cached data
       res.json({
-        puzzleNum: data.puzzleNum,
-        date: data.date,
-        entries,
-        totalPlayers: data.scores.length,
+        ...data,
+        entries: data.entries.slice(0, limit),
       });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
