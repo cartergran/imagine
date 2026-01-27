@@ -1,23 +1,12 @@
 import rateLimit from 'express-rate-limit';
-import type { Request, Response } from 'express';
+import type { Response, Request } from 'express';
 import type { SubmitScoreError } from './types.js';
 
 /**
   - rate limiting middleware using express-rate-limit
   - uses in-memory store (default) which resets on server restart
+  - requires app.set('trust proxy', 1) in Express for proper IP detection behind proxies
 */
-
-/**
-  - extracts client IP from request
-  - handles proxied requests (Heroku uses x-forwarded-for)
-*/
-const keyGenerator = (req: Request): string => {
-  const forwarded = req.headers['x-forwarded-for'];
-  if (typeof forwarded === 'string') {
-    return forwarded.split(',')[0]?.trim() ?? 'unknown';
-  }
-  return req.ip ?? req.socket.remoteAddress ?? 'unknown';
-};
 
 /**
   - custom handler for rate limit exceeded
@@ -40,7 +29,6 @@ export const dailyRateLimiter = rateLimit({
   limit: 30,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator,
   handler: rateLimitHandler,
 });
 
@@ -53,6 +41,5 @@ export const submitRateLimiter = rateLimit({
   limit: 5,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator,
   handler: rateLimitHandler,
 });

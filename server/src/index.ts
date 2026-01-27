@@ -55,6 +55,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const storage = new Storage({ credentials: gcsCreds });
 
+// trust first proxy (Heroku) for correct client IP in rate limiting
+app.set('trust proxy', 1);
+
 // constants
 const TOTAL_ATTEMPTS = 5;
 
