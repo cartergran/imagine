@@ -4,6 +4,7 @@ const variables = css`
   :root {
     // colors
     --disabled: gray;
+    --error: #ff6b6b;
 
     // spacing
     --space-xs: 4px;

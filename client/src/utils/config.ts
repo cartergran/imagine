@@ -9,10 +9,18 @@ type LabelsConfig = {
   attemptsLeft: string;
   category: string;
   correct: string;
+  errorAlreadySubmitted: string;
+  errorInvalidInitials: string;
+  errorRateLimited: string;
+  errorSubmitFailed: string;
   incorrect: string;
+  initialsLabel: string;
   share: string;
+  skip: string;
   solution: string;
   submit: string;
+  submitScore: string;
+  submitYourScore: string;
 };
 
 type ToolsConfig = {
@@ -99,11 +107,19 @@ const tools: ToolsConfig = {
 const labels: LabelsConfig = {
   attemptsLeft: 'Blunders Left:',
   category: 'Category',
+  correct: 'Ball IQ',
+  errorAlreadySubmitted: 'You have already submitted a score today.',
+  errorInvalidInitials: 'Please choose different initials.',
+  errorRateLimited: 'Too many attempts. Please try again later.',
+  errorSubmitFailed: 'Failed to submit. Please try again.',
+  incorrect: 'Tough',
+  initialsLabel: '2-4 letters or numbers',
   share: 'Share',
+  skip: 'skip',
   solution: 'Solution',
   submit: 'Submit',
-  correct: 'Ball IQ',
-  incorrect: 'Tough'
+  submitScore: 'Submit Score',
+  submitYourScore: 'Submit Your Score',
 };
 
 export const manualConfig: ManualConfig = {

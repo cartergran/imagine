@@ -56,7 +56,7 @@ const emojis: Record<number, string> = {
 const numTiles = config.board.cols * config.board.rows;
 const maxUnselectedScore = counts.unselected * (numTiles - config.selectionsPerAttempt);
 const solutionScore = counts.solution * config.selectionsPerAttempt;
-const maxScore = maxUnselectedScore + solutionScore;
+export const MAX_SCORE = maxUnselectedScore + solutionScore;
 
 const init2DArray = (r: number, c: number, content: string): string[][] => {
   return Array.from({ length: r }, () => Array(c).fill(content));
@@ -142,7 +142,7 @@ const scorecard: Scorecard = {
     signCard(this);
     calcScore(this);
     // \u{1F0CF} := joker playing card emoji
-    scorecard.title = `${config.context} \u{1F0CF}${scorecard.score}/${maxScore}`;
+    scorecard.title = `${config.context} \u{1F0CF}${scorecard.score}/${MAX_SCORE}`;
     // TODO: calcStats(); ?
     saveToLocalStorage();
   },
