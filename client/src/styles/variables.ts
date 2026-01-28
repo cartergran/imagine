@@ -6,6 +6,9 @@ const variables = css`
     --disabled: gray;
     --error: #ff6b6b;
 
+    --divider-light: rgba(255, 255, 255, 0.1);
+    --highlight-light: rgba(255, 215, 0, 0.15);
+
     // spacing
     --space-xs: 4px;
     --space-s: 8px;

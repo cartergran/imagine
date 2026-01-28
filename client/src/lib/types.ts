@@ -30,6 +30,7 @@ export interface LeaderboardResponse {
   date: string;
   entries: LeaderboardEntry[];
   totalPlayers: number;
+  error?: boolean
 }
 
 /**

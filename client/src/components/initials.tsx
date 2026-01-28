@@ -83,7 +83,7 @@ function isValidInitials(initials: string): boolean {
   return INITIALS_PATTERN.test(initials);
 }
 
-function getSavedInitials(): string {
+export function getSavedInitials(): string {
   try {
     return localStorage.getItem(USER_INITIALS_KEY) || '';
   } catch {

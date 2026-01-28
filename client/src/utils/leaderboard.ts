@@ -74,6 +74,7 @@ export async function fetchLeaderboard(
       date: new Date().toISOString().split('T')[0] || '',
       entries: [],
       totalPlayers: 0,
+      error: true
     };
   }
 }
