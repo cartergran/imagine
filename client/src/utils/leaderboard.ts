@@ -7,7 +7,7 @@ import type { Log } from './scorecard';
   - submits a score to the daily leaderboard
   - @param initials - player initials (2-4 characters)
   - @param logs - game log entries from scorecard
-  - @param deviceId - hashed device ID for duplicate prevention
+  - @param deviceId - device ID for duplicate prevention
   - @returns submit response (success or error)
 */
 export async function submitScore(
@@ -19,7 +19,7 @@ export async function submitScore(
     const response = await axios.post<SubmitScoreResponse>('/leaderboard/submit', {
       initials,
       logs,
-      fingerprint: deviceId,
+      deviceId,
     });
     return response.data;
   } catch (err) {
@@ -43,16 +43,24 @@ export async function submitScore(
   }
 }
 
+type FetchLeaderboardOptions = {
+  puzzleNum?: string;
+  limit?: number;
+  deviceId?: string;
+};
+
 /**
   - fetches the daily leaderboard
-  - @param puzzleNum - optional puzzle number (defaults to current puzzle)
-  - @param limit - optional limit on number of entries (default 25, max 100)
+  - @param options - optional configuration object
+  - @param options.puzzleNum - puzzle number (defaults to current puzzle)
+  - @param options.limit - limit on number of entries (default 25, max 100)
+  - @param options.deviceId - device ID for marking current user's entry
   - @returns leaderboard response
 */
 export async function fetchLeaderboard(
-  puzzleNum?: string,
-  limit?: number
+  options: FetchLeaderboardOptions = {}
 ): Promise<LeaderboardResponse> {
+  const { puzzleNum, limit, deviceId } = options;
   try {
     const params: Record<string, string> = {};
     if (puzzleNum) {
@@ -60,6 +68,9 @@ export async function fetchLeaderboard(
     }
     if (limit) {
       params.limit = String(limit);
+    }
+    if (deviceId) {
+      params.deviceId = deviceId;
     }
 
     const response = await axios.get<LeaderboardResponse>('/leaderboard/daily', { params });

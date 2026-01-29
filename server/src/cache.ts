@@ -1,15 +1,30 @@
-import type { LeaderboardResponse } from './types.js';
+import type { BaseLeaderboardData, BaseLeaderboardEntry } from './types.js';
 
 /**
   - simple in-memory cache with TTL support
-  - used for caching leaderboard responses to reduce GCS reads
+  - used for caching leaderboard data to reduce GCS reads
 */
 
 /**
-  - union type of all cacheable values
+  - internal cache entry for leaderboard with device ID hash for user matching
+*/
+export interface CachedLeaderboardEntry extends BaseLeaderboardEntry {
+  deviceIdHash: string;
+}
+
+/**
+  - internal cache structure for leaderboard data
+  - includes device ID hashes for isCurrentUser matching
+*/
+export interface CachedLeaderboardData extends BaseLeaderboardData {
+  entries: CachedLeaderboardEntry[];
+}
+
+/**
+  - cacheable value type
   - add additional types here as caching needs expand
 */
-type CacheableValue = LeaderboardResponse;
+type CacheableValue = CachedLeaderboardData;
 
 interface CacheEntry {
   data: CacheableValue;

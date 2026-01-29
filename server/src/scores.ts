@@ -154,14 +154,14 @@ export function validateLogs(logs: GameLog[]): boolean {
 
 
 
-// fingerprint hashing
+// device ID hashing
 
 /**
-  - hashes a raw fingerprint string using SHA-256
-  - @param raw - the raw fingerprint string from the client
+  - hashes a raw device ID string using SHA-256
+  - @param raw - the raw device ID string from the client
   - @returns hex-encoded SHA-256 hash
 */
-export function hashFingerprint(raw: string): string {
+export function hashDeviceId(raw: string): string {
   return createHash('sha256').update(raw).digest('hex');
 }
 
@@ -300,21 +300,21 @@ export async function getScoresFile(
 }
 
 /**
-  - checks if a fingerprint has already submitted for the current puzzle
+  - checks if a device ID has already submitted for the current puzzle
   - @param storage - GCS Storage instance
   - @param bucketName - GCS bucket name
   - @param puzzleNum - the puzzle number
-  - @param fingerprint - the hashed fingerprint to check
-  - @returns true if fingerprint has already submitted
+  - @param deviceIdHash - the hashed device ID to check
+  - @returns true if device ID has already submitted
 */
 export async function hasAlreadySubmitted(
   storage: Storage,
   bucketName: string,
   puzzleNum: string,
-  fingerprint: string
+  deviceIdHash: string
 ): Promise<boolean> {
   const { data } = await getScoresFile(storage, bucketName, puzzleNum);
-  return data.scores.some((s) => s.fingerprint === fingerprint);
+  return data.scores.some((s) => s.deviceIdHash === deviceIdHash);
 }
 
 /**
@@ -394,8 +394,8 @@ export async function addScore(
     // read current scores with generation
     const { data, generation } = await getScoresFile(storage, bucketName, puzzleNum);
 
-    // check if fingerprint already submitted
-    const alreadySubmitted = data.scores.some((s) => s.fingerprint === score.fingerprint);
+    // check if device ID already submitted
+    const alreadySubmitted = data.scores.some((s) => s.deviceIdHash === score.deviceIdHash);
     if (alreadySubmitted) {
       return {
         success: false,
@@ -415,7 +415,7 @@ export async function addScore(
     data.metadata.totalSubmissions = data.scores.length;
 
     // find the rank of the newly added score
-    const rank = data.scores.findIndex((s) => s.fingerprint === score.fingerprint) + 1;
+    const rank = data.scores.findIndex((s) => s.deviceIdHash === score.deviceIdHash) + 1;
 
     // attempt to save with optimistic locking
     const saved = await saveScoresFile(storage, bucketName, puzzleNum, data, generation);

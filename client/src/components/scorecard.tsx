@@ -30,7 +30,6 @@ const ScorecardLabel = styled(Text)`
 
   color: white;
   font-size: 12px;
-  margin-bottom: var(--space-s);
   text-align: center;
   white-space: pre-line;
 `;

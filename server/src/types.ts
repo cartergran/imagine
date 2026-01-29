@@ -118,14 +118,14 @@ export interface Config {
 export interface DailyScore {
   initials: string;
   score: number;
-  fingerprint: string;
+  deviceIdHash: string;
   timestamp: string;
 }
 
 /**
-  - single entry in the leaderboard response
+  - base leaderboard entry with shared fields
 */
-export interface LeaderboardEntry {
+export interface BaseLeaderboardEntry {
   rank: number;
   initials: string;
   score: number;
@@ -133,13 +133,26 @@ export interface LeaderboardEntry {
 }
 
 /**
-  - response for fetching the daily leaderboard
+  - single entry in the leaderboard API response
 */
-export interface LeaderboardResponse {
+export interface LeaderboardEntry extends BaseLeaderboardEntry {
+  isCurrentUser?: boolean;
+}
+
+/**
+  - base leaderboard data with shared fields
+*/
+export interface BaseLeaderboardData {
   puzzleNum: string;
   date: string;
-  entries: LeaderboardEntry[];
   totalPlayers: number;
+}
+
+/**
+  - leaderboard API response
+*/
+export interface LeaderboardResponse extends BaseLeaderboardData {
+  entries: LeaderboardEntry[];
   error?: boolean;
 }
 
@@ -149,6 +162,7 @@ export interface LeaderboardResponse {
 export interface LeaderboardQuery {
   puzzleNum?: string;
   limit?: string;
+  deviceId?: string;
 }
 
 /**
@@ -192,7 +206,7 @@ export interface ScoresFile {
 export interface SubmitScoreRequest {
   initials: string;
   logs: GameLog[];
-  fingerprint: string;
+  deviceId: string;
 }
 
 /**

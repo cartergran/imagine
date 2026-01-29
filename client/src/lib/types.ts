@@ -20,6 +20,7 @@ export interface LeaderboardEntry {
   initials: string;
   score: number;
   timestamp: string;
+  isCurrentUser?: boolean;
 }
 
 /**

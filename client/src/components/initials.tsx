@@ -2,51 +2,33 @@ import { Button, Input, Typography } from 'antd';
 import styled from 'styled-components';
 import { useState } from 'react';
 
-import Modal from './modal';
-
 import config from '../utils/config';
 import { generateDeviceId } from '../utils/deviceId';
-import scorecard, { MAX_SCORE } from '../utils/scorecard';
+import scorecard from '../utils/scorecard';
 import { submitScore } from '../utils/leaderboard';
-
-import type { SubmitScoreSuccess } from '../lib/types';
 
 const USER_INITIALS_KEY = 'imagine-user-initials';
 
-interface InitialsPrompt {
-  score: number;
-  onClose: () => void; 
+interface InitialsProps {
   onSkip: () => void;
-  onSuccess: (result: SubmitScoreSuccess) => void;
+  onSuccess: () => void;
 }
 
 const StyledInitials = styled.div`
   ${({ theme }) => theme.recycle.flexColumnCenter};
   gap: var(--space-m);
 
-  font-size: 12px;
-
-  .text-block {
-    margin-bottom: var(--space-s);
-    text-align: center;
-  }
-
-  .input-wrapper {
+  .wrapper {
     ${({ theme }) => theme.recycle.flexColumnCenter};
     gap: var(--space-xs);
   }
 
-  .skip-button {
-    margin-top: var(--space-s);
+  h5.ant-typography {
+    margin: 0;
+  }
 
-    &.ant-btn-text {
-      color: var(--disabled);
-      text-decoration: underline;
-
-      &:hover {
-        color: white;
-      }
-    }
+  .ant-btn-text {
+    text-decoration: underline;
   }
 `;
 
@@ -69,9 +51,11 @@ const StyledInput = styled(Input)`
   }
 
   &:focus,
+  &:focus-within,
   &:hover {
     background-color: black;
     border-color: dodgerblue;
+    box-shadow: none;
     color: white;
   }
 `;
@@ -83,7 +67,7 @@ function isValidInitials(initials: string): boolean {
   return INITIALS_PATTERN.test(initials);
 }
 
-export function getSavedInitials(): string {
+function getSavedInitials(): string {
   try {
     return localStorage.getItem(USER_INITIALS_KEY) || '';
   } catch {
@@ -100,11 +84,9 @@ function saveInitials(initials: string): void {
 }
 
 export default function Initials({
-  score,
-  onClose,
   onSkip,
   onSuccess
-}: InitialsPrompt) {
+}: InitialsProps) {
   const [errorMessage, setErrorMessage] = useState('');
   const [initials, setInitials] = useState(getSavedInitials());
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -133,7 +115,7 @@ export default function Initials({
 
     if (result.success) {
       saveInitials(initials);
-      onSuccess(result);
+      onSuccess();
     } else {
       // map error codes to user-friendly messages
       switch (result.error) {
@@ -159,30 +141,33 @@ export default function Initials({
   };
 
   return (
-    <Modal header={config.labels.submitYourScore} handleClose={onClose}>
-      <StyledInitials>
-        <Typography.Title className="text-block" level={3}>
-          {`\u{1F0CF} ${score}/${MAX_SCORE}`}
-        </Typography.Title>
+    <StyledInitials>
+      <Typography.Title level={5}>
+        {config.labels.submitYourScore}
+      </Typography.Title>
 
-        <div className="input-wrapper">
-          <StyledInput
-            autoFocus
-            disabled={isSubmitting}
-            maxLength={4}
-            placeholder="AAA"
-            value={initials}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-          />
-          <Typography.Text type="secondary">{config.labels.initialsLabel}</Typography.Text>
-        </div>
+      <div className="wrapper">
+        <StyledInput
+          autoFocus
+          disabled={isSubmitting}
+          id="initials-input"
+          maxLength={4}
+          placeholder="AAA"
+          value={initials}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+        />
+        <Typography.Text type="secondary">{config.labels.initialsLabel}</Typography.Text>
+      </div>
 
-        {
-          errorMessage &&
-            <Typography.Text className="text-block" type="danger">{errorMessage}</Typography.Text>
-        }
+      {
+        errorMessage &&
+          <Typography.Text type="danger">
+            {errorMessage}
+          </Typography.Text>
+      }
 
+      <div className="wrapper">
         <Button
           type="primary"
           disabled={!isValid || isSubmitting}
@@ -191,16 +176,14 @@ export default function Initials({
         >
           {config.labels.submitScore}
         </Button>
-
         <Button
           type="text"
-          className="skip-button"
           disabled={isSubmitting}
           onClick={onSkip}
         >
           {config.labels.skip}
         </Button>
-      </StyledInitials>
-    </Modal>
+      </div>
+    </StyledInitials>
   );
 }

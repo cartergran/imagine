@@ -10,18 +10,6 @@ const DEVICE_ID_KEY = 'imagine-device-id';
 let cachedDeviceId: string | null = null;
 
 /**
-  - simple hash function (djb2 algorithm)
-*/
-function hashString(str: string): string {
-  let hash = 5381;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash * 33) ^ str.charCodeAt(i);
-  }
-  // convert to unsigned 32-bit integer, then to hex string
-  return (hash >>> 0).toString(16);
-}
-
-/**
   - gets or creates a persistent device ID stored in localStorage
 */
 function getOrCreateDeviceId(): string {
@@ -40,18 +28,16 @@ function getOrCreateDeviceId(): string {
 }
 
 /**
-  - generates a hashed device ID for submission
+  - generates a device ID for submission
   - result is cached for the duration of the session
-  - @returns hashed device ID string
+  - @returns device ID string
 */
 export function generateDeviceId(): string {
   if (cachedDeviceId) {
     return cachedDeviceId;
   }
 
-  const deviceId = getOrCreateDeviceId();
-  cachedDeviceId = hashString(deviceId);
-
+  cachedDeviceId = getOrCreateDeviceId();
   return cachedDeviceId;
 }
 

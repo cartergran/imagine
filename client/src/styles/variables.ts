@@ -6,8 +6,9 @@ const variables = css`
     --disabled: gray;
     --error: #ff6b6b;
 
-    --divider-light: rgba(255, 255, 255, 0.1);
-    --highlight-light: rgba(255, 215, 0, 0.15);
+    --divider-lightest: rgba(255, 255, 255, 0.1); // used for dividers in <Leaderboard />
+    --divider-light: rgba(255, 255, 255, 0.3); // used for dividers in <Summary />
+    --highlight-light: rgba(255, 215, 0, 0.15); // used for highlighted entries in <Leaderboard />
 
     // spacing
     --space-xs: 4px;

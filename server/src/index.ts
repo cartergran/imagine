@@ -10,7 +10,7 @@ import {
   addScore,
   calculateScoreFromLogs,
   getScoresFile,
-  hashFingerprint,
+  hashDeviceId,
   isValidInitials,
   normalizeInitials,
   validateLogs,
@@ -409,7 +409,7 @@ const LEADERBOARD_MAX_LIMIT = 100;
 /**
   - POST /leaderboard/submit
   - submits a score to the daily leaderboard
-  - body: { initials, logs, fingerprint }
+  - body: { initials, logs, deviceId }
 */
 leaderboardRouter.post(
   '/submit',
@@ -419,7 +419,7 @@ leaderboardRouter.post(
     res: Response<SubmitScoreResponse | SubmitScoreError>
   ): Promise<void> => {
     try {
-      const { initials, logs, fingerprint } = req.body;
+      const { initials, logs, deviceId } = req.body;
 
       // validate initials format
       if (!initials || !isValidInitials(initials)) {
@@ -451,12 +451,12 @@ leaderboardRouter.post(
         return;
       }
 
-      // validate fingerprint
-      if (!fingerprint || typeof fingerprint !== 'string' || fingerprint.length === 0) {
+      // validate deviceId
+      if (!deviceId || typeof deviceId !== 'string' || deviceId.length === 0) {
         res.status(400).json({
           success: false,
           error: 'INVALID_LOG',
-          message: 'Missing or invalid fingerprint',
+          message: 'Missing or invalid device ID',
         });
         return;
       }
@@ -464,14 +464,14 @@ leaderboardRouter.post(
       // calculate score server-side (don't trust client)
       const score = calculateScoreFromLogs(logs);
 
-      // hash the fingerprint for storage
-      const hashedFingerprint = hashFingerprint(fingerprint);
+      // hash the device ID for storage
+      const deviceIdHash = hashDeviceId(deviceId);
 
       // create the score entry
       const scoreEntry: DailyScore = {
         initials: normalizeInitials(initials),
         score,
-        fingerprint: hashedFingerprint,
+        deviceIdHash,
         timestamp: new Date().toISOString(),
       };
 
@@ -527,7 +527,7 @@ leaderboardRouter.post(
 /**
   - GET /leaderboard/daily
   - returns the daily leaderboard
-  - query params: puzzleNum (optional), limit (optional, default 25, max 100)
+  - query params: puzzleNum (optional), limit (optional, default 25, max 100), deviceId (optional)
 */
 leaderboardRouter.get(
   '/daily',
@@ -539,6 +539,7 @@ leaderboardRouter.get(
     try {
       // use current puzzle if not specified
       const puzzleNum = req.query.puzzleNum || config.puzzleNum;
+      const { deviceId } = req.query;
 
       // parse and clamp limit
       let limit = LEADERBOARD_DEFAULT_LIMIT;
@@ -551,35 +552,52 @@ leaderboardRouter.get(
 
       // check cache first
       const cacheKey = cache.leaderboardKey(puzzleNum);
-      let data = cache.get(cacheKey);
+      let cachedData = cache.get(cacheKey);
 
-      if (!data) {
+      if (!cachedData) {
         // cache miss - fetch from GCS
         const { data: scoresFile } = await getScoresFile(storage, config.bucketName, puzzleNum);
 
-        // build full leaderboard response (cache the full list)
-        const allEntries: LeaderboardEntry[] = scoresFile.scores.map((score, index) => ({
+        // build full leaderboard data with device ID hashes (for isCurrentUser matching)
+        const allEntries: cache.CachedLeaderboardEntry[] = scoresFile.scores.map((score, index) => ({
           rank: index + 1,
           initials: score.initials,
           score: score.score,
           timestamp: score.timestamp,
+          deviceIdHash: score.deviceIdHash
         }));
 
-        data = {
+        cachedData = {
           puzzleNum: scoresFile.puzzleNum,
           date: scoresFile.date,
-          entries: allEntries,
           totalPlayers: scoresFile.scores.length,
+          entries: allEntries
         };
 
         // cache for 30 seconds (default TTL)
-        cache.set(cacheKey, data);
+        cache.set(cacheKey, cachedData);
       }
 
-      // apply limit to cached data
+      // hash deviceId if provided for comparison
+      const hashedDeviceId = deviceId ? hashDeviceId(deviceId) : null;
+
+      // apply limit and build public response entries
+      const publicEntries: LeaderboardEntry[] = cachedData.entries
+        .slice(0, limit)
+        .map((entry) => ({
+          ...entry,
+          ...(
+            hashedDeviceId && entry.deviceIdHash === hashedDeviceId
+              ? { isCurrentUser: true }
+              : {}
+          )
+        }));
+
       res.json({
-        ...data,
-        entries: data.entries.slice(0, limit),
+        puzzleNum: cachedData.puzzleNum,
+        date: cachedData.date,
+        totalPlayers: cachedData.totalPlayers,
+        entries: publicEntries
       });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -589,8 +607,8 @@ leaderboardRouter.get(
       res.json({
         puzzleNum: config.puzzleNum,
         date: new Date().toISOString().split('T')[0] ?? '',
-        entries: [],
         totalPlayers: 0,
+        entries: [],
         error: true
       });
     }

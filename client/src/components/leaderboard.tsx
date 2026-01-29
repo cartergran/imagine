@@ -5,19 +5,15 @@ import { useCallback, useEffect, useState } from 'react';
 
 import config from '../utils/config';
 import { fetchLeaderboard } from '../utils/leaderboard';
-import { getSavedInitials } from './initials';
+import { generateDeviceId } from '../utils/deviceId';
 import { MAX_SCORE } from '../utils/scorecard';
 
 import type { LeaderboardEntry, LeaderboardResponse } from '../lib/types';
 
-interface LeaderboardProps {
-  highlightRank?: number;
-}
-
 const StyledLeaderboard = styled.div`
   .ant-list-item {
     padding: var(--space-s) var(--space-m);
-    border-block-end: 1px solid var(--divider-light);
+    border-block-end: 1px solid var(--divider-lightest);
 
     &.highlighted {
       background-color: var(--highlight-light);
@@ -79,18 +75,18 @@ const StyledLeaderboard = styled.div`
   }
 `;
 
-export default function Leaderboard({ highlightRank }: LeaderboardProps) {
+export default function Leaderboard() {
   const [data, setData] = useState<LeaderboardResponse | null>(null);
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
-  const savedInitials = getSavedInitials();
 
   const loadLeaderboard = useCallback(async () => {
     setHasError(false);
     setIsLoading(true);
 
-    const response = await fetchLeaderboard();
+    // pass deviceId to server for isCurrentUser marking
+    const deviceId = generateDeviceId();
+    const response = await fetchLeaderboard({ deviceId });
 
     if (response.error) {
       setHasError(true);
@@ -109,35 +105,21 @@ export default function Leaderboard({ highlightRank }: LeaderboardProps) {
     loadLeaderboard();
   };
 
-  const isHighlighted = (entry: LeaderboardEntry): boolean => {
-    // TODO:
-    // highlight by rank if provided (from recent submission)
-    // if (highlightRank && entry.rank === highlightRank) {
-    //   return true;
-    // }
-    // highlight by matching initials from localStorage
-    if (savedInitials && entry.initials === savedInitials.toUpperCase()) {
-      return true;
-    }
-    return false;
-  };
-
   const renderEntry = (entry: LeaderboardEntry) => {
-    const highlighted = isHighlighted(entry);
     const isFirstPlace = entry.rank === 1;
 
     const renderIcon = () => {
       if (isFirstPlace) {
         return <CrownFilled className="highlight-icon crown" />;
       }
-      if (highlighted) {
+      if (entry.isCurrentUser) {
         return <UserOutlined className="highlight-icon user" />;
       }
       return null;
     };
 
     return (
-      <List.Item className={highlighted ? 'highlighted' : ''}>
+      <List.Item className={entry.isCurrentUser ? 'highlighted' : ''}>
         <div className="entry">
           <Typography.Text type="secondary" className="entry-rank">
             #{entry.rank}
@@ -145,10 +127,11 @@ export default function Leaderboard({ highlightRank }: LeaderboardProps) {
           <Typography.Text className="entry-initials">
             {entry.initials}
           </Typography.Text>
+
+          {renderIcon()}
           <Typography.Text className="entry-score">
             {entry.score}/{MAX_SCORE}
           </Typography.Text>
-          {renderIcon()}
         </div>
       </List.Item>
     );

@@ -127,7 +127,7 @@ const labels: LabelsConfig = {
   leaderboardRetry: 'Retry',
   leaderboardTitle: "Today's Top Scores",
   share: 'Share',
-  skip: 'skip',
+  skip: 'Skip',
   solution: 'Solution',
   submit: 'Submit',
   submitScore: 'Submit Score',
