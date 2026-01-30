@@ -142,7 +142,6 @@ export default function Leaderboard() {
     return (
       <StyledLeaderboard>
         <div className="results">
-          <Typography.Title level={5}>{config.labels.leaderboardTitle}</Typography.Title>
           <Skeleton active paragraph={{ rows: 5 }} />
         </div>
       </StyledLeaderboard>
@@ -154,7 +153,6 @@ export default function Leaderboard() {
     return (
       <StyledLeaderboard>
         <div className="results">
-          <Typography.Title level={5}>{config.labels.leaderboardTitle}</Typography.Title>
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={
@@ -177,7 +175,6 @@ export default function Leaderboard() {
     return (
       <StyledLeaderboard>
         <div className="results">
-          <Typography.Title level={5}>{config.labels.leaderboardTitle}</Typography.Title>
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={
@@ -195,7 +192,6 @@ export default function Leaderboard() {
   return (
     <StyledLeaderboard>
       <div className="results">
-        <Typography.Title level={5}>{config.labels.leaderboardTitle}</Typography.Title>
         <Typography.Text type="secondary">
           {config.title} #{data.puzzleNum} • {data.totalPlayers} {config.labels.leaderboardPlayers}
         </Typography.Text>

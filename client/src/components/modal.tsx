@@ -27,6 +27,7 @@ const StyledModal = styled.dialog`
     // max width = board width
     // max width := (scoreWidth + imgWidth) + (paddingWidth * 2)
     // board width := (tileWidth * cols) + (boardGap * (cols - 1))
+    min-width: 368px;
     max-width: 384px;
 
     display: flex;

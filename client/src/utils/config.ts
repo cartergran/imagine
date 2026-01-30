@@ -31,6 +31,7 @@ type LabelsConfig = {
 
 type ToolsConfig = {
   closed: string;
+  leaderboard: string;
   manual: string;
   summary: string;
 };
@@ -106,6 +107,7 @@ const board: BoardConfig = {
 
 const tools: ToolsConfig = {
   closed: '',
+  leaderboard: 'leaderboard',
   manual: 'manual',
   summary: 'summary'
 };
