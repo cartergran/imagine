@@ -636,4 +636,4 @@ app.listen(config.port, (): void => {
 /**
   - schedule daily puzzle update at midnight EST
 */
-scheduleJob({ rule: '0 0 * * *', tz: 'America/New_York' }, updatePuzzleAndRestart);
+scheduleJob({ rule: '0 0 * * *', tz: 'America/New_York' }, () => updatePuzzleAndRestart(storage));
