@@ -10,7 +10,6 @@ const StyledManual = styled.div`
   gap: var(--space-s);
 
   font-size: 12px;
-  text-align: left;
 
   .manual-subheader {
     font-size: 16px;

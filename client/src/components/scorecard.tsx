@@ -25,11 +25,12 @@ const StyledScorecard = styled.div`
   }
 `;
 
-const ScorecardLabel = styled(Text)`
+const ScorecardLabel = styled(Text)<{ $marginTop?: boolean }>`
   display: inline-flex;
 
   color: white;
   font-size: 12px;
+  margin-top: ${props => props.$marginTop ? 'var(--space-s)' : '0'};
   text-align: center;
   white-space: pre-line;
 `;
@@ -38,8 +39,6 @@ const StyledCard = styled.dl`
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  margin-bottom: var(--space-m);
 
   dt {
     display: inline-flex;
@@ -143,7 +142,7 @@ export default function Scorecard({
       {
         showResults &&
           <>
-            <ScorecardLabel>{config.labels.category}: {category}</ScorecardLabel>
+            <ScorecardLabel $marginTop={true}>{config.labels.category}: {category}</ScorecardLabel>
             <ScorecardLabel>{config.labels.solution}: {solution}</ScorecardLabel>
           </>
       }
