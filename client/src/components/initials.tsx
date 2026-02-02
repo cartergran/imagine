@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import config from '../utils/config';
 import { generateDeviceId } from '../utils/deviceId';
+import { isBlockedInitials } from '../utils/blocklist';
 import scorecard from '../utils/scorecard';
 import { submitScore } from '../utils/leaderboard';
 
@@ -92,18 +93,25 @@ export default function Initials({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isValid = isValidInitials(initials);
+  const isBlocked = isBlockedInitials(initials);
+  const canSubmit = isValid && !isBlocked;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toUpperCase();
     // limit to 4 characters
     if (value.length <= 4) {
       setInitials(value);
-      setErrorMessage('');
+      // show immediate feedback if initials are blocked
+      if (isBlockedInitials(value)) {
+        setErrorMessage(config.labels.errorInvalidInitials);
+      } else {
+        setErrorMessage('');
+      }
     }
   };
 
   const handleSubmit = async () => {
-    if (!isValid || isSubmitting) { return; }
+    if (!canSubmit || isSubmitting) { return; }
 
     setIsSubmitting(true);
     setErrorMessage('');
@@ -135,7 +143,7 @@ export default function Initials({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && isValid && !isSubmitting) {
+    if (e.key === 'Enter' && canSubmit && !isSubmitting) {
       handleSubmit();
     }
   };
@@ -170,7 +178,7 @@ export default function Initials({
       <div className="wrapper">
         <Button
           type="primary"
-          disabled={!isValid || isSubmitting}
+          disabled={!canSubmit || isSubmitting}
           loading={isSubmitting}
           onClick={handleSubmit}
         >

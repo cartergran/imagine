@@ -1,6 +1,7 @@
 /**
   - blocklist for offensive initials
-  - curated list of 2-4 character combinations that should be rejected
+  - client-side validation to prevent submitting blocked initials
+  - mirrors server-side blocklist for immediate feedback
 */
 
 // includes common slurs, profanity, and offensive abbreviations
