@@ -16,6 +16,7 @@ export default defineConfig({
     }
   },
   server: {
+    host: true,
     proxy: {
       '/puzzle': {
         target: 'http://localhost:3001',
