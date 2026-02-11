@@ -7,8 +7,6 @@ import Board from '../components/board';
 import config from '../utils/config';
 import { screen, waitFor, renderWithProviders } from './utils';
 
-vi.mock('axios');
-
 test('tile background updates after click when not solvable', async () => {
   const user = userEvent.setup();
 

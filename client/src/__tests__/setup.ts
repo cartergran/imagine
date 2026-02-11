@@ -1,6 +1,19 @@
 import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
 
+// axios mock – avoid real network calls (safety net), override with specific mock responses
+vi.mock('axios', () => ({
+  default: {
+    get: vi.fn().mockResolvedValue({ data: {} }),
+    post: vi.fn().mockResolvedValue({ data: {} }),
+    interceptors: {
+      request: { use: vi.fn(), eject: vi.fn() },
+      response: { use: vi.fn(), eject: vi.fn() },
+    },
+    isAxiosError: vi.fn().mockReturnValue(false),
+  },
+}));
+
 // window.matchMedia mock (required for antd)
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
