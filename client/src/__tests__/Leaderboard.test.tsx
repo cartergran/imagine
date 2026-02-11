@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
-import { screen, waitFor, renderWithProviders } from './utils';
+import { act, screen, waitFor, renderWithProviders } from './utils';
 import Summary from '../components/summary';
 import config from '../utils/config';
 import { submitScore } from '../utils/leaderboard';
@@ -43,8 +43,8 @@ vi.mock('../utils/leaderboard', () => ({
 
 describe('Leaderboard Feature', () => {
   describe('Initials Prompt', () => {
-    test('initials prompt appears when user completes puzzle', () => {
-      renderWithProviders(<Summary />);
+    test('initials prompt appears when user completes puzzle', async () => {
+      await act(async () => renderWithProviders(<Summary />));
 
       // verify the initials prompt title is displayed
       const titleElement = screen.getByText(config.labels.submitYourScore);
@@ -63,8 +63,8 @@ describe('Leaderboard Feature', () => {
       expect(skipButton).toBeInTheDocument();
     });
 
-    test('initials input has correct attributes', () => {
-      renderWithProviders(<Summary />);
+    test('initials input has correct attributes', async () => {
+      await act(async () => renderWithProviders(<Summary />));
 
       const inputElement = screen.getByPlaceholderText('AAA') as HTMLInputElement;
 
@@ -73,8 +73,8 @@ describe('Leaderboard Feature', () => {
       expect(inputElement.maxLength).toBe(4);
     });
 
-    test('initials label displays instructions', () => {
-      renderWithProviders(<Summary />);
+    test('initials label displays instructions', async () => {
+      await act(async () => renderWithProviders(<Summary />));
 
       // verify the instructions label is displayed
       const labelElement = screen.getByText(config.labels.initialsLabel);
@@ -88,9 +88,7 @@ describe('Leaderboard Feature', () => {
 
     const submitScoreAndShowLeaderboard = async (
       user: ReturnType<typeof userEvent.setup>
-    ): Promise<{ unmount: () => void }> => {
-      const { unmount } = renderWithProviders(<Summary />);
-
+    ): Promise<void> => {
       // enter initials
       const inputElement = screen.getByPlaceholderText('AAA');
       await user.type(inputElement, 'ABC');
@@ -101,8 +99,6 @@ describe('Leaderboard Feature', () => {
 
       // wait for the leaderboard to load and display the user's entry
       await waitFor(() => expect(screen.getByText('ABC')).toBeInTheDocument());
-
-      return { unmount };
     }
 
     const expectLeaderboardShowsSubmission = (): void => {
@@ -113,6 +109,7 @@ describe('Leaderboard Feature', () => {
 
     test('submitted score appears on the leaderboard', async () => {
       const user = userEvent.setup();
+      renderWithProviders(<Summary />);
       await submitScoreAndShowLeaderboard(user);
 
       // wait for the submission to be called
@@ -132,7 +129,8 @@ describe('Leaderboard Feature', () => {
 
     test('after refresh user is not re-prompted and can view leaderboard', async () => {
       const user = userEvent.setup();
-      const { unmount } = await submitScoreAndShowLeaderboard(user);
+      const { unmount } = renderWithProviders(<Summary />);
+      await submitScoreAndShowLeaderboard(user);
 
       expectLeaderboardShowsSubmission();
 
