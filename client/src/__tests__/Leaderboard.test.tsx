@@ -83,10 +83,13 @@ describe('Leaderboard Feature', () => {
   });
 
   describe('Score Submission', () => {
-    test('submitted score appears on the leaderboard', async () => {
-      const user = userEvent.setup();
+    const SUBMITTED_LAST_KEY = 'imagine-submitted-last';
+    beforeEach(() => localStorage.removeItem(SUBMITTED_LAST_KEY));
 
-      renderWithProviders(<Summary />);
+    const submitScoreAndShowLeaderboard = async (
+      user: ReturnType<typeof userEvent.setup>
+    ): Promise<{ unmount: () => void }> => {
+      const { unmount } = renderWithProviders(<Summary />);
 
       // enter initials
       const inputElement = screen.getByPlaceholderText('AAA');
@@ -95,6 +98,22 @@ describe('Leaderboard Feature', () => {
       // click submit button
       const submitButton = screen.getByRole('button', { name: config.labels.submitScore });
       await user.click(submitButton);
+
+      // wait for the leaderboard to load and display the user's entry
+      await waitFor(() => expect(screen.getByText('ABC')).toBeInTheDocument());
+
+      return { unmount };
+    }
+
+    const expectLeaderboardShowsSubmission = (): void => {
+      expect(screen.getByText('250/314')).toBeInTheDocument();
+      expect(screen.getByText('#1')).toBeInTheDocument();
+      expect(screen.getByText(/1 Players/i)).toBeInTheDocument();
+    }
+
+    test('submitted score appears on the leaderboard', async () => {
+      const user = userEvent.setup();
+      await submitScoreAndShowLeaderboard(user);
 
       // wait for the submission to be called
       await waitFor(() => {
@@ -105,19 +124,32 @@ describe('Leaderboard Feature', () => {
         );
       });
 
-      // wait for the leaderboard to load and display the user's entry
-      await waitFor(() => {
-        expect(screen.getByText('ABC')).toBeInTheDocument();
-      });
-
       // verify the score is displayed
-      expect(screen.getByText('250/314')).toBeInTheDocument();
-
       // verify the rank is displayed
-      expect(screen.getByText('#1')).toBeInTheDocument();
-
       // verify the total players count is displayed
-      expect(screen.getByText(/1 Players/i)).toBeInTheDocument();
+      expectLeaderboardShowsSubmission();
+    });
+
+    test('after refresh user is not re-prompted and can view leaderboard', async () => {
+      const user = userEvent.setup();
+      const { unmount } = await submitScoreAndShowLeaderboard(user);
+
+      expectLeaderboardShowsSubmission();
+
+      // simulate page refresh: unmount and mount again
+      unmount();
+      renderWithProviders(<Summary />);
+
+      // after refresh, user should not be re-prompted
+      expect(screen.queryByText(config.labels.submitYourScore)).not.toBeInTheDocument();
+      expect(screen.queryByPlaceholderText('AAA')).not.toBeInTheDocument();
+
+      // after refresh and leaderboard loads, user can view leaderboard
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /refresh/i })).toBeInTheDocument();
+      });
+      expect(screen.getByText('ABC')).toBeInTheDocument();
+      expect(screen.getByText('250/314')).toBeInTheDocument();
     });
   });
 });
