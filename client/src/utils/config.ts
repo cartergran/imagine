@@ -15,6 +15,7 @@ type LabelsConfig = {
   errorSubmitFailed: string;
   incorrect: string;
   initialsLabel: string;
+  initialsPlaceholder: string;
   leaderboardEmpty: string;
   leaderboardError: string;
   leaderboardPlayers: string;
@@ -122,6 +123,7 @@ const labels: LabelsConfig = {
   errorSubmitFailed: 'Failed to submit. Please try again.',
   incorrect: 'Tough',
   initialsLabel: '2-4 letters or numbers',
+  initialsPlaceholder: 'AAA',
   leaderboardEmpty: 'No scores yet. Be the first!',
   leaderboardError: "Couldn't load scores.",
   leaderboardPlayers: 'Players',

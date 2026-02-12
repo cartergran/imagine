@@ -160,7 +160,7 @@ export default function Initials({
           disabled={isSubmitting}
           id="initials-input"
           maxLength={4}
-          placeholder="AAA"
+          placeholder={config.labels.initialsPlaceholder}
           value={initials}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}

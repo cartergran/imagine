@@ -1,18 +1,29 @@
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
-import { act, screen, waitFor, renderWithProviders } from './utils';
 import Summary from '../components/summary';
+
+import { act, screen, waitFor, renderWithProviders } from './utils';
 import config from '../utils/config';
-import { submitScore } from '../utils/leaderboard';
+import { fetchLeaderboard, submitScore } from '../utils/leaderboard';
+import { MAX_SCORE } from '../utils/scorecard';
 
 import type { LeaderboardResponse, SubmitScoreResponse } from '../lib/types';
 
 // mock response data with proper types (hoisted so vi.mock can access them)
-const { mockSubmitResponse, mockLeaderboardResponse } = vi.hoisted(() => {
+// constants also defined inside vi.hoisted() because it runs before the rest of the module
+const {
+  INITIALS,
+  SCORE,
+  mockSubmitResponse,
+  mockLeaderboardResponse,
+} = vi.hoisted(() => {
+  const INITIALS = 'CG';
+  const SCORE = 230;
+
   const mockSubmitResponse: SubmitScoreResponse = {
     success: true,
-    score: 250,
+    score: SCORE,
     rank: 1,
     totalPlayers: 1
   };
@@ -23,8 +34,8 @@ const { mockSubmitResponse, mockLeaderboardResponse } = vi.hoisted(() => {
     entries: [
       {
         rank: 1,
-        initials: 'ABC',
-        score: 250,
+        initials: INITIALS,
+        score: SCORE,
         timestamp: '2026-02-03T12:00:00Z',
         isCurrentUser: true
       }
@@ -32,7 +43,12 @@ const { mockSubmitResponse, mockLeaderboardResponse } = vi.hoisted(() => {
     totalPlayers: 1
   };
 
-  return { mockSubmitResponse, mockLeaderboardResponse };
+  return {
+    INITIALS,
+    SCORE,
+    mockSubmitResponse,
+    mockLeaderboardResponse
+  };
 });
 
 // mock leaderboard API calls
@@ -51,7 +67,7 @@ describe('Leaderboard Feature', () => {
       expect(titleElement).toBeInTheDocument();
 
       // verify the initials input field is displayed
-      const inputElement = screen.getByPlaceholderText('AAA');
+      const inputElement = screen.getByPlaceholderText(config.labels.initialsPlaceholder);
       expect(inputElement).toBeInTheDocument();
 
       // verify the submit button is displayed
@@ -66,7 +82,8 @@ describe('Leaderboard Feature', () => {
     test('initials input has correct attributes', async () => {
       await act(async () => renderWithProviders(<Summary />));
 
-      const inputElement = screen.getByPlaceholderText('AAA') as HTMLInputElement;
+      const inputElement =
+        screen.getByPlaceholderText(config.labels.initialsPlaceholder) as HTMLInputElement;
 
       // verify input has correct id and maxLength
       expect(inputElement.id).toBe('initials-input');
@@ -86,23 +103,23 @@ describe('Leaderboard Feature', () => {
     const SUBMITTED_LAST_KEY = 'imagine-submitted-last';
     beforeEach(() => localStorage.removeItem(SUBMITTED_LAST_KEY));
 
-    const submitScoreAndShowLeaderboard = async (
+    const submitScoreUI = async (
       user: ReturnType<typeof userEvent.setup>
     ): Promise<void> => {
       // enter initials
       const inputElement = screen.getByPlaceholderText('AAA');
-      await user.type(inputElement, 'ABC');
+      await user.type(inputElement, INITIALS);
 
       // click submit button
       const submitButton = screen.getByRole('button', { name: config.labels.submitScore });
       await user.click(submitButton);
-
-      // wait for the leaderboard to load and display the user's entry
-      await waitFor(() => expect(screen.getByText('ABC')).toBeInTheDocument());
     }
 
-    const expectLeaderboardShowsSubmission = (): void => {
-      expect(screen.getByText('250/314')).toBeInTheDocument();
+    const expectLeaderboardShowsSubmission = async (): Promise<void> => {
+      // wait for the leaderboard to load and display the user's entry
+      await waitFor(() => expect(screen.getByText(INITIALS)).toBeInTheDocument());
+
+      expect(screen.getByText(`${SCORE}/${MAX_SCORE}`)).toBeInTheDocument();
       expect(screen.getByText('#1')).toBeInTheDocument();
       expect(screen.getByText(/1 Players/i)).toBeInTheDocument();
     }
@@ -110,12 +127,13 @@ describe('Leaderboard Feature', () => {
     test('submitted score appears on the leaderboard', async () => {
       const user = userEvent.setup();
       renderWithProviders(<Summary />);
-      await submitScoreAndShowLeaderboard(user);
+
+      await submitScoreUI(user);
 
       // wait for the submission to be called
       await waitFor(() => {
         expect(submitScore).toHaveBeenCalledWith(
-          'ABC',
+          INITIALS,
           expect.anything(),
           expect.any(String)
         );
@@ -124,15 +142,15 @@ describe('Leaderboard Feature', () => {
       // verify the score is displayed
       // verify the rank is displayed
       // verify the total players count is displayed
-      expectLeaderboardShowsSubmission();
+      await expectLeaderboardShowsSubmission();
     });
 
     test('after refresh user is not re-prompted and can view leaderboard', async () => {
       const user = userEvent.setup();
       const { unmount } = renderWithProviders(<Summary />);
-      await submitScoreAndShowLeaderboard(user);
 
-      expectLeaderboardShowsSubmission();
+      await submitScoreUI(user);
+      await expectLeaderboardShowsSubmission();
 
       // simulate page refresh: unmount and mount again
       unmount();
@@ -140,14 +158,18 @@ describe('Leaderboard Feature', () => {
 
       // after refresh, user should not be re-prompted
       expect(screen.queryByText(config.labels.submitYourScore)).not.toBeInTheDocument();
-      expect(screen.queryByPlaceholderText('AAA')).not.toBeInTheDocument();
+      expect(
+        screen.queryByPlaceholderText(config.labels.initialsPlaceholder)
+      ).not.toBeInTheDocument();
 
       // after refresh and leaderboard loads, user can view leaderboard
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /refresh/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole('button', { name: new RegExp(config.labels.leaderboardRefresh, 'i') })
+        ).toBeInTheDocument();
       });
-      expect(screen.getByText('ABC')).toBeInTheDocument();
-      expect(screen.getByText('250/314')).toBeInTheDocument();
+      expect(screen.getByText(INITIALS)).toBeInTheDocument();
+      expect(screen.getByText(`${SCORE}/${MAX_SCORE}`)).toBeInTheDocument();
     });
   });
 });
