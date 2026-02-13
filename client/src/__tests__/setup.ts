@@ -1,6 +1,8 @@
 import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
 
+process.env.DEBUG_PRINT_LIMIT = '230';
+
 // axios mock – avoid real network calls (safety net), override with specific mock responses
 vi.mock('axios', () => ({
   default: {
