@@ -2,6 +2,7 @@ import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
 import Summary from '../components/summary';
+import Toolbar from '../components/toolbar';
 
 import { act, screen, waitFor, renderWithProviders } from './utils';
 import config from '../utils/config';
@@ -57,24 +58,31 @@ vi.mock('../utils/leaderboard', () => ({
   fetchLeaderboard: vi.fn().mockResolvedValue(mockLeaderboardResponse)
 }));
 
+// verify initials are displayed
+// verify score is displayed
+// verify rank is displayed
+// verify total players count is displayed
+const expectLeaderboardShowsSubmission = async (): Promise<void> => {
+  await waitFor(() => expect(screen.getByText(INITIALS)).toBeInTheDocument());
+  expect(screen.getByText(`${SCORE}/${MAX_SCORE}`)).toBeInTheDocument();
+  expect(screen.getByText('#1')).toBeInTheDocument();
+  expect(screen.getByText(/1 Players/i)).toBeInTheDocument();
+};
+
 describe('Leaderboard Feature', () => {
   describe('Initials Prompt', () => {
     test('initials prompt appears when user completes puzzle', async () => {
       await act(async () => renderWithProviders(<Summary />));
 
-      // verify the initials prompt title is displayed
       const titleElement = screen.getByText(config.labels.submitYourScore);
       expect(titleElement).toBeInTheDocument();
 
-      // verify the initials input field is displayed
       const inputElement = screen.getByPlaceholderText(config.labels.initialsPlaceholder);
       expect(inputElement).toBeInTheDocument();
 
-      // verify the submit button is displayed
       const submitButton = screen.getByRole('button', { name: config.labels.submitScore });
       expect(submitButton).toBeInTheDocument();
 
-      // verify the skip button is displayed
       const skipButton = screen.getByRole('button', { name: config.labels.skip });
       expect(skipButton).toBeInTheDocument();
     });
@@ -115,15 +123,6 @@ describe('Leaderboard Feature', () => {
       await user.click(submitButton);
     }
 
-    const expectLeaderboardShowsSubmission = async (): Promise<void> => {
-      // wait for the leaderboard to load and display the user's entry
-      await waitFor(() => expect(screen.getByText(INITIALS)).toBeInTheDocument());
-
-      expect(screen.getByText(`${SCORE}/${MAX_SCORE}`)).toBeInTheDocument();
-      expect(screen.getByText('#1')).toBeInTheDocument();
-      expect(screen.getByText(/1 Players/i)).toBeInTheDocument();
-    }
-
     test('submitted score appears on the leaderboard', async () => {
       const user = userEvent.setup();
       renderWithProviders(<Summary />);
@@ -139,9 +138,6 @@ describe('Leaderboard Feature', () => {
         );
       });
 
-      // verify the score is displayed
-      // verify the rank is displayed
-      // verify the total players count is displayed
       await expectLeaderboardShowsSubmission();
     });
 
@@ -170,6 +166,111 @@ describe('Leaderboard Feature', () => {
       });
       expect(screen.getByText(INITIALS)).toBeInTheDocument();
       expect(screen.getByText(`${SCORE}/${MAX_SCORE}`)).toBeInTheDocument();
+    });
+
+    test('second score submission attempt is rejected with an error', async () => {
+      const user = userEvent.setup();
+
+      vi.mocked(submitScore).mockResolvedValueOnce(mockSubmitResponse);
+      vi.mocked(submitScore).mockResolvedValueOnce({
+        success: false,
+        error: 'ALREADY_SUBMITTED',
+        message: 'You have already submitted a score today.'
+      });
+
+      const { unmount } = renderWithProviders(<Summary />);
+      await submitScoreUI(user);
+
+      await expectLeaderboardShowsSubmission();
+
+      // simulate second submission attempt
+      localStorage.removeItem(SUBMITTED_LAST_KEY);
+      unmount();
+      renderWithProviders(<Summary />);
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText(config.labels.initialsPlaceholder)).toBeInTheDocument();
+      });
+
+      await submitScoreUI(user);
+
+      await waitFor(() => {
+        expect(submitScore).toHaveBeenCalledTimes(2);
+        expect(screen.getByText(config.labels.errorAlreadySubmitted)).toBeInTheDocument();
+      });
+
+      // user remains on initials phase; leaderboard is not shown
+      expect(
+        screen.queryByRole('button', { name: new RegExp(config.labels.leaderboardRefresh, 'i') })
+      ).not.toBeInTheDocument();
+    });
+
+    test('error state displays retry button', async () => {
+      const user = userEvent.setup();
+
+      // first fetch returns error when leaderboard loads after submit; retry succeeds
+      vi.mocked(fetchLeaderboard).mockResolvedValueOnce({
+        ...mockLeaderboardResponse,
+        error: true
+      });
+
+      renderWithProviders(<Summary />);
+      await submitScoreUI(user);
+
+      await waitFor(() => {
+        expect(screen.getByText(config.labels.leaderboardError)).toBeInTheDocument();
+      });
+
+      const retryButton = screen.getByRole('button', {
+        name: new RegExp(config.labels.leaderboardRetry, 'i')
+      });
+      await user.click(retryButton);
+
+      await expectLeaderboardShowsSubmission();
+    });
+  });
+
+  describe('Leaderboard from Toolbar', () => {
+    // toolbar has three buttons: [Summary, Manual, Leaderboard]
+    const LEADERBOARD_BUTTON_INDEX = 2;
+
+    test('leaderboard loads correctly when opened from toolbar', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<Toolbar />);
+
+      const buttons = screen.getAllByRole('button');
+      const leaderboardButton = buttons[LEADERBOARD_BUTTON_INDEX] as HTMLButtonElement;
+      await user.click(leaderboardButton);
+
+      // modal opens with leaderboard title
+      expect(screen.getByText(config.labels.leaderboardTitle)).toBeInTheDocument();
+
+      await expectLeaderboardShowsSubmission();
+
+      expect(fetchLeaderboard).toHaveBeenCalled();
+    });
+
+    test('empty state (no submissions) displays correctly when opened from toolbar', async () => {
+      const user = userEvent.setup();
+      vi.mocked(fetchLeaderboard).mockResolvedValueOnce({
+        ...mockLeaderboardResponse,
+        entries: [],
+        totalPlayers: 0
+      });
+
+      renderWithProviders(<Toolbar />);
+
+      const buttons = screen.getAllByRole('button');
+      const leaderboardButton = buttons[LEADERBOARD_BUTTON_INDEX] as HTMLButtonElement;
+      await user.click(leaderboardButton);
+
+      expect(screen.getByText(config.labels.leaderboardTitle)).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.getByText(config.labels.leaderboardEmpty)).toBeInTheDocument();
+      });
+
+      expect(fetchLeaderboard).toHaveBeenCalled();
     });
   });
 });
