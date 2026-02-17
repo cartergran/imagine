@@ -214,4 +214,35 @@ axios.interceptors.response.use(
   }
 );
 
+/**
+ * fetches the puzzle image data URL.
+ */
+export async function fetchPuzzleImg(): Promise<string> {
+  try {
+    const res = await axios.get<string>('/puzzle/img');
+    return res.data;
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    console.error('fetchPuzzleImg() Error!', errorMessage);
+    return '';
+  }
+}
+
+/**
+ * fetches the puzzle category and solution.
+ */
+export async function fetchCategoryAndSolution(): Promise<{ category: string; solution: string }> {
+  try {
+    const [categoryRes, solutionRes] = await Promise.all([
+      axios.get<string>('/puzzle/category'),
+      axios.get<string>('/puzzle/solution')
+    ]);
+    return { category: categoryRes.data, solution: solutionRes.data };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    console.error('fetchCategoryAndSolution() Error!', errorMessage);
+    return { category: '', solution: '' };
+  }
+}
+
 export default scorecard;

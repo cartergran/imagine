@@ -1,17 +1,16 @@
-import axios from 'axios';
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Text from 'antd/es/typography/Text';
 
 import config from '../utils/config';
 import { PuzzleContext } from '../lib/contexts';
-import scorecard from '../utils/scorecard';
+import scorecard, { fetchPuzzleImg, fetchCategoryAndSolution } from '../utils/scorecard';
 
 interface ScorecardProps {
   title?: string;
   card?: string[][];
   score?: number;
-  img?: string;
+  puzzleImg?: string;
 }
 
 const StyledScorecard = styled.div`
@@ -62,12 +61,12 @@ const StyledCard = styled.dl`
   }
 `;
 
-const StyledImage = styled.div<{ $img: string }>`
+const StyledImage = styled.div<{ $puzzleImg: string }>`
   // see above <span /> size for calc
   width: calc(20px * ${config.board.rows});
   height: calc(20px * ${config.board.cols});
 
-  background: url("${props => props.$img || ''}");
+  background: url("${props => props.$puzzleImg || ''}");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -77,51 +76,30 @@ export default function Scorecard({
   title: exampleTitle,
   card: exampleCard,
   score: exampleScore,
-  img: exampleImg
+  puzzleImg: examplePuzzleImg
 }: ScorecardProps) {
-  const [img, setImg] = useState(exampleImg || '');
+  const [puzzleImg, setPuzzleImg] = useState(examplePuzzleImg || '');
   const [category, setCategory] = useState('');
   const [solution, setSolution] = useState('');
   const { buzzer } = useContext(PuzzleContext);
 
   // TODO: conditionally require props (all or none)
-  const isExample = Boolean(exampleTitle && exampleCard && exampleScore && exampleImg);
+  const isExample = Boolean(exampleTitle && exampleCard && exampleScore && examplePuzzleImg);
   const card = isExample ? exampleCard : scorecard.card;
   const showResults = buzzer && category && solution;
 
-  const getImg = async (): Promise<void> => {
-    try {
-      const imgRes = await axios.get<string>('/puzzle/img');
-      setImg(imgRes.data);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      console.error('getImg() Error!', errorMessage);
-    }
-  };
-
-  const getCategoryAndSolution = async (): Promise<void> => {
-    try {
-      const [categoryRes, solutionRes] = await Promise.all([
-        axios.get<string>('/puzzle/category'),
-        axios.get<string>('/puzzle/solution')
-      ]);
-      setCategory(categoryRes.data);
-      setSolution(solutionRes.data);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      console.error('getCategoryAndSolution() Error!', errorMessage);
-    }
-  };
-
   useEffect(() => {
     if (!isExample) {
-      getImg();
+      fetchPuzzleImg().then(setPuzzleImg);
     }
   }, [isExample]);
 
   useEffect(() => {
     if (buzzer && !isExample) {
-      getCategoryAndSolution();
+      fetchCategoryAndSolution().then(({ category, solution }) => {
+        setCategory(category);
+        setSolution(solution);
+      });
     }
   }, [buzzer, isExample]);
 
@@ -145,7 +123,7 @@ export default function Scorecard({
             })
           }
         </StyledCard>
-        <StyledImage $img={img} />
+        <StyledImage $puzzleImg={puzzleImg} />
       </div>
       {
         showResults &&
