@@ -1,10 +1,10 @@
-import axios from 'axios';
 import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import Flip, { BorderStyle } from './flip';
 
 import config from '../utils/config';
+import { fetchTileImg } from '../utils/tile';
 import { PuzzleContext } from '../lib/contexts';
 
 interface TileProps {
@@ -97,17 +97,6 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredAttempt, restoredBorder
     width: borderWidth
   }), [borderColor, borderWidth]);
 
-  const getTileImg = async (attempt: number, r: number, c: number): Promise<string> => {
-    let tileImgRes = { data: '' };
-    try {
-      tileImgRes = await axios.get<string>('/puzzle/tile', { params: { attempt, r, c }});
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      console.error('getTileImg() Error!', errorMessage);
-    }
-    return tileImgRes.data;
-  };
-
   const remixTile = useCallback(() => {
     if (hasLoadedImgRef.current) { return; }
 
@@ -122,7 +111,7 @@ function Tile({ loc, attemptsLeft, maxSelection, restoredAttempt, restoredBorder
     }
     const { r, c } = loc;
 
-    getTileImg(attempt, r, c).then((tileImgRes) => {
+    fetchTileImg({ attempt, r, c }).then((tileImgRes) => {
       if (!hasLoadedImgRef.current && tileImgRes) {
           hasLoadedImgRef.current = true;
           setTileState((prev) => ({

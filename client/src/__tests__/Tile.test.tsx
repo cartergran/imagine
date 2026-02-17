@@ -1,4 +1,3 @@
-import axios from 'axios';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
@@ -7,16 +6,14 @@ import Board from '../components/board';
 import config from '../utils/config';
 import { screen, waitFor, renderWithProviders } from './utils';
 
+const mockTileImage = vi.hoisted(() => 'data:image/jpeg;base64,AAA');
+
+vi.mock('../utils/tile', () => ({
+  fetchTileImg: vi.fn().mockResolvedValue(mockTileImage),
+}));
+
 test('tile background updates after click when not solvable', async () => {
   const user = userEvent.setup();
-
-  vi.mocked(axios.get).mockResolvedValue({
-    data: 'data:image/jpeg;base64,AAA', // fake base64 img
-    status: 200,
-    statusText: 'OK',
-    headers: {},
-    config: {} as any
-  });
 
   renderWithProviders(
     <Board
