@@ -10,14 +10,15 @@
 
     "wait:server": "wait-on tcp:127.0.0.1:3001 -t 60000",
 
-    "client:start": "npm start --prefix client",
     "client:build": "npm run build --prefix client",
-    "client:typecheck": "npm run typecheck --prefix client",
+    "client:start": "npm start --prefix client",
     "client:start:ready": "npm run wait:server && npm run client:start",
+    "client:test": "npm run test --prefix client",
+    "client:typecheck": "npm run typecheck --prefix client",
 
+    "server:build": "npm run build --prefix server",
     "server:dev": "npm run dev --prefix server",
     "server:start": "npm start --prefix server",
-    "server:build": "npm run build --prefix server",
     "server:typecheck": "npm run typecheck --prefix server",
 
     "predev": "npm run server:build",
