@@ -7,12 +7,13 @@ import Board from './components/board';
 import Layout from './components/layout';
 import Solve from './components/solve';
 
-import { AppState, TilesPropsMap } from './lib/types';
 import config from './utils/config';
 import GlobalStyle from './styles/globalStyle';
 import { PuzzleContext, PuzzleContextValue, SolvableContext } from './lib/contexts';
 import scorecard, { Log } from './utils/scorecard';
 import theme from './styles/theme';
+
+import type { AppState, TilesPropsMap } from './lib/types';
 
 const getRestoredTiles = (logs: Log[]): TilesPropsMap => {
   const restoredTiles: TilesPropsMap = new Map();

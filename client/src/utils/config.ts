@@ -9,14 +9,30 @@ type LabelsConfig = {
   attemptsLeft: string;
   category: string;
   correct: string;
+  errorAlreadySubmitted: string;
+  errorInvalidInitials: string;
+  errorRateLimited: string;
+  errorSubmitFailed: string;
   incorrect: string;
+  initialsLabel: string;
+  initialsPlaceholder: string;
+  leaderboardEmpty: string;
+  leaderboardError: string;
+  leaderboardPlayers: string;
+  leaderboardRefresh: string;
+  leaderboardRetry: string;
+  leaderboardTitle: string;
   share: string;
+  skip: string;
   solution: string;
   submit: string;
+  submitScore: string;
+  submitYourScore: string;
 };
 
 type ToolsConfig = {
   closed: string;
+  leaderboard: string;
   manual: string;
   summary: string;
 };
@@ -92,6 +108,7 @@ const board: BoardConfig = {
 
 const tools: ToolsConfig = {
   closed: '',
+  leaderboard: 'leaderboard',
   manual: 'manual',
   summary: 'summary'
 };
@@ -99,11 +116,26 @@ const tools: ToolsConfig = {
 const labels: LabelsConfig = {
   attemptsLeft: 'Blunders Left:',
   category: 'Category',
+  correct: 'Ball IQ',
+  errorAlreadySubmitted: 'You have already submitted a score today.',
+  errorInvalidInitials: 'Please choose different initials.',
+  errorRateLimited: 'Too many attempts. Please try again later.',
+  errorSubmitFailed: 'Failed to submit. Please try again.',
+  incorrect: 'Tough',
+  initialsLabel: '2-4 letters or numbers',
+  initialsPlaceholder: 'AAA',
+  leaderboardEmpty: 'No scores yet. Be the first!',
+  leaderboardError: "Couldn't load scores.",
+  leaderboardPlayers: 'Players',
+  leaderboardRefresh: 'Refresh',
+  leaderboardRetry: 'Retry',
+  leaderboardTitle: "Today's Top Scores",
   share: 'Share',
+  skip: 'Skip',
   solution: 'Solution',
   submit: 'Submit',
-  correct: 'Ball IQ',
-  incorrect: 'Tough'
+  submitScore: 'Submit Score',
+  submitYourScore: 'Submit Your Score',
 };
 
 export const manualConfig: ManualConfig = {

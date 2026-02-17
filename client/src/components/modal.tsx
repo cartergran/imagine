@@ -24,10 +24,9 @@ const StyledModal = styled.dialog`
   z-index: ${import.meta.env.VITE_MAGIC_NUM};
 
   .modal {
-    // max width = board width
-    // max width := (scoreWidth + imgWidth) + (paddingWidth * 2)
+    // width := (scoreWidth + imgWidth) + (paddingWidth * 2)
     // board width := (tileWidth * cols) + (boardGap * (cols - 1))
-    max-width: 384px;
+    width: 368px;
 
     display: flex;
     flex-direction: column;

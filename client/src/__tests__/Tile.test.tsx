@@ -1,15 +1,15 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import axios from 'axios';
+import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
 import Board from '../components/board';
-import { PuzzleContext, PuzzleContextValue, SolvableContext } from '../lib/contexts';
 
-import axios from 'axios';
 import config from '../utils/config';
-
-vi.mock('axios');
+import { screen, waitFor, renderWithProviders } from './utils';
 
 test('tile background updates after click when not solvable', async () => {
+  const user = userEvent.setup();
+
   vi.mocked(axios.get).mockResolvedValue({
     data: 'data:image/jpeg;base64,AAA', // fake base64 img
     status: 200,
@@ -18,23 +18,13 @@ test('tile background updates after click when not solvable', async () => {
     config: {} as any
   });
 
-  const testPuzzleContext: PuzzleContextValue = {
-    correctCategory: false,
-    correctSolution: false,
-    buzzer: false
-  };
-
-  render(
-    <PuzzleContext.Provider value={testPuzzleContext}>
-      <SolvableContext.Provider value={false}>
-        <Board 
-          attemptsLeft={config.totalAttempts}
-          restoredTiles={new Map()}
-          maxSelection={false}
-          onSelection={() => {}}
-        />
-      </SolvableContext.Provider>
-    </PuzzleContext.Provider>
+  renderWithProviders(
+    <Board
+      attemptsLeft={config.totalAttempts}
+      restoredTiles={new Map()}
+      maxSelection={false}
+      onSelection={() => {}}
+    />
   );
 
   const tiles = screen.getAllByTestId('tile');
@@ -50,7 +40,7 @@ test('tile background updates after click when not solvable', async () => {
   const styleBefore = getComputedStyle(randomTileImg);
   expect(styleBefore.backgroundImage).toBe('url("")');
 
-  fireEvent.click(randomTile);
+  await user.click(randomTile);
 
   await waitFor(() => {
     const styleAfter = getComputedStyle(randomTileImg);

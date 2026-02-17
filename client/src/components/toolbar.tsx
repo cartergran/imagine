@@ -1,7 +1,13 @@
-import { ChartNoAxesColumn as SummaryIcon, CircleHelp as ManualIcon } from 'lucide-react';
+import { Button } from 'antd';
+import {
+  ChartNoAxesColumn as SummaryIcon,
+  CircleHelp as ManualIcon,
+  Trophy as LeaderboardIcon
+} from 'lucide-react';
 import { ReactElement, useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
+import Leaderboard from './leaderboard';
 import Manual from './manual';
 import Modal, { ModalProps } from './modal';
 import Summary from './summary';
@@ -18,6 +24,7 @@ const StyledToolbar = styled.footer`
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  gap: var(--space-s);
 
   position: absolute;
   bottom: 0;
@@ -25,10 +32,6 @@ const StyledToolbar = styled.footer`
 
   align-self: center;
 
-  // position: fixed;
-  // bottom: 0;
-
-  color: white;
   padding: var(--space-m);
 `;
 
@@ -36,9 +39,10 @@ const iconSize = 32;
 const { tools } = config;
 
 const renderTools: Record<string, ReactElement> = {
-  [tools.summary]: <Summary />,
+  [tools.closed]: <></>,
+  [tools.leaderboard]: <Leaderboard />,
   [tools.manual]: <Manual />,
-  [tools.closed]: <></>
+  [tools.summary]: <Summary />
 };
 
 export default function Toolbar() {
@@ -73,6 +77,14 @@ export default function Toolbar() {
     setActiveTool(tools.manual);
   };
 
+  const handleLeaderboardClick = () => {
+    setModalProps({
+      header: config.labels.leaderboardTitle,
+      handleClose: () => setActiveTool(tools.closed)
+    });
+    setActiveTool(tools.leaderboard);
+  };
+
   useEffect(() => {
     if (summary.toggle) {
       const delay = config.duration * 3;
@@ -83,12 +95,22 @@ export default function Toolbar() {
   return (
     <>
       <StyledToolbar>
-        <button onClick={handleSummaryClick} disabled={!summary.toggle}>
-          <SummaryIcon size={iconSize} />
-        </button>
-        <button onClick={handleManualClick}>
-          <ManualIcon size={iconSize} />
-        </button>
+        <Button
+          type="text"
+          icon={<SummaryIcon color="white" size={iconSize} />}
+          disabled={!summary.toggle}
+          onClick={handleSummaryClick}
+        />
+        <Button
+          type="text"
+          icon={<ManualIcon color="white" size={iconSize} />}
+          onClick={handleManualClick}
+        />
+        <Button
+          type="text"
+          icon={<LeaderboardIcon color="white" size={iconSize} />}
+          onClick={handleLeaderboardClick}
+        />
       </StyledToolbar>
       {
         activeTool && renderTools[activeTool] &&

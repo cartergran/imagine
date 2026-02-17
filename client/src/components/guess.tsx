@@ -17,9 +17,11 @@ const StyledGuess = styled(Input)`
   }
 
   &:focus,
+  &:focus-within,
   &:hover {
     background-color: black;
     border-color: dodgerblue;
+    box-shadow: none;
     color: white;
   }
 
@@ -42,8 +44,11 @@ interface GuessProps {
 export default function Guess({ disabled, placeholder, value, onChange, onPressEnter }: GuessProps) {
   return (
     <StyledGuess
+      autoFocus
       disabled={disabled}
+      id="guess-input"
       placeholder={placeholder || defaultPlaceholder}
+      maxLength={32}
       value={value}
       onChange={onChange}
       onPressEnter={onPressEnter}

@@ -16,6 +16,7 @@ export default defineConfig({
     }
   },
   server: {
+    host: true,
     proxy: {
       '/puzzle': {
         target: 'http://localhost:3001',
@@ -25,10 +26,15 @@ export default defineConfig({
         target: 'http://localhost:3001',
         changeOrigin: true,
       },
-    },
+      '/leaderboard': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      }
+    }
   },
   test: {
     globals: true,
-    environment: 'jsdom'
+    environment: 'jsdom',
+    setupFiles: ['./src/__tests__/setup.ts']
   }
 });

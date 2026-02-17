@@ -25,22 +25,28 @@ const StyledScorecard = styled.div`
   }
 `;
 
-const ScorecardLabel = styled(Text)`
+const ScorecardLabel = styled(Text)<{ $marginTop?: boolean }>`
   display: inline-flex;
 
   color: white;
   font-size: 12px;
-  margin-bottom: var(--space-s);
+  margin-top: ${props => props.$marginTop ? 'var(--space-s)' : '0'};
   text-align: center;
   white-space: pre-line;
 `;
 
 const StyledCard = styled.dl`
+  width: calc(20px * ${config.board.rows});
+  height: calc(20px * ${config.board.cols});
+
   display: flex;
   flex-direction: column;
-  align-items: center;
 
-  margin-bottom: var(--space-m);
+  overflow: hidden;
+
+  .card-row {
+    height: 20px;
+  }
 
   dt {
     display: inline-flex;
@@ -56,10 +62,10 @@ const StyledCard = styled.dl`
   }
 `;
 
-const StyledImage = styled.div<{ $img: string; $rows: number; $cols: number }>`
-  // see above <span /> size for calc (4x4)
-  width: calc(20px * ${props => props.$rows});
-  height: calc(20px * ${props => props.$cols});
+const StyledImage = styled.div<{ $img: string }>`
+  // see above <span /> size for calc
+  width: calc(20px * ${config.board.rows});
+  height: calc(20px * ${config.board.cols});
 
   background: url("${props => props.$img || ''}");
   background-position: center;
@@ -129,7 +135,7 @@ export default function Scorecard({
           {
             card?.map((row, i) => {
               return (
-                <div key={i}>
+                <div key={i} className="card-row">
                   <dd aria-label={`row ${i} intel`} />
                   <dt>
                     { row.map((tile, j) => <span key={j}>{tile}</span>) }
@@ -139,12 +145,12 @@ export default function Scorecard({
             })
           }
         </StyledCard>
-        <StyledImage $img={img} $rows={config.board.rows} $cols={config.board.cols} />
+        <StyledImage $img={img} />
       </div>
       {
         showResults &&
           <>
-            <ScorecardLabel>{config.labels.category}: {category}</ScorecardLabel>
+            <ScorecardLabel $marginTop={true}>{config.labels.category}: {category}</ScorecardLabel>
             <ScorecardLabel>{config.labels.solution}: {solution}</ScorecardLabel>
           </>
       }

@@ -1,20 +1,41 @@
-import express, { type Request, type Response, type NextFunction } from 'express';
 import cors from 'cors';
+import express, { type Request, type Response, type NextFunction } from 'express';
+import { fileURLToPath } from 'url';
 import Jimp from 'jimp';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { Storage } from '@google-cloud/storage';
 import { scheduleJob } from 'node-schedule';
+
+import {
+  addScore,
+  calculateScoreFromLogs,
+  getScoresFile,
+  hashDeviceId,
+  isValidInitials,
+  normalizeInitials,
+  validateLogs,
+} from './scores.js';
+import * as cache from './cache.js';
 import { config, getGCSCredentials, validateConfig } from './config.js';
+import { dailyRateLimiter, submitRateLimiter } from './rate-limit.js';
+import { isBlockedInitials } from './blocklist.js';
 import { updatePuzzleAndRestart } from './scheduler.js';
+
 import type {
-  Intel,
-  ImgData,
   BoardConfig,
-  Tiles,
-  TileQuery,
   CheckQuery,
+  DailyScore,
+  ImgData,
+  Intel,
+  LeaderboardEntry,
+  LeaderboardQuery,
+  LeaderboardResponse,
+  SubmitScoreError,
+  SubmitScoreRequest,
+  SubmitScoreResponse,
   TileLocation,
+  TileQuery,
+  Tiles,
 } from './types.js';
 
 // validate config at startup
@@ -34,6 +55,9 @@ const __dirname = path.dirname(__filename);
 // initialize express app and GCS
 const app = express();
 const storage = new Storage({ credentials: gcsCreds });
+
+// trust first proxy (Heroku) for correct client IP in rate limiting
+app.set('trust proxy', 1);
 
 // constants
 const TOTAL_ATTEMPTS = 5;
@@ -246,7 +270,12 @@ app.use((req: Request, res: Response, next: NextFunction): void => {
 /**
   - middleware: CORS configuration
 */
-app.use(cors({origin: config.accessURL, methods: ['GET']}));
+app.use(cors({ origin: config.accessURL, methods: ['GET', 'POST'] }));
+
+/**
+  - middleware: parse JSON request bodies
+*/
+app.use(express.json());
 
 /**
   - middleware: serve static files from Vite build
@@ -367,6 +396,230 @@ app.use('/check', checkRouter);
 
 
 /**
+  - leaderboard router: handles daily leaderboard endpoints
+*/
+const leaderboardRouter = express.Router();
+
+/**
+  - leaderboard constants
+*/
+const LEADERBOARD_DEFAULT_LIMIT = 25;
+const LEADERBOARD_MAX_LIMIT = 100;
+
+/**
+  - POST /leaderboard/submit
+  - submits a score to the daily leaderboard
+  - body: { initials, logs, deviceId }
+*/
+leaderboardRouter.post(
+  '/submit',
+  submitRateLimiter,
+  async (
+    req: Request<object, SubmitScoreResponse | SubmitScoreError, SubmitScoreRequest>,
+    res: Response<SubmitScoreResponse | SubmitScoreError>
+  ): Promise<void> => {
+    try {
+      const { initials, logs, deviceId } = req.body;
+
+      // validate initials format
+      if (!initials || !isValidInitials(initials)) {
+        res.status(400).json({
+          success: false,
+          error: 'INVALID_INITIALS',
+          message: 'Initials must be 2-4 alphanumeric characters',
+        });
+        return;
+      }
+
+      // check initials against blocklist
+      if (isBlockedInitials(initials)) {
+        res.status(400).json({
+          success: false,
+          error: 'INVALID_INITIALS',
+          message: 'Please choose different initials',
+        });
+        return;
+      }
+
+      // validate logs structure
+      if (!logs || !validateLogs(logs)) {
+        res.status(400).json({
+          success: false,
+          error: 'INVALID_LOG',
+          message: 'Invalid game log structure',
+        });
+        return;
+      }
+
+      // validate deviceId
+      if (!deviceId || typeof deviceId !== 'string' || deviceId.length === 0) {
+        res.status(400).json({
+          success: false,
+          error: 'INVALID_LOG',
+          message: 'Missing or invalid device ID',
+        });
+        return;
+      }
+
+      // calculate score server-side (don't trust client)
+      const score = calculateScoreFromLogs(logs);
+
+      // hash the device ID for storage
+      const deviceIdHash = hashDeviceId(deviceId);
+
+      // create the score entry
+      const scoreEntry: DailyScore = {
+        initials: normalizeInitials(initials),
+        score,
+        deviceIdHash,
+        timestamp: new Date().toISOString(),
+      };
+
+      // add score to leaderboard
+      const result = await addScore(
+        storage,
+        config.bucketName,
+        config.puzzleNum,
+        scoreEntry
+      );
+
+      if (!result.success) {
+        if (result.error === 'ALREADY_SUBMITTED') {
+          res.status(400).json({
+            success: false,
+            error: 'ALREADY_SUBMITTED',
+            message: 'You have already submitted a score today',
+          });
+          return;
+        }
+
+        // CONFLICT or SAVE_FAILED - return 500
+        res.status(500).json({
+          success: false,
+          error: 'INVALID_LOG',
+          message: 'Failed to save score. Please try again.',
+        });
+        return;
+      }
+
+      // invalidate leaderboard cache on successful submission
+      cache.invalidate(cache.leaderboardKey(config.puzzleNum));
+
+      // success
+      res.status(201).json({
+        success: true,
+        score,
+        rank: result.rank,
+        totalPlayers: result.totalPlayers,
+      });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.error('POST /leaderboard/submit error!', errorMessage);
+      res.status(500).json({
+        success: false,
+        error: 'INVALID_LOG',
+        message: 'Internal server error',
+      });
+    }
+  }
+);
+
+/**
+  - GET /leaderboard/daily
+  - returns the daily leaderboard
+  - query params: puzzleNum (optional), limit (optional, default 25, max 100), deviceId (optional)
+*/
+leaderboardRouter.get(
+  '/daily',
+  dailyRateLimiter,
+  async (
+    req: Request<object, LeaderboardResponse, object, LeaderboardQuery>,
+    res: Response<LeaderboardResponse>
+  ): Promise<void> => {
+    try {
+      // use current puzzle if not specified
+      const puzzleNum = req.query.puzzleNum || config.puzzleNum;
+      const { deviceId } = req.query;
+
+      // parse and clamp limit
+      let limit = LEADERBOARD_DEFAULT_LIMIT;
+      if (req.query.limit) {
+        const parsedLimit = parseInt(req.query.limit, 10);
+        if (!isNaN(parsedLimit) && parsedLimit > 0) {
+          limit = Math.min(parsedLimit, LEADERBOARD_MAX_LIMIT);
+        }
+      }
+
+      // check cache first
+      const cacheKey = cache.leaderboardKey(puzzleNum);
+      let cachedData = cache.get(cacheKey);
+
+      if (!cachedData) {
+        // cache miss - fetch from GCS
+        const { data: scoresFile } = await getScoresFile(storage, config.bucketName, puzzleNum);
+
+        // build full leaderboard data with device ID hashes (for isCurrentUser matching)
+        const allEntries: cache.CachedLeaderboardEntry[] = scoresFile.scores.map((score, index) => ({
+          rank: index + 1,
+          initials: score.initials,
+          score: score.score,
+          timestamp: score.timestamp,
+          deviceIdHash: score.deviceIdHash
+        }));
+
+        cachedData = {
+          puzzleNum: scoresFile.puzzleNum,
+          date: scoresFile.date,
+          totalPlayers: scoresFile.scores.length,
+          entries: allEntries
+        };
+
+        // cache for 30 seconds (default TTL)
+        cache.set(cacheKey, cachedData);
+      }
+
+      // hash deviceId if provided for comparison
+      const hashedDeviceId = deviceId ? hashDeviceId(deviceId) : null;
+
+      // apply limit and build public response entries
+      const publicEntries: LeaderboardEntry[] = cachedData.entries
+        .slice(0, limit)
+        .map((entry) => ({
+          ...entry,
+          ...(
+            hashedDeviceId && entry.deviceIdHash === hashedDeviceId
+              ? { isCurrentUser: true }
+              : {}
+          )
+        }));
+
+      res.json({
+        puzzleNum: cachedData.puzzleNum,
+        date: cachedData.date,
+        totalPlayers: cachedData.totalPlayers,
+        entries: publicEntries
+      });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.error('GET /leaderboard/daily error!', errorMessage);
+
+      // return empty leaderboard on error
+      res.json({
+        puzzleNum: config.puzzleNum,
+        date: new Date().toISOString().split('T')[0] ?? '',
+        totalPlayers: 0,
+        entries: [],
+        error: true
+      });
+    }
+  }
+);
+
+app.use('/leaderboard', leaderboardRouter);
+
+
+
+/**
   - catch-all route: return the client app for all other requests
 */
 app.get('*', (_req: Request, res: Response): void => {
@@ -383,4 +636,4 @@ app.listen(config.port, (): void => {
 /**
   - schedule daily puzzle update at midnight EST
 */
-scheduleJob({ rule: '0 0 * * *', tz: 'America/New_York' }, updatePuzzleAndRestart);
+scheduleJob({ rule: '0 0 * * *', tz: 'America/New_York' }, () => updatePuzzleAndRestart(storage));

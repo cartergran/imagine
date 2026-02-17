@@ -107,3 +107,132 @@ export interface Config {
   herokuApiToken: string;
   herokuAppName: string;
 }
+
+
+
+// leaderboard types
+
+/**
+  - individual score entry on the daily leaderboard
+*/
+export interface DailyScore {
+  initials: string;
+  score: number;
+  deviceIdHash: string;
+  timestamp: string;
+}
+
+/**
+  - base leaderboard entry with shared fields
+*/
+export interface BaseLeaderboardEntry {
+  rank: number;
+  initials: string;
+  score: number;
+  timestamp: string;
+}
+
+/**
+  - single entry in the leaderboard API response
+*/
+export interface LeaderboardEntry extends BaseLeaderboardEntry {
+  isCurrentUser?: boolean;
+}
+
+/**
+  - base leaderboard data with shared fields
+*/
+export interface BaseLeaderboardData {
+  puzzleNum: string;
+  date: string;
+  totalPlayers: number;
+}
+
+/**
+  - leaderboard API response
+*/
+export interface LeaderboardResponse extends BaseLeaderboardData {
+  entries: LeaderboardEntry[];
+  error?: boolean;
+}
+
+/**
+  - query parameters for leaderboard endpoint
+*/
+export interface LeaderboardQuery {
+  puzzleNum?: string;
+  limit?: string;
+  deviceId?: string;
+}
+
+/**
+  - tile selection coordinates for a single tile
+*/
+export interface TileSelection {
+  r: number;
+  c: number;
+}
+
+/**
+  - game log entry for a single attempt
+  - correctness: 0 = incorrect, 1 = correct category, 3 = correct solution, null = not yet evaluated
+*/
+export interface GameLog {
+  tileSelection: TileSelection[];
+  correctness: number | null;
+}
+
+/**
+  - metadata for the scores file
+*/
+export interface ScoresMetadata {
+  totalSubmissions: number;
+  lastUpdated: string;
+}
+
+/**
+  - complete scores file structure stored in GCS
+*/
+export interface ScoresFile {
+  puzzleNum: string;
+  date: string;
+  scores: DailyScore[];
+  metadata: ScoresMetadata;
+}
+
+/**
+  - request body for submitting a score
+*/
+export interface SubmitScoreRequest {
+  initials: string;
+  logs: GameLog[];
+  deviceId: string;
+}
+
+/**
+  - successful response after submitting a score
+*/
+export interface SubmitScoreResponse {
+  success: true;
+  score: number;
+  rank: number;
+  totalPlayers: number;
+}
+
+/**
+  - error codes for score submission failures
+*/
+export type SubmitScoreErrorCode =
+  | 'ALREADY_SUBMITTED'
+  | 'INVALID_INITIALS'
+  | 'INVALID_LOG'
+  | 'RATE_LIMITED';
+
+/**
+  - error response for score submission
+*/
+export interface SubmitScoreError {
+  success: false;
+  error: SubmitScoreErrorCode;
+  message: string;
+}
