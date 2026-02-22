@@ -19,6 +19,7 @@ import * as cache from './cache.js';
 import { config, getGCSCredentials, validateConfig } from './config.js';
 import { dailyRateLimiter, submitRateLimiter } from './rate-limit.js';
 import { isBlockedInitials } from './blocklist.js';
+import { securityMiddleware } from './middleware/security.js';
 import { updatePuzzleAndRestart } from './scheduler.js';
 
 import type {
@@ -58,6 +59,8 @@ const storage = new Storage({ credentials: gcsCreds });
 
 // trust first proxy (Heroku) for correct client IP in rate limiting
 app.set('trust proxy', 1);
+
+app.use(securityMiddleware());
 
 // constants
 const TOTAL_ATTEMPTS = 5;
@@ -280,7 +283,12 @@ app.use(express.json());
 /**
   - middleware: serve static files from Vite build
 */
-app.use(express.static(path.resolve(__dirname, '../../client/dist')));
+app.use(
+  express.static(path.resolve(__dirname, '../../client/dist'), {
+    dotfiles: 'ignore',
+    index: false
+  })
+);
 
 
 
@@ -620,10 +628,17 @@ app.use('/leaderboard', leaderboardRouter);
 
 
 /**
-  - catch-all route: return the client app for all other requests
+  - serve index.html only for routes without a file extension
 */
-app.get('*', (_req: Request, res: Response): void => {
+app.get(/^\/(?!.*\.[a-z0-9]+$).*/i, (_req: Request, res: Response): void => {
   res.sendFile(path.resolve(__dirname, '../../client/dist', 'index.html'));
+});
+
+/**
+  - 404 fallback for all other routes
+*/
+app.use((_req: Request, res: Response) => {
+  res.sendStatus(404);
 });
 
 /**
