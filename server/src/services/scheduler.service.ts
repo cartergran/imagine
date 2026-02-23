@@ -1,10 +1,10 @@
 import Heroku from 'heroku-client';
 import type { Storage } from '@google-cloud/storage';
 
-import { config } from './config.js';
-import { initializeScoresFile } from './scores.js';
+import { config } from '../config.js';
+import { initializeScoresFile } from './scores.service.js';
 
-import type { HerokuConfigVars } from './types.js';
+import type { HerokuConfigVars } from '../types.js';
 
 /**
   - updates the puzzle number in Heroku config vars and restarts the application
@@ -22,7 +22,6 @@ export async function updatePuzzleAndRestart(storage: Storage): Promise<void> {
 
     console.log('updatePuzzleAndRestart(): updating puzzle...');
 
-    // initialize empty scores file for the new puzzle
     const scoresInitialized = await initializeScoresFile(
       storage,
       config.bucketName,
@@ -34,20 +33,16 @@ export async function updatePuzzleAndRestart(storage: Storage): Promise<void> {
       return;
     }
 
-    // update Heroku config vars
     const heroku = new Heroku({ token });
     const newEnvVar: Partial<HerokuConfigVars> = {
       PUZZLE_NUM: newPuzzleNumStr,
     };
-    
-    // update PUZZLE_NUM config var
+
     await heroku.patch(`/apps/${appName}/config-vars`, { body: newEnvVar });
 
-    // verify update
     const updatedEnvVars = await heroku.get(`/apps/${appName}/config-vars`);
     console.log('updatePuzzleAndRestart(): puzzle updated! now:', updatedEnvVars.PUZZLE_NUM);
 
-    // restart dynos to apply the new PUZZLE_NUM config var
     await heroku.delete(`/apps/${appName}/dynos`);
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';

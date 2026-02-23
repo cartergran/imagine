@@ -1,6 +1,7 @@
 import rateLimit from 'express-rate-limit';
 import type { Response, Request } from 'express';
-import type { SubmitScoreError } from './types.js';
+
+import type { SubmitScoreError } from '../types.js';
 
 /**
   - rate limiting middleware using express-rate-limit
@@ -25,7 +26,7 @@ const rateLimitHandler = (_req: Request, res: Response): void => {
   - 30 requests per minute per IP
 */
 export const dailyRateLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
+  windowMs: 60 * 1000,
   limit: 30,
   standardHeaders: true,
   legacyHeaders: false,
@@ -37,7 +38,7 @@ export const dailyRateLimiter = rateLimit({
   - 5 requests per minute per IP
 */
 export const submitRateLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
+  windowMs: 60 * 1000,
   limit: 5,
   standardHeaders: true,
   legacyHeaders: false,

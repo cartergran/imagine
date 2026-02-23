@@ -1,7 +1,7 @@
 import { createHash } from 'crypto';
 import type { Storage } from '@google-cloud/storage';
-import type { DailyScore, GameLog, ScoresFile } from './types.js';
 
+import type { DailyScore, GameLog, ScoresFile } from '../types.js';
 
 // constants (must match client-side scorecard.ts)
 
@@ -31,7 +31,7 @@ export const SCORE_POINTS = {
   - calculated as: (totalTiles - selectionsPerAttempt) * unselected + selectionsPerAttempt * solution
   - = (64 - 3) * 5 + 3 * 3 = 305 + 9 = 314
 */
-export const MAX_SCORE = 
+export const MAX_SCORE =
   (BOARD_CONFIG.totalTiles - BOARD_CONFIG.selectionsPerAttempt) * SCORE_POINTS.unselected +
   BOARD_CONFIG.selectionsPerAttempt * SCORE_POINTS.solution;
 
@@ -46,7 +46,6 @@ export const MAX_SCORE =
   - @returns calculated score
 */
 export function calculateScoreFromLogs(logs: GameLog[]): number {
-  // sum up selected tiles and their scores
   const { numSelected, selectedScore } = logs.reduce(
     (acc, log) => {
       const numTilesInLog = log.tileSelection.length;
@@ -58,7 +57,6 @@ export function calculateScoreFromLogs(logs: GameLog[]): number {
     { numSelected: 0, selectedScore: 0 }
   );
 
-  // unselected tiles get bonus points
   const unselectedScore = (BOARD_CONFIG.totalTiles - numSelected) * SCORE_POINTS.unselected;
 
   return selectedScore + unselectedScore;
@@ -74,40 +72,32 @@ export function calculateScoreFromLogs(logs: GameLog[]): number {
   - @returns true if logs are valid, false otherwise
 */
 export function validateLogs(logs: GameLog[]): boolean {
-  // must have at least one log entry (even if empty initial log)
   if (!Array.isArray(logs) || logs.length === 0) {
     return false;
   }
 
-  // cannot exceed max attempts
   // note: logs may include an initial empty log, so we check length <= totalAttempts + 1
   if (logs.length > BOARD_CONFIG.totalAttempts + 1) {
     return false;
   }
 
-  // track all selected tiles to detect duplicates
   const selectedTiles = new Set<string>();
 
   for (const log of logs) {
-    // validate log structure
     if (!log || typeof log !== 'object') {
       return false;
     }
 
-    // tileSelection must be an array
     if (!Array.isArray(log.tileSelection)) {
       return false;
     }
 
     // each attempt can have 0 to selectionsPerAttempt tiles
-    // (0 is valid for initial empty log or incomplete attempts)
     if (log.tileSelection.length > BOARD_CONFIG.selectionsPerAttempt) {
       return false;
     }
 
-    // validate each tile selection
     for (const tile of log.tileSelection) {
-      // must have r and c properties
       if (
         typeof tile !== 'object' ||
         tile === null ||
@@ -117,17 +107,14 @@ export function validateLogs(logs: GameLog[]): boolean {
         return false;
       }
 
-      // row must be within bounds
       if (tile.r < 0 || tile.r >= BOARD_CONFIG.rows) {
         return false;
       }
 
-      // column must be within bounds
       if (tile.c < 0 || tile.c >= BOARD_CONFIG.cols) {
         return false;
       }
 
-      // check for duplicate tile selections
       const tileKey = `${tile.r}:${tile.c}`;
       if (selectedTiles.has(tileKey)) {
         return false;
@@ -135,7 +122,6 @@ export function validateLogs(logs: GameLog[]): boolean {
       selectedTiles.add(tileKey);
     }
 
-    // validate correctness value
     // must be null, 0 (incorrect), 1 (category), or 3 (solution)
     const correctness = log.correctness;
     const isValidCorrectness =
@@ -184,10 +170,7 @@ export function isValidInitials(initials: string): boolean {
     return false;
   }
 
-  // normalize to uppercase for validation
-  const normalized = initials.toUpperCase();
-
-  return INITIALS_PATTERN.test(normalized);
+  return INITIALS_PATTERN.test(initials.toUpperCase());
 }
 
 /**
@@ -265,7 +248,6 @@ export async function getScoresFile(
   const file = storage.bucket(bucketName).file(filePath);
 
   try {
-    // check if file exists
     const [exists] = await file.exists();
     if (!exists) {
       return {
@@ -282,7 +264,6 @@ export async function getScoresFile(
         ? parseInt(metadata.generation, 10)
         : 0;
 
-    // download file contents
     const [contents] = await file.download();
     const data = JSON.parse(contents.toString()) as ScoresFile;
 
@@ -291,7 +272,6 @@ export async function getScoresFile(
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
     console.error('getScoresFile() error!', errorMessage);
 
-    // return empty structure on error
     return {
       data: createEmptyScoresFile(puzzleNum),
       generation: 0,
@@ -334,14 +314,12 @@ export async function initializeScoresFile(
   const file = storage.bucket(bucketName).file(filePath);
 
   try {
-    // check if file already exists
     const [exists] = await file.exists();
     if (exists) {
       console.log(`Scores file already exists for puzzle ${puzzleNum}`);
       return true;
     }
 
-    // create empty scores file
     const emptyScores = createEmptyScoresFile(puzzleNum);
     const contents = JSON.stringify(emptyScores, null, 2);
 
@@ -391,10 +369,8 @@ export async function addScore(
   score: DailyScore
 ): Promise<AddScoreResult> {
   for (let attempt = 0; attempt < MAX_RETRY_ATTEMPTS; attempt++) {
-    // read current scores with generation
     const { data, generation } = await getScoresFile(storage, bucketName, puzzleNum);
 
-    // check if device ID already submitted
     const alreadySubmitted = data.scores.some((s) => s.deviceIdHash === score.deviceIdHash);
     if (alreadySubmitted) {
       return {
@@ -405,19 +381,12 @@ export async function addScore(
       };
     }
 
-    // add the new score
     data.scores.push(score);
-
-    // sort by score descending (higher is better)
     data.scores.sort((a, b) => b.score - a.score);
-
-    // update metadata
     data.metadata.totalSubmissions = data.scores.length;
 
-    // find the rank of the newly added score
     const rank = data.scores.findIndex((s) => s.deviceIdHash === score.deviceIdHash) + 1;
 
-    // attempt to save with optimistic locking
     const saved = await saveScoresFile(storage, bucketName, puzzleNum, data, generation);
 
     if (saved) {
@@ -428,11 +397,9 @@ export async function addScore(
       };
     }
 
-    // save failed due to conflict - retry
     console.warn(`addScore() conflict on attempt ${attempt + 1}, retrying...`);
   }
 
-  // exhausted all retries
   console.error('addScore() exhausted all retry attempts');
   return {
     success: false,
@@ -461,28 +428,18 @@ export async function saveScoresFile(
   const filePath = getScoresFilePath(puzzleNum);
   const file = storage.bucket(bucketName).file(filePath);
 
-  // update metadata timestamp
   data.metadata.lastUpdated = new Date().toISOString();
 
   const contents = JSON.stringify(data, null, 2);
 
   try {
-    if (generation === 0) {
-      // new file - use ifGenerationMatch: 0 to ensure we don't overwrite
-      await file.save(contents, {
-        contentType: 'application/json',
-        preconditionOpts: { ifGenerationMatch: 0 },
-      });
-    } else {
-      // existing file - use generation for optimistic locking
-      await file.save(contents, {
-        contentType: 'application/json',
-        preconditionOpts: { ifGenerationMatch: generation },
-      });
-    }
+    await file.save(contents, {
+      contentType: 'application/json',
+      preconditionOpts: { ifGenerationMatch: generation },
+    });
     return true;
   } catch (err) {
-    // check for precondition failed (412) - indicates concurrent modification
+    // 412 indicates concurrent modification - caller should retry
     if (err instanceof Error && 'code' in err && (err as { code: number }).code === 412) {
       console.warn('saveScoresFile() generation conflict - retry needed');
       return false;

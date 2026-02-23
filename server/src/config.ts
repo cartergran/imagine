@@ -1,4 +1,5 @@
 import 'dotenv/config';
+
 import { GCSCredentials, Config } from './types';
 
 function getEnvString(key: string, defaultValue: string): string {

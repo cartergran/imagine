@@ -1,4 +1,4 @@
-import type { BaseLeaderboardData, BaseLeaderboardEntry } from './types.js';
+import type { BaseLeaderboardData, BaseLeaderboardEntry } from '../types.js';
 
 /**
   - simple in-memory cache with TTL support
@@ -50,7 +50,6 @@ export function get(key: string): CacheableValue | undefined {
     return undefined;
   }
 
-  // check if expired
   if (Date.now() > entry.expiresAt) {
     cache.delete(key);
     return undefined;
