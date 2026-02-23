@@ -12,7 +12,7 @@ import {
   validateLogs,
 } from '../services/scores.service.js';
 import { config } from '../config.js';
-import { dailyRateLimiter, submitRateLimiter } from '../middleware/rate-limit.middleware.js';
+import { dailyRateLimiter, submitRateLimiter } from '../middleware/leaderboard.middleware.js';
 import { isBlockedInitials } from '../utils/blocklist.js';
 import { storage } from '../services/gcs.service.js';
 
