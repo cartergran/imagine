@@ -50,7 +50,7 @@ export default function Manual() {
           title={example.overview}
           card={example.card}
           score={example.score}
-          img={example.img}
+          puzzleImg={example.img}
         />
       </div>
     </StyledManual>
